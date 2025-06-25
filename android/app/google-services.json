@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "840776723636",
+    "project_id": "hire-any-thing",
+    "storage_bucket": "hire-any-thing.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840776723636:android:7df93f765f7f4a5b54fbe1",
+        "android_client_info": {
+          "package_name": "com.hire_any_thing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_LqSeCOWRx6W2xI2i6pWdSJxll6Vurc4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
