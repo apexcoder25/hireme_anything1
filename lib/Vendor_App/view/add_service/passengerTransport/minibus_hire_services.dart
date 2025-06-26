@@ -409,7 +409,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
             onPressed: () {
               final price = double.tryParse(priceController.text) ?? 0.0;
               if (price >= 0) {
-                calenderController.setSpecialPrice(date, price);
+               calenderController.setSpecialPrice(date, price);
                 Navigator.pop(context);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -426,9 +426,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
 
   Widget _buildCalendarCell(DateTime day, bool isClickable) {
     return Obx(() {
-      // Get the price for the given day; fallback to defaultPrice
-      final double price = calenderController.getPriceForDate(day);
-
+      final double price =calenderController.getPriceForDate(day);
       return Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
@@ -451,12 +449,10 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
                   ),
                 ),
                 Text(
-                  '£${price.toStringAsFixed(2)}/mile',
+                  '£${price.toStringAsFixed(2)}/hr',
                   style: TextStyle(
                     fontSize: 7,
-                    color: isClickable
-                        ? (price > 0 ? Colors.red : Colors.red)
-                        : Colors.grey,
+                    color: isClickable ? (price > 0 ? Colors.red : Colors.red) : Colors.grey,
                   ),
                 ),
               ],
@@ -572,7 +568,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
     );
   }
 
- Widget _buildCitySelection(String title, RxList<String> selectedCities) {
+  Widget _buildCitySelection(String title, RxList<String> selectedCities) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -585,6 +581,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
                 onPressed: () {
                   selectedCities.clear();
                   selectedCities.addAll(Cities.ukCities);
+                  setState(() {});
                 },
                 child: const Text('SELECT ALL'),
                 style: ElevatedButton.styleFrom(
@@ -599,6 +596,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
               child: ElevatedButton(
                 onPressed: () {
                   selectedCities.clear();
+                  setState(() {});
                 },
                 child: const Text('DESELECT ALL'),
                 style: ElevatedButton.styleFrom(
@@ -618,33 +616,47 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
             borderRadius: BorderRadius.circular(8),
             color: Colors.white,
           ),
-          child: DropdownButton<String>(
-            isExpanded: true,
-            hint: const Text('Search by post code or city name...'),
-            value: null,
-            items: Cities.ukCities.map((String city) {
-              return DropdownMenuItem<String>(
-                value: city,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: selectedCities.contains(city),
-                      onChanged: (bool? value) {
-                        if (value == true && !selectedCities.contains(city)) {
-                          selectedCities.add(city);
-                        } else if (value == false) {
-                          selectedCities.remove(city);
-                        }
-                        setState(() {});
-                      },
-                    ),
-                    Expanded(child: Text(city)),
-                  ],
-                ),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {},
-            underline: const SizedBox(),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              hint: const Text('Search by post code or city name...'),
+              value: null,
+              items: Cities.ukCities.map((String city) {
+                return DropdownMenuItem<String>(
+                  value: city,
+                  child: StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: selectedCities.contains(city),
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true && !selectedCities.contains(city)) {
+                                  selectedCities.add(city);
+                                } else if (value == false && selectedCities.contains(city)) {
+                                  selectedCities.remove(city);
+                                }
+                              });
+                            },
+                          ),
+                          Expanded(child: Text(city)),
+                        ],
+                      );
+                    },
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  cityFetchController.onTextChanged(newValue);
+                  if (!selectedCities.contains(newValue)) {
+                    selectedCities.add(newValue);
+                    setState(() {});
+                  }
+                }
+              },
+            ),
           ),
         ),
         const SizedBox(height: 10),
@@ -665,7 +677,11 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
                           .map((city) => Chip(
                                 label: Text(city, style: const TextStyle(fontSize: 14)),
                                 deleteIcon: const Icon(Icons.close, size: 18),
-                                onDeleted: () => selectedCities.remove(city),
+                                onDeleted: () {
+                                  setState(() {
+                                    selectedCities.remove(city);
+                                  });
+                                },
                                 backgroundColor: Colors.grey[200],
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                               ))
@@ -675,56 +691,93 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
       ],
     );
   }
- Widget _buildDatePicker(BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        '$label Date',
-        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-      ),
-      const SizedBox(height: 10),
-      GestureDetector(
-        onTap: () async {
-          final DateTime? picked = await showDatePicker(
-            context: context,
-            initialDate: date.value,
-            firstDate: DateTime.now(),
-            lastDate: DateTime(2099, 12, 31),
-          );
-          if (picked != null) {
-            date.value = picked;
-            if (isFromDate) {
-              // Replace updateVisibleDates with updateDateRange
-              calenderController.updateDateRange(
-                calenderController.fromDate.value,
-                calenderController.toDate.value,
-              );
-            }
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                DateFormat('dd/MM/yyyy').format(date.value),
-                style: const TextStyle(fontSize: 16),
-              ),
-              const Icon(Icons.calendar_today, color: Colors.grey),
-            ],
-          ),
+
+  Widget _buildDatePicker(BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label Date and Time',
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
         ),
-      ),
-      const SizedBox(height: 20),
-    ],
-  );
-}
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () async {
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: date.value,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2099, 12, 31),
+                  );
+                  if (pickedDate != null) {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.fromDateTime(date.value),
+                    );
+                    if (pickedTime != null) {
+                      final newDateTime = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+                      if (newDateTime.isBefore(DateTime.now())) {
+                        Get.snackbar(
+                          "Invalid Date",
+                          "Please select a date and time in the future.",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.redAccent,
+                          colorText: Colors.white,
+                        );
+                        return;
+                      }
+                      date.value = newDateTime;
+                      if (isFromDate) {
+                        calenderController.fromDate.value = date.value;
+                          calenderController.updateDateRange(
+                          calenderController.fromDate.value,
+                          calenderController.toDate.value,
+                        );
+                      } else {
+                        calenderController.toDate.value = date.value;
+                        calenderController.updateDateRange(
+                          calenderController.fromDate.value,
+                          calenderController.toDate.value,
+                        );
+                      }
+                    }
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        DateFormat('dd/MM/yyyy HH:mm').format(date.value),
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const Icon(Icons.calendar_today, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
  @override
 Widget build(BuildContext context) {
   final w = MediaQuery.of(context).size.width;

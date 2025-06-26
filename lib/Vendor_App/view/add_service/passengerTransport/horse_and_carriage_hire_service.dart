@@ -77,6 +77,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
   TextEditingController premiumServiceController = TextEditingController();
   TextEditingController hourlyRateController = TextEditingController();
   TextEditingController halfDayRateController = TextEditingController();
+  TextEditingController bookingProcessController = TextEditingController();
+  TextEditingController paymentTermsController = TextEditingController();
   bool fuelAndFeedIncluded = false;
 
   // Section 5: Coverage & Availability
@@ -181,6 +183,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
     premiumServiceController.dispose();
     hourlyRateController.dispose();
     halfDayRateController.dispose();
+    bookingProcessController.dispose();
+    paymentTermsController.dispose();
     wheelchairAccessPriceController.dispose();
     elderlyAssistancePriceController.dispose();
     customDecorationPriceController.dispose();
@@ -258,6 +262,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
         "premiumService": double.tryParse(premiumServiceController.text.trim()) ?? 0,
         "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
         "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
+        "bookingProcess": bookingProcessController.text.trim(),
+        "paymentTerms": paymentTermsController.text.trim(),
         "fuelAndFeedIncluded": fuelAndFeedIncluded,
       },
       "coverageAvailability": {
@@ -522,7 +528,7 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$label Date and Time',
+          '$label Date and Time *',
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
@@ -718,12 +724,12 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'HireAnything.com - Elegant and Traditional Transport Services',
+                    'HireAnything.com - Elegant Horse and Carriage Hire Services',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Join our platform to offer luxurious horse and carriage hire services for weddings, events, and special occasions across the UK.',
+                    'List your luxurious horse and carriage hire services for weddings, events, and special occasions across the UK.',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 20),
@@ -732,6 +738,11 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const Text(
                     'SECTION 1: Business & Contact Information',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Provide details about your business and contact information.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -756,6 +767,11 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const Text(
                     'SECTION 2: Horse and Carriage Services Offered',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Select the types of carriages you offer.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -818,6 +834,11 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 10),
                   const Text(
+                    'Ensure your equipment meets safety standards.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
                     'Are carriages regularly maintained and safety-checked? *',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
@@ -874,6 +895,11 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const Text(
                     'Fleet Information',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Provide details about your fleet.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -1031,12 +1057,12 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
 
                   // SECTION 4: Pricing Details
                   const Text(
-                    'Pricing Details (Day Hire Model)',
+                    'SECTION 4: Pricing Details',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Each partner must offer a day hire rate (standard: 8 hours/80 miles).',
+                    'Set your pricing structure for the day hire model (standard: 8 hours/80 miles) and additional terms.',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
@@ -1204,6 +1230,40 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 10),
                   const Text(
+                    'Booking Process *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 100,
+                      textcont: bookingProcessController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.text,
+                      hinttext: "Describe booking process",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Payment Terms *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 100,
+                      textcont: paymentTermsController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.text,
+                      hinttext: "Describe payment terms",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
                     'Fuel and Feed Charges Included?',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
@@ -1239,8 +1299,13 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
 
                   // SECTION 5: Coverage & Availability
                   const Text(
-                    'Coverage & Availability',
+                    'SECTION 5: Coverage & Availability',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Define your service coverage and availability.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   _buildCitySelection('Areas Covered', areasCovered),
@@ -1371,6 +1436,11 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 10),
                   const Text(
+                    'Offer accessibility and special services to enhance your listing.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
                     'Accessibility And Special Services *',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
@@ -1492,10 +1562,15 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 20),
 
-                  // SECTION 4: Licensing & Insurance
+                  // SECTION 7: Licensing & Insurance
                   const Text(
-                    'SECTION 4: Licensing & Insurance',
+                    'SECTION 7: Licensing & Insurance',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Provide details of your licensing and insurance.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1843,10 +1918,15 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 20),
 
-                  // SECTION 5: Business Highlights
+                  // SECTION 8: Business Highlights
                   const Text(
-                    'SECTION 5: Business Highlights',
+                    'SECTION 8: Business Highlights',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Highlight what makes your service stand out.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1884,10 +1964,15 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 20),
 
-                  // SECTION 6: Declaration & Agreement
+                  // SECTION 9: Declaration & Agreement
                   const Text(
-                    'SECTION 6: Declaration & Agreement',
+                    'SECTION 9: Declaration & Agreement',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Agree to the terms and conditions.',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1988,7 +2073,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                               _submitForm();
                             },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green),
+                        backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.blue),
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
                       ),
                       child: _isSubmitting
                           ? const SizedBox(
@@ -2000,7 +2088,7 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                               ),
                             )
                           : const Text(
-                              "Submit Horse and Carriage Service",
+                              "Save & Continue",
                               style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                     ),
