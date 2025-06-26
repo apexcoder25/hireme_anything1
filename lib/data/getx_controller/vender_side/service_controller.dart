@@ -1,17 +1,18 @@
+// service_controller.dart
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:hire_any_thing/data/models/vender_side_model/service_model.dart';
+import 'package:hire_any_thing/data/models/vender_side_model/vendor_home_page_services_model.dart';
+import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
-import 'package:http/http.dart' as http;
 
 class ServiceController extends GetxController {
-  var serviceList = <ServiceModel>[].obs;
-  var automotiveServiceList = <AutomotiveHireServiceModel>[].obs;
+  var serviceList = <Service>[].obs;
   var isLoading = true.obs;
   var vendorId = "";
-  final String apiUrl = "https://api.hireanything.com/vendor/vendor_service_list";
+  String get apiUrl => "https://api.hireanything.com/vendor/vendor-services/$vendorId";
   var authToken = "";
+  final ApiServiceVenderSide _apiService = ApiServiceVenderSide();
 
   @override
   void onInit() {
@@ -31,6 +32,7 @@ class ServiceController extends GetxController {
     authToken = (await SessionVendorSideManager().getToken()) ?? "";
     if (authToken.isNotEmpty) {
       print("Auth Token: $authToken");
+      _apiService.setRequestHeaders({'Authorization': 'Bearer $authToken'});
       fetchServices();
     }
   }
@@ -38,44 +40,22 @@ class ServiceController extends GetxController {
   void fetchServices() async {
     try {
       isLoading(true);
-      var response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $authToken",
-        },
-        body: jsonEncode({"vendorId": vendorId}),
-      );
+      final response = await _apiService.getApi(apiUrl);
 
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        print("API Response: ${response.body}"); // Debugging
+      if (response is Map<String, dynamic> && response['success'] == true) {
+        var data = ServicesModel.fromJson(response);
+        print("API Response: ${jsonEncode(response)}"); // Debugging
+        print("Services fetched: ${data.data.services.length}"); // Debug service count
 
-        // Fetch Passenger Transport Services
-        var passengerServices = (data["passengerTransportServices"] as List?)
-                ?.map((json) => ServiceModel.fromJson(json))
-                .toList() ??
-            [];
+        // Update service list with all services from the response
+        serviceList.assignAll(data.data.services);
 
-        // Fetch Automotive Hire Services (only if key exists)
-        var automotiveServices = (data.containsKey("AutomotiveHireServices") &&
-                data["AutomotiveHireServices"] is List)
-            ? (data["AutomotiveHireServices"] as List)
-                .map((json) => AutomotiveHireServiceModel.fromJson(json))
-                .toList()
-            : [];
-
-        // Update lists separately
-        serviceList.assignAll(passengerServices);
-        automotiveServiceList.assignAll(automotiveServices as Iterable<AutomotiveHireServiceModel>);
-
-        print("Fetched Passenger Services: ${serviceList.length}");
-        print("Fetched Automotive Services: ${automotiveServiceList.length}");
+        print("Updated serviceList: ${serviceList.length}"); // Debug updated list
       } else {
-        print("Failed to fetch services. Status Code: ${response.statusCode}");
+        print("Failed to fetch services. Response: $response");
       }
-    } catch (e) {
-      print("Error fetching data: $e");
+    } catch (e, stackTrace) {
+      print("Error fetching data: $e, StackTrace: $stackTrace");
     } finally {
       isLoading(false);
     }

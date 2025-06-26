@@ -1,8 +1,10 @@
+// home_page_add_service.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/drawer.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
+import 'package:hire_any_thing/data/models/vender_side_model/vendor_home_page_services_model.dart';
 
 class HomePageAddService extends StatefulWidget {
   @override
@@ -13,9 +15,13 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
   final ServiceController controller = Get.put(ServiceController());
 
   Future<void> _refreshServices() async {
-    controller.fetchServices();
-    print("Fetched services: ${controller.serviceList.map((s) => s.category.categoryName).toList()}");
-
+    try {
+   controller.fetchServices(); // Await the async call
+      print("Fetched services count: ${controller.serviceList.length}");
+      print("Fetched services: ${controller.serviceList.map((s) => s.serviceName ?? 'Unnamed').toList()}");
+    } catch (e) {
+      print("Error during refresh: $e");
+    }
   }
 
   @override
@@ -55,6 +61,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());
         }
+        print("serviceList length in UI: ${controller.serviceList.length}"); // Debug
         if (controller.serviceList.isEmpty) {
           return Center(
             child: Column(
@@ -69,24 +76,34 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
           );
         }
 
-     
-        var generalServices = controller.serviceList.where(
-          (service) => service.category.categoryName != "Automotive Electricity",
-        ).toList();
+        // Since all services are under "Passenger Transport," display all
+        List<Service> passengerTransportServices = controller.serviceList
+            .where((service) => service.categoryId.categoryName == "Passenger Transport")
+            .toList();
 
-        var automotiveServices = controller.serviceList.where(
-          (service) => service.category.categoryName == "Automotive Electricity",
-        ).toList();
+        // Remove the take(4) limit to display all services
+        List<Service> displayedServices = passengerTransportServices;
 
         return RefreshIndicator(
           onRefresh: _refreshServices,
           child: ListView(
+            physics: AlwaysScrollableScrollPhysics(), // Ensure scrollability
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             children: [
-              if (generalServices.isNotEmpty)
-                _buildServiceSection("General Services", generalServices),
-              if (automotiveServices.isNotEmpty)
-                _buildServiceSection("Automotive Electricity Services", automotiveServices, isAutomotive: true),
+              _buildServiceSection(
+                "Passenger Transport Services",
+                displayedServices,
+              ),
+              if (displayedServices.length < 8) // Assuming 8 services as per serviceStats
+                Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Center(
+                    child: Text(
+                      "Showing ${displayedServices.length} of 8 services. Pull to refresh to load more.",
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ),
+                ),
             ],
           ),
         );
@@ -94,147 +111,456 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
     );
   }
 
-
-  Widget _buildServiceSection(String title, List<dynamic> services, {bool isAutomotive = false}) {
+  Widget _buildServiceSection(String title, List<Service> services) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
+        Text(
+          title,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+        ),
         SizedBox(height: 10),
-        ...services.map((service) => _buildServiceCard(service, isAutomotive)).toList(),
+        ...services.map((service) => _buildServiceCard(service)).toList(),
       ],
     );
   }
 
-
-  Widget _buildServiceCard(service, bool isAutomotive) {
+  Widget _buildServiceCard(Service service) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 15),
-      child: Stack(
-        children: [
-          Container(
-            padding: EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
-                ),
-              ],
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade300,
+              blurRadius: 6,
+              offset: Offset(0, 4),
             ),
-            child: Row(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header image with overlay text
+            Stack(
               children: [
-              
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                   child: Image.network(
-                    service.serviceImage.isNotEmpty
-                        ? service.serviceImage.first.trim()
-                        : "https://example.com/default-image.jpg",
-                    width: 90,
-                    height: 90,
+                    service.serviceImage?.isNotEmpty == true
+                        ? service.serviceImage!.first.trim()
+                        : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfqFeMAqZTdTVJPJmte5HUERkRQeSaQwgPvg&s",
+                    height: 200,
+                    width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Icon(Icons.broken_image, size: 90),
                   ),
                 ),
-                SizedBox(width: 15),
-
-           
-                Expanded(
+                Positioned(
+                  bottom: 10,
+                  left: 15,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        service.serviceName,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        service.serviceName ?? 'Passenger Transport',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          shadows: [Shadow(blurRadius: 3, color: Colors.black)],
+                        ),
                       ),
-                      SizedBox(height: 5),
-
-          
-                      if (isAutomotive) ...[
-                        Text(
-                          "Experience: ${service.automotiveYearsOfExperience} years",
-                          style: TextStyle(color: Colors.black, fontSize: 14),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        margin: EdgeInsets.only(top: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.circular(5),
                         ),
-                        SizedBox(height: 5),
-                        Text(
-                          "Skills: ${service.automotiveKeySkills.join(", ")}",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        child: Text(
+                          service.subcategoryId.subcategoryName ?? 'Category',
+                          style: TextStyle(fontSize: 12, color: Colors.white),
                         ),
-                      ],
-
-                      if (!isAutomotive) ...[
-                        Text(
-                          "€${service.kilometerPrice}/mile",
-                          style: TextStyle(color: Colors.blue, fontSize: 14),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          service.cityName.join(", "),
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          "${service.noOfSeats} Seats",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ],
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
 
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Contact & status row
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          shape: StadiumBorder(),
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
+                        child: Text("Contact for price"),
+                      ),
+                      SizedBox(width: 10),
+                      Chip(
+                        label: Text(
+                          service.serviceApproveStatus == "0" ? "Pending" : "Approved",
+                          style: TextStyle(fontSize: 12, color: Colors.white),
+                        ),
+                        backgroundColor: service.serviceApproveStatus == "0"
+                            ? Colors.orange
+                            : Colors.green,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
 
-          Positioned(
-            top: 10,
-            right: 10,
-            child: Chip(
-              label: Text(
-                service.serviceApproveStatus == "0" ? "Pending" : "Accepted",
-                style: TextStyle(fontSize: 12),
+                  // Location
+                  Row(
+                    children: [
+                      Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
+                      SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          "${service.areasCovered?.first ?? service.serviceDetails?.basePostcode ?? 'Unknown'} + ${service.areasCovered?.length != null && service.areasCovered!.length > 1 ? service.areasCovered!.length - 1 : 0} more locations",
+                          style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 15),
+
+                  // Vehicle Specifications
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      "🚐 Vehicle Specifications",
+                      style: TextStyle(
+                        color: Colors.blue.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 15),
+
+                  // Fleet Vehicle and Pricing Information (Conditional)
+                  if (service.vehicleType != null ||
+                      service.fleetInfo != null ||
+                      service.pricing != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Vehicle Type
+                        if (service.vehicleType != null)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Vehicle Type",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                service.vehicleType!,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        // Fleet Info
+                        if (service.fleetInfo != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (service.fleetInfo!.makeAndModel != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Make & Model",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      service.fleetInfo!.makeAndModel!,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.fleetInfo!.year != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Year",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      service.fleetInfo!.year.toString(),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.fleetInfo!.colour != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Colour",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      service.fleetInfo!.colour!,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.fleetInfo!.seats != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Seats",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      service.fleetInfo!.seats.toString(),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.fleetInfo!.chauffeurName != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Chauffeur",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      service.fleetInfo!.chauffeurName!,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.fleetInfo!.bootSpace != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Boot Space",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      service.fleetInfo!.bootSpace!,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        // Pricing
+                        if (service.pricing != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (service.pricing!.hourlyRate != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Hourly Rate",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      "€${service.pricing!.hourlyRate}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.pricing!.halfDayRate != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Half Day Rate",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      "€${service.pricing!.halfDayRate}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.pricing!.fullDayRate != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Full Day Rate",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      "€${service.pricing!.fullDayRate}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (service.pricing!.ceremonyPackageRate != null)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Ceremony Package",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      "€${service.pricing!.ceremonyPackageRate}",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        SizedBox(height: 15),
+                      ],
+                    ),
+
+                  // Edit/Delete buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.edit, size: 16),
+                        label: Text("Edit"),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.blue,
+                          backgroundColor: Colors.blue.shade50,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.delete, size: 16),
+                        label: Text("Delete"),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                          backgroundColor: Colors.red.shade50,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              backgroundColor: service.serviceApproveStatus == "0"
-                  ? Colors.yellow.shade600
-                  : Colors.green.shade400,
             ),
-          ),
-
-    
-          Positioned(
-            bottom: 10,
-            right: 10,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () {
-            
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-      
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+          ]),
+        ),
+      );
+    }
   }
-}
