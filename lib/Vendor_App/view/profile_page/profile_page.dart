@@ -38,9 +38,13 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController descriptionController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    controller = Get.put(ProfileController(apiService: apiService), tag: 'profileController');
+void initState() {
+  super.initState();
+
+  controller = Get.put(ProfileController(apiService: apiService), tag: 'profileController');
+
+  // Register listener safely AFTER build completes
+  WidgetsBinding.instance.addPostFrameCallback((_) {
     ever(controller.profile, (ProfileModel? profile) {
       if (profile != null) {
         print("Profile Data Loaded: ${profile.toJson()}");
@@ -55,12 +59,16 @@ class _ProfilePageState extends State<ProfilePage> {
         pincodeController.text = profile.pincode;
         genderController.text = profile.gender;
         descriptionController.text = profile.description;
+
         docController.setDocumentsFromProfile(profile.legalDocuments);
         imgcntroller.setVendorImage(profile.vendorImage);
         imgcntroller.setVehicleImages(profile.vehicleImages);
       }
     });
-  }
+
+    controller.fetchProfile(); // Safe to call here after UI frame is built
+  });
+}
 
   @override
   void dispose() {

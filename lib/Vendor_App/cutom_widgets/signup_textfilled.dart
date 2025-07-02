@@ -14,11 +14,13 @@ class Signup_textfilled extends StatefulWidget {
   final bool readOnly; // Added readOnly property
   final List<TextInputFormatter>? inputFormatters;
   final int? maxLines;
+  final bool? enabled;
   final Function(String p1)? onChanged;
 
   const Signup_textfilled({
     super.key,
     this.hinttext,
+    this.enabled,
     this.keytype,
     this.textcont,
      this.length,
@@ -62,6 +64,7 @@ class _Signup_textfilledState extends State<Signup_textfilled> {
           child: Padding(
             padding: const EdgeInsets.only(left: 10.0),
             child: TextFormField(
+              enabled: widget.enabled ?? true, // Use the enabled property
               maxLines: widget.maxLines ?? 1,
               validator: widget.validator,
               controller: widget.textcont,

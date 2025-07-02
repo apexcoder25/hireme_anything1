@@ -23,6 +23,7 @@ class UserBookingController extends GetxController {
     try {
       isLoading.value = true;
       final result = await _bookingApi.getUserBookings();
+      print("API Response: $result");
       bookings.assignAll(result);
     } finally {
       isLoading.value = false;

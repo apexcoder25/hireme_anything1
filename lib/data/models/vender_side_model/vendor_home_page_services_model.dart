@@ -66,8 +66,9 @@ class Service {
   SubcategoryId subcategoryId;
   String? serviceName;
   ServiceDetails? serviceDetails;
-  Pricing? pricing;
   PricingDetails? pricingDetails;
+  List<String>? navigableRoutes;
+  Map<String, dynamic>? boatRates; // Added for boat-specific rates
   List<String>? occasionsCovered;
   List<String>? areasCovered;
   List<FleetDetail>? fleetDetails;
@@ -81,7 +82,7 @@ class Service {
   String? serviceStatus;
   String? serviceApproveStatus;
   String? createdAt;
-  String? serviceType;
+  String? serviceType; // e.g., "chauffeur" or "boat"
   String? basePostcode;
   double? fullDayRate;
   double? hourlyRate;
@@ -108,9 +109,10 @@ class Service {
     required this.subcategoryId,
     this.serviceName,
     this.serviceDetails,
-    this.pricing,
     this.pricingDetails,
+    this.boatRates,
     this.occasionsCovered,
+    this.navigableRoutes,
     this.areasCovered,
     this.fleetDetails,
     this.fleetInfo,
@@ -151,9 +153,10 @@ class Service {
         subcategoryId: SubcategoryId.fromJson(json['subcategoryId']),
         serviceName: json['service_name'] as String? ?? json['serviceName'] as String?,
         serviceDetails: json['serviceDetails'] != null ? ServiceDetails.fromJson(json['serviceDetails']) : null,
-        pricing: json['pricing'] != null ? Pricing.fromJson(json['pricing']) : null,
         pricingDetails: json['pricingDetails'] != null ? PricingDetails.fromJson(json['pricingDetails']) : null,
+        boatRates: json['boatRates'], // Map boatRates directly as a dynamic map
         occasionsCovered: json['occasionsCovered'] != null ? List<String>.from(json['occasionsCovered']) : null,
+        navigableRoutes: json['navigableRoutes'] != null ? List<String>.from(json['navigableRoutes']) : null,
         areasCovered: json['areasCovered'] != null ? List<String>.from(json['areasCovered']) : null,
         fleetDetails: json['fleet_details'] != null ? List<FleetDetail>.from(json['fleet_details'].map((x) => FleetDetail.fromJson(x))) : null,
         fleetInfo: json['fleetInfo'] != null ? FleetInfo.fromJson(json['fleetInfo']) : null,
@@ -201,10 +204,11 @@ class Service {
         'subcategoryId': subcategoryId.toJson(),
         'service_name': serviceName,
         'serviceDetails': serviceDetails?.toJson(),
-        'pricing': pricing?.toJson(),
         'pricingDetails': pricingDetails?.toJson(),
+        'boatRates': boatRates, // Include boatRates in toJson
         'occasionsCovered': occasionsCovered,
         'areasCovered': areasCovered,
+        'navigableRoutes': navigableRoutes,
         'fleet_details': fleetDetails?.map((x) => x.toJson()).toList(),
         'fleetInfo': fleetInfo?.toJson(),
         'images': images,
@@ -312,34 +316,6 @@ class ServiceDetails {
         'numberOfCarriages': numberOfCarriages,
         'fleetSize': fleetSize,
         'basePostcode': basePostcode,
-      };
-}
-
-class Pricing {
-  double? hourlyRate;
-  double? halfDayRate;
-  double? fullDayRate;
-  double? ceremonyPackageRate;
-
-  Pricing({
-    this.hourlyRate,
-    this.halfDayRate,
-    this.fullDayRate,
-    this.ceremonyPackageRate,
-  });
-
-  factory Pricing.fromJson(Map<String, dynamic> json) => Pricing(
-        hourlyRate: json['hourlyRate']?.toDouble(),
-        halfDayRate: json['halfDayRate']?.toDouble(),
-        fullDayRate: json['fullDayRate']?.toDouble(),
-        ceremonyPackageRate: json['ceremonyPackageRate']?.toDouble(),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'hourlyRate': hourlyRate,
-        'halfDayRate': halfDayRate,
-        'fullDayRate': fullDayRate,
-        'ceremonyPackageRate': ceremonyPackageRate,
       };
 }
 
@@ -472,9 +448,10 @@ class FleetDetail {
 }
 
 class FleetInfo {
-  String? makeAndModel;
-  int? seats; // Added to handle 'seats' from the response
-  int? capacity; // Retained for backward compatibility
+  String? makeAndModel; // Maps to boatName for boats
+  String? type; // Added for boat type (e.g., yacht)
+  int? seats; // For chauffeur
+  int? capacity; // For boat
   bool? wheelchairAccessible;
   bool? airConditioning;
   bool? luggageSpace;
@@ -482,11 +459,12 @@ class FleetInfo {
   int? year;
   String? notes;
   String? colour;
-  String? chauffeurName; // Added to handle 'chauffeurName' from the response
-  String? bootSpace; // Added to handle 'bootSpace' from the response
+  String? chauffeurName;
+  String? bootSpace;
 
   FleetInfo({
     this.makeAndModel,
+    this.type,
     this.seats,
     this.capacity,
     this.wheelchairAccessible,
@@ -501,9 +479,10 @@ class FleetInfo {
   });
 
   factory FleetInfo.fromJson(Map<String, dynamic> json) => FleetInfo(
-        makeAndModel: json['makeAndModel'],
-        seats: json['seats'], // Map 'seats' from the response
-        capacity: json['capacity'] ?? json['seats'], // Fallback to 'seats' if 'capacity' is null
+        makeAndModel: json['makeAndModel'] ?? json['boatName'], // Handle boatName
+        type: json['type'], // Handle boat type
+        seats: json['seats'], // For chauffeur
+        capacity: json['capacity'], // For boat
         wheelchairAccessible: json['wheelchairAccessible'],
         airConditioning: json['airConditioning'],
         luggageSpace: json['luggageSpace'],
@@ -511,14 +490,15 @@ class FleetInfo {
         year: json['year'],
         notes: json['notes'],
         colour: json['colour'],
-        chauffeurName: json['chauffeurName'], // Map 'chauffeurName' from the response
-        bootSpace: json['bootSpace'], // Map 'bootSpace' from the response
+        chauffeurName: json['chauffeurName'],
+        bootSpace: json['bootSpace'],
       );
 
   Map<String, dynamic> toJson() => {
         'makeAndModel': makeAndModel,
-        'seats': seats, // Include 'seats' in the output
-        'capacity': capacity, // Retain 'capacity' for backward compatibility
+        'type': type,
+        'seats': seats,
+        'capacity': capacity,
         'wheelchairAccessible': wheelchairAccessible,
         'airConditioning': airConditioning,
         'luggageSpace': luggageSpace,
@@ -526,8 +506,8 @@ class FleetInfo {
         'year': year,
         'notes': notes,
         'colour': colour,
-        'chauffeurName': chauffeurName, // Include 'chauffeurName' in the output
-        'bootSpace': bootSpace, // Include 'bootSpace' in the output
+        'chauffeurName': chauffeurName,
+        'bootSpace': bootSpace,
       };
 }
 

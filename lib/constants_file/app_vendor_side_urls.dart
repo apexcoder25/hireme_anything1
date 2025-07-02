@@ -4,6 +4,9 @@ class AppUrlsVendorSide{
   // var baseUrlImages="https://api.hireanything.com/uploads/";
   var baseUrlImages="http://10.0.2.2:5003/uploads/";
 
+
+  static const String vendorBookingsUrl = '/vendor-bookings';
+
   var signup="${baseUrlVendorSideUrls}signup";
   var login="${baseUrlVendorSideUrls}login";
   var verifyOtp="${baseUrlVendorSideUrls}verify_otp";

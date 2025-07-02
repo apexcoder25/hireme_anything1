@@ -1,4 +1,3 @@
-// home_page_add_service.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
@@ -16,7 +15,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
 
   Future<void> _refreshServices() async {
     try {
-   controller.fetchServices(); // Await the async call
+       controller.fetchServices(); // Await the async call
       print("Fetched services count: ${controller.serviceList.length}");
       print("Fetched services: ${controller.serviceList.map((s) => s.serviceName ?? 'Unnamed').toList()}");
     } catch (e) {
@@ -94,16 +93,6 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                 "Passenger Transport Services",
                 displayedServices,
               ),
-              if (displayedServices.length < 8) // Assuming 8 services as per serviceStats
-                Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Center(
-                    child: Text(
-                      "Showing ${displayedServices.length} of 8 services. Pull to refresh to load more.",
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
-                ),
             ],
           ),
         );
@@ -164,7 +153,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        service.serviceName ?? 'Passenger Transport',
+                        service.serviceName ?? 'Unnamed Service',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -195,17 +184,24 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Contact & status row
+                  // Price button & status row
                   Row(
                     children: [
                       ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
+                          backgroundColor: Colors.green,
                           shape: StadiumBorder(),
                           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         ),
-                        child: Text("Contact for price"),
+                        child: Text(
+                          service.serviceType == "boat" && service.boatRates?['fullDayRate'] != null
+                              ? "£${service.boatRates!['fullDayRate']}/day"
+                              : service.pricingDetails?.dayRate != null
+                                  ? "£${service.pricingDetails!.dayRate}/day"
+                                  : "Contact for price",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                       SizedBox(width: 10),
                       Chip(
@@ -221,14 +217,14 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                   ),
                   SizedBox(height: 10),
 
-                  // Location
+                  // Location (navigableRoutes for boat, areasCovered for chauffeur)
                   Row(
                     children: [
                       Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
                       SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          "${service.areasCovered?.first ?? service.serviceDetails?.basePostcode ?? 'Unknown'} + ${service.areasCovered?.length != null && service.areasCovered!.length > 1 ? service.areasCovered!.length - 1 : 0} more locations",
+                          "${(service.serviceType == 'boat' ? service.navigableRoutes: service.areasCovered)?.first ?? 'Unknown'} + ${(service.serviceType == 'boat' ? service.navigableRoutes : service.areasCovered)?.length != null && (service.serviceType == 'boat' ? service.navigableRoutes : service.areasCovered)!.length > 1 ? (service.serviceType == 'boat' ? service.navigableRoutes : service.areasCovered)!.length - 1 : 0} more locations",
                           style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -248,7 +244,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      "🚐 Vehicle Specifications",
+                      "🚤 Vehicle Specifications",
                       style: TextStyle(
                         color: Colors.blue.shade700,
                         fontWeight: FontWeight.w600,
@@ -258,272 +254,363 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
 
                   SizedBox(height: 15),
 
-                  // Fleet Vehicle and Pricing Information (Conditional)
-                  if (service.vehicleType != null ||
-                      service.fleetInfo != null ||
-                      service.pricing != null)
+                  // Vehicle Specifications Details (Dynamic for Chauffeur and Boat)
+                  if (service.fleetInfo != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Vehicle Type
-                        if (service.vehicleType != null)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Vehicle Type",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                service.vehicleType!,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        // Fleet Info
-                        if (service.fleetInfo != null)
+                        if (service.serviceType == "chauffeur")
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (service.fleetInfo!.makeAndModel != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Make & Model",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Make & Model",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      service.fleetInfo!.makeAndModel!,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    service.fleetInfo!.makeAndModel ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                              if (service.fleetInfo!.year != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Year",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Vehicle Type",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      service.fleetInfo!.year.toString(),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    service.vehicleType ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                              if (service.fleetInfo!.colour != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Colour",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Capacity",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      service.fleetInfo!.colour!,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    "${service.fleetInfo!.seats ?? 'N/A'} passengers",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                              if (service.fleetInfo!.seats != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Seats",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Year",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      service.fleetInfo!.seats.toString(),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    service.fleetInfo!.year?.toString() ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                              if (service.fleetInfo!.chauffeurName != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Chauffeur",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      service.fleetInfo!.chauffeurName!,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              if (service.fleetInfo!.bootSpace != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Boot Space",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      service.fleetInfo!.bootSpace!,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                        // Pricing
-                        if (service.pricing != null)
+                        if (service.serviceType == "boat")
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (service.pricing!.hourlyRate != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Hourly Rate",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Boat Name",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      "€${service.pricing!.hourlyRate}",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    service.fleetInfo!.makeAndModel ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                              if (service.pricing!.halfDayRate != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Half Day Rate",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Type",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      "€${service.pricing!.halfDayRate}",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    service.fleetInfo!.type ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                              if (service.pricing!.fullDayRate != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Full Day Rate",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Capacity",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      "€${service.pricing!.fullDayRate}",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    "${service.fleetInfo!.capacity ?? 'N/A'} passengers",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
-                              if (service.pricing!.ceremonyPackageRate != null)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Ceremony Package",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Year",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                    Text(
-                                      "€${service.pricing!.ceremonyPackageRate}",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  ),
+                                  Text(
+                                    service.fleetInfo!.year?.toString() ?? 'N/A',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                        SizedBox(height: 15),
                       ],
+                    ),
+
+                  SizedBox(height: 15),
+
+                  // Pricing Options
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      "💰 Pricing Options",
+                      style: TextStyle(
+                        color: Colors.green.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 15),
+
+                  // Pricing Details (Dynamic for Chauffeur and Boat)
+                  if (service.serviceType == "chauffeur" && service.pricingDetails != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              "£${service.pricingDetails!.hourlyRate ?? 0} per hour",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              "£${service.pricingDetails!.halfDayRate ?? 0} half day",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              "£${service.pricingDetails!.dayRate ?? 0} full day",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  if (service.serviceType == "boat" && service.boatRates != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              "£${service.boatRates!['hourlyRate'] ?? 0} per hour",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              "£${service.boatRates!['halfDayRate'] ?? 0} half day",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              "£${service.boatRates!['fullDayRate'] ?? 0} full day",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                  SizedBox(height: 15),
+
+                  // Service Features
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.yellow.shade50,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      "⭐ Service Features",
+                      style: TextStyle(
+                        color: Colors.yellow.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 10),
+
+                  // Service Features (Dynamic for Chauffeur and Boat)
+                  if (service.serviceType == "chauffeur" &&
+                      service.features != null &&
+                      service.features!.comfort != null &&
+                      service.features!.comfort!.chauffeurInUniform == true)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: Row(
+                        children: [
+                          Icon(Icons.person, size: 16, color: Colors.green),
+                          SizedBox(width: 5),
+                          Text(
+                            "Professional Chauffeur",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (service.serviceType == "boat")
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5),
+                      child: Row(
+                        children: [
+                          Icon(Icons.person, size: 16, color: Colors.green),
+                          SizedBox(width: 5),
+                          Text(
+                            "Professional Boat",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
 
                   // Edit/Delete buttons
@@ -559,8 +646,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                 ],
               ),
             ),
-          ]),
+          ],
         ),
-      );
+      ));
     }
   }

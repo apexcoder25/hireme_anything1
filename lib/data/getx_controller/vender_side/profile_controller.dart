@@ -19,7 +19,7 @@ class ProfileController extends GetxController {
 
   Future<void> _initializeProfile() async {
     await _loadToken();
-    fetchProfile();
+ 
   }
 
   Future<void> _loadToken() async {

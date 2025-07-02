@@ -84,26 +84,26 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               final now = DateTime.now();
               final bookings = bookingController.bookings.where((booking) {
                 DateTime? pickupDateTime;
-                if (booking.pickupDate != null && booking.pickupTime != null) {
+                if (booking.dateOfTravel != null && booking.bookingDetailPickupTime != null) {
                   try {
-                    final timeParts = booking.pickupTime!.split(':');
+                    final timeParts = booking.bookingDetailPickupTime!.split(':');
                     if (timeParts.length == 2) {
                       final hours = int.parse(timeParts[0].replaceAll(RegExp(r'[^0-9]'), ''));
                       final minutes = int.parse(timeParts[1].replaceAll(RegExp(r'[^0-9]'), ''));
                       pickupDateTime = DateTime(
-                        booking.pickupDate!.year,
-                        booking.pickupDate!.month,
-                        booking.pickupDate!.day,
+                        booking.dateOfTravel!.year,
+                        booking.dateOfTravel!.month,
+                        booking.dateOfTravel!.day,
                         hours,
                         minutes,
                       );
                     }
                   } catch (e) {
-                    print("Error parsing pickupTime: $e");
-                    pickupDateTime = booking.pickupDate;
+                    print("Error parsing bookingDetailPickupTime: $e");
+                    pickupDateTime = booking.dateOfTravel;
                   }
-                } else if (booking.pickupDate != null) {
-                  pickupDateTime = booking.pickupDate;
+                } else if (booking.dateOfTravel != null) {
+                  pickupDateTime = booking.dateOfTravel;
                 }
 
                 if (pickupDateTime == null) return false;
@@ -142,10 +142,10 @@ class BookingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('yyyy-MM-dd, HH:mm');
-    final pickupDateTime = booking.pickupDate != null
-        ? dateFormat.format(booking.pickupDate!)
+    final pickupDateTime = booking.dateOfTravel != null
+        ? dateFormat.format(booking.dateOfTravel!)
         : 'N/A';
-    final pickupTime = booking.pickupTime ?? 'N/A';
+    final pickupTime = booking.bookingDetailPickupTime ?? 'N/A';
     final formattedDateTime = '$pickupDateTime, $pickupTime';
 
     final bookingId = booking.id != null && booking.id!.length >= 8
@@ -199,8 +199,8 @@ class BookingCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  booking.pickupDate != null
-                      ? DateFormat('EEE, dd MMM yyyy').format(booking.pickupDate!)
+                  booking.dateOfTravel != null
+                      ? DateFormat('EEE, dd MMM yyyy').format(booking.dateOfTravel!)
                       : 'Booking Date',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),

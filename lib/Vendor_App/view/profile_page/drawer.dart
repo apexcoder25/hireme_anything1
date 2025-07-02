@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/add_service_screen_1.dart';
+import 'package:hire_any_thing/Vendor_App/view/booking_status/booking_status_view.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/profile_page.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/add_servie_home.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/profile_controller.dart';
@@ -118,7 +119,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
               _buildItem(
                 icon: Icons.stacked_line_chart_outlined,
                 title: 'Booking Status',
-                onTap: () {},
+                onTap: () {
+                    Get.to(() => BookingStatusScreen());
+                },
               ),
               _buildItem(
                 icon: Icons.payment,

@@ -58,9 +58,8 @@ class PdfGenerator {
                 pw.SizedBox(height: 6),
                 pw.Text('Pickup Location: ${booking.pickupLocation ?? 'N/A'}'),
                 pw.Text('Drop Location: ${booking.dropLocation ?? 'N/A'}'),
-                pw.Text('Pickup Date: ${DateFormat('dd/MM/yyyy').format(booking.pickupDate ?? DateTime.now())}'),
-                pw.Text('Pickup Time: ${booking.pickupTime ?? 'N/A'}'),
-                pw.Text('Seats Booked: ${booking.bookingSeats ?? 'N/A'}'),
+                pw.Text('Pickup Date: ${booking.dateOfTravel != null ? DateFormat('dd/MM/yyyy').format(booking.dateOfTravel!) : 'N/A'}'),
+                pw.Text('Pickup Time: ${booking.bookingDetailPickupTime ?? 'N/A'}'),
                 pw.Text('Distance: ${(booking.distance ?? 0.0).toStringAsFixed(1)} km'),
                 pw.SizedBox(height: 16),
                 pw.Text('Service Details',
@@ -71,11 +70,9 @@ class PdfGenerator {
                   pw.Text('Service Details are not available.')
                 else ...[
                   pw.Text('Service Name: ${booking.serviceId?.serviceName ?? 'N/A'}'),
-                  pw.Text('Description: ${booking.serviceId?.description ?? 'N/A'}'),
-                  pw.Text('Make & Model: ${booking.serviceId?.makeAndModel ?? 'N/A'}'),
-                  pw.Text('Registration No: ${booking.serviceId?.registrationNo ?? 'N/A'}'),
-                 
-                  pw.Text('Seats: ${booking.serviceId?.noOfSeats ?? 'N/A'}'),
+                  // Removed unavailable fields like description, makeAndModel, registrationNo, noOfSeats
+                  // You can add other available fields from ServiceId if needed, e.g., vehicleType, fleetInfo, etc.
+                  pw.Text('Vehicle Type: ${booking.serviceId?.vehicleType ?? 'N/A'}'),
                 ],
                 pw.SizedBox(height: 16),
                 pw.Text('Payment Summary',
