@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:hire_any_thing/constants_file/app_user_side_urls.dart';
 import 'package:hire_any_thing/data/models/user_side_model/user_profile_model.dart';
 import 'package:hire_any_thing/data/session_manage/session_user_side_manage.dart';
 import 'package:http/http.dart' as http;
@@ -40,7 +41,9 @@ class UserProfileController extends GetxController {
     try {
       isLoading(true);
       var response = await http.get(
-        Uri.parse("https://api.hireanything.com/user/profile"),
+        
+
+        Uri.parse(AppUrlsUserSide.profile),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer ${token.value}",

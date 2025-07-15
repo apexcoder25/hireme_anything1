@@ -11,7 +11,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.da
 import 'package:hire_any_thing/Vendor_App/view/add_service/controller/add_vendor_services_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
-import 'package:hire_any_thing/Vendor_App/view/serviceses/add_servie_home.dart';
+import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/constants_file/uk_cities.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
@@ -724,7 +724,7 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'HireAnything.com - Elegant Horse and Carriage Hire Services',
+                    'hireanything.com - Elegant Horse and Carriage Hire Services',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),

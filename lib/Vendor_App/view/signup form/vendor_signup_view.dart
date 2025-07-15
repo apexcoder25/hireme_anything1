@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/cutom_widgets/signup_textfilled.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/constants_file/uk_cities.dart';
 import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+
+// Import the Cities class
 
 import '../../uiltis/color.dart';
 
@@ -46,10 +49,15 @@ class _VendorSignUpState extends State<VendorSignUp> {
   // Error message for password validation
   String? _passwordError;
 
+  // Selected city for dropdown
+  String? _selectedCity;
+
   @override
   void initState() {
     imageController.selectedImages.clear();
     imageController.uploadedUrls.clear();
+    // Set default country to "UK" and initialize city dropdown
+    countryRegionController.text = "UK";
     super.initState();
   }
 
@@ -196,7 +204,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 12),
                       ),
-                      initialCountryCode: 'IN',
+                      initialCountryCode: 'GB', // Changed to GB for UK
                       onChanged: (value) {
                         setState(() {
                           number = value.number;
@@ -253,22 +261,49 @@ class _VendorSignUpState extends State<VendorSignUp> {
                       hinttext: "Enter Your Company Name",
                     ),
                     const SizedBox(height: 20),
+                    const Text(
+                      "Country/Region",
+                      style: TextStyle(color: Colors.black87, fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
                     Signup_textfilled(
                       textfilled_height: 17,
                       textfilled_weight: 1,
                       textcont: countryRegionController,
                       length: 50,
-                      keytype: TextInputType.name,
+                      keytype: TextInputType.text,
                       hinttext: "Country/Region",
+                      enabled: false, // Make it read-only since default is "UK"
                     ),
                     const SizedBox(height: 20),
-                    Signup_textfilled(
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      textcont: cityNameController,
-                      length: 50,
-                      keytype: TextInputType.name,
-                      hinttext: "City Name",
+                    const Text(
+                      "City Name",
+                      style: TextStyle(color: Colors.black87, fontSize: 16),
+                    ),
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      value: _selectedCity,
+                      hint: const Text("Select City"),
+                      items: Cities.ukCities.map((String city) {
+                        return DropdownMenuItem<String>(
+                          value: city,
+                          child: Text(city),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedCity = newValue;
+                          cityNameController.text = newValue ?? ''; // Update controller
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 12),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Signup_textfilled(
@@ -281,40 +316,39 @@ class _VendorSignUpState extends State<VendorSignUp> {
                     ),
                     const SizedBox(height: 10),
                     const SizedBox(height: 20),
-                    const SizedBox(height: 10),
                     Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Center(
-                            child: Obx(() => Wrap(
-                                  children: List.generate(
-                                      imageController.selectedImages.length,
-                                      (index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Stack(
-                                        children: [
-                                          Image.file(
-                                            File(imageController
-                                                .selectedImages[index]),
-                                            fit: BoxFit.cover,
-                                            height: 60,
-                                            width: 60,
+                      padding: const EdgeInsets.all(10.0),
+                      child: Center(
+                        child: Obx(() => Wrap(
+                              children: List.generate(
+                                imageController.selectedImages.length,
+                                (index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Stack(
+                                      children: [
+                                        Image.file(
+                                          File(imageController.selectedImages[index]),
+                                          fit: BoxFit.cover,
+                                          height: 60,
+                                          width: 60,
+                                        ),
+                                        Positioned(
+                                          top: 2,
+                                          right: 2,
+                                          child: GestureDetector(
+                                            onTap: () => imageController.removeImage(index),
+                                            child: Icon(Icons.close, color: Colors.redAccent),
                                           ),
-                                          Positioned(
-                                            top: 2,
-                                            right: 2,
-                                            child: GestureDetector(
-                                              onTap: () => imageController
-                                                  .removeImage(index),
-                                              child: Icon(Icons.close,
-                                                  color: Colors.redAccent),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                                )))),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            )),
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     // Upload Button
                     GestureDetector(
@@ -357,14 +391,14 @@ class _VendorSignUpState extends State<VendorSignUp> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.cloud_upload_outlined,
-                                    size: 40, color: Colors.grey),
+                                Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey),
                                 Text(
                                   "Click to upload or drag and drop PNG, JPG (MAX. 800x400px)",
                                   style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w700),
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                   textAlign: TextAlign.center,
                                 ),
                               ],
@@ -502,7 +536,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                           "password": password,
                           "confirmPassword": confirmPassword,
                           "company_name": companyNameController.text.trim(),
-                          "city_name": cityNameController.text.trim(),
+                          "city_name": cityNameController.text.trim(), // Use selected city
                           "country": countryRegionController.text.trim(),
                           "state": "",
                           "street_name": streetNameController.text.trim(),

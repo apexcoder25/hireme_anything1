@@ -1,784 +1,1600 @@
-// services_model.dart
-
 class ServicesModel {
-  bool success;
-  String message;
-  Data data;
-  bool fromCache;
-  String processingTime;
+    ServicesModel({
+        required this.success,
+        required this.message,
+        required this.data,
+        required this.fromCache,
+        required this.processingTime,
+    });
 
-  ServicesModel({
-    required this.success,
-    required this.message,
-    required this.data,
-    required this.fromCache,
-    required this.processingTime,
-  });
+    final bool? success;
+    final String? message;
+    final Data? data;
+    final bool? fromCache;
+    final String? processingTime;
 
-  factory ServicesModel.fromJson(Map<String, dynamic> json) => ServicesModel(
-        success: json['success'],
-        message: json['message'],
-        data: Data.fromJson(json['data']),
-        fromCache: json['fromCache'],
-        processingTime: json['processingTime'],
-      );
+    factory ServicesModel.fromJson(Map<String, dynamic> json){ 
+        return ServicesModel(
+            success: json["success"],
+            message: json["message"],
+            data: json["data"] == null ? null : Data.fromJson(json["data"]),
+            fromCache: json["fromCache"],
+            processingTime: json["processingTime"],
+        );
+    }
 
-  Map<String, dynamic> toJson() => {
-        'success': success,
-        'message': message,
-        'data': data.toJson(),
-        'fromCache': fromCache,
-        'processingTime': processingTime,
-      };
+    Map<String, dynamic> toJson() => {
+        "success": success,
+        "message": message,
+        "data": data?.toJson(),
+        "fromCache": fromCache,
+        "processingTime": processingTime,
+    };
+
 }
 
 class Data {
-  List<Service> services;
-  int totalServices;
-  Map<String, int> serviceStats;
-  String vendorId;
+    Data({
+        required this.services,
+        required this.totalServices,
+        required this.serviceStats,
+        required this.vendorId,
+    });
 
-  Data({
-    required this.services,
-    required this.totalServices,
-    required this.serviceStats,
-    required this.vendorId,
-  });
+    final List<Service> services;
+    final int? totalServices;
+    final ServiceStats? serviceStats;
+    final String? vendorId;
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-        services: List<Service>.from(json['services'].map((x) => Service.fromJson(x))),
-        totalServices: json['totalServices'],
-        serviceStats: Map<String, int>.from(json['serviceStats']),
-        vendorId: json['vendorId'],
-      );
+    factory Data.fromJson(Map<String, dynamic> json){ 
+        return Data(
+            services: json["services"] == null ? [] : List<Service>.from(json["services"]!.map((x) => Service.fromJson(x))),
+            totalServices: json["totalServices"],
+            serviceStats: json["serviceStats"] == null ? null : ServiceStats.fromJson(json["serviceStats"]),
+            vendorId: json["vendorId"],
+        );
+    }
 
-  Map<String, dynamic> toJson() => {
-        'services': List<dynamic>.from(services.map((x) => x.toJson())),
-        'totalServices': totalServices,
-        'serviceStats': serviceStats,
-        'vendorId': vendorId,
-      };
+    Map<String, dynamic> toJson() => {
+        "services": services.map((x) => x?.toJson()).toList(),
+        "totalServices": totalServices,
+        "serviceStats": serviceStats?.toJson(),
+        "vendorId": vendorId,
+    };
+
+}
+
+class ServiceStats {
+    ServiceStats({
+        required this.passengerTransport,
+    });
+
+    final int? passengerTransport;
+
+    factory ServiceStats.fromJson(Map<String, dynamic> json){ 
+        return ServiceStats(
+            passengerTransport: json["Passenger Transport"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "Passenger Transport": passengerTransport,
+    };
+
 }
 
 class Service {
-  String id;
-  CategoryId categoryId;
-  SubcategoryId subcategoryId;
-  String? serviceName;
-  ServiceDetails? serviceDetails;
-  PricingDetails? pricingDetails;
-  List<String>? navigableRoutes;
-  Map<String, dynamic>? boatRates; // Added for boat-specific rates
-  List<String>? occasionsCovered;
-  List<String>? areasCovered;
-  List<FleetDetail>? fleetDetails;
-  FleetInfo? fleetInfo;
-  List<String>? images;
-  List<String>? serviceImage;
-  String? vehicleType;
-  OccasionsCatered? occasionsCatered;
-  Features? features;
-  UploadedDocuments? uploadedDocuments;
-  String? serviceStatus;
-  String? serviceApproveStatus;
-  String? createdAt;
-  String? serviceType; // e.g., "chauffeur" or "boat"
-  String? basePostcode;
-  double? fullDayRate;
-  double? hourlyRate;
-  double? halfDayRate;
-  double? ceremonyPackageRate;
-  double? dayRate;
-  double? mileageLimit;
-  double? extraMileageCharge;
-  double? waitTimeFeePerHour;
-  double? decoratingFloralServiceFee;
-  bool? chauffeurIncluded;
-  bool? fuelChargesIncluded;
-  bool? depositRequired;
-  double? depositAmount;
-  bool? seatBeltsInAllVehicles;
-  bool? wheelchairAccessible;
-  bool? airConditioning;
-  bool? luggageSpace;
-  String? notes;
+    Service({
+        required this.id,
+        required this.categoryId,
+        required this.subcategoryId,
+        required this.serviceServiceName,
+        required this.fleetInfo,
+        required this.navigableRoutes,
+        required this.boatRates,
+        required this.serviceImage,
+        required this.serviceStatus,
+        required this.serviceApproveStatus,
+        required this.createdAt,
+        required this.serviceType,
+        required this.serviceName,
+        required this.serviceName2,
 
-  Service({
-    required this.id,
-    required this.categoryId,
-    required this.subcategoryId,
-    this.serviceName,
-    this.serviceDetails,
-    this.pricingDetails,
-    this.boatRates,
-    this.occasionsCovered,
-    this.navigableRoutes,
-    this.areasCovered,
-    this.fleetDetails,
-    this.fleetInfo,
-    this.images,
-    this.serviceImage,
-    this.vehicleType,
-    this.occasionsCatered,
-    this.features,
-    this.uploadedDocuments,
-    this.serviceStatus,
-    this.serviceApproveStatus,
-    this.createdAt,
-    this.serviceType,
-    this.basePostcode,
-    this.fullDayRate,
-    this.hourlyRate,
-    this.halfDayRate,
-    this.ceremonyPackageRate,
-    this.dayRate,
-    this.mileageLimit,
-    this.extraMileageCharge,
-    this.waitTimeFeePerHour,
-    this.decoratingFloralServiceFee,
-    this.chauffeurIncluded,
-    this.fuelChargesIncluded,
-    this.depositRequired,
-    this.depositAmount,
-    this.seatBeltsInAllVehicles,
-    this.wheelchairAccessible,
-    this.airConditioning,
-    this.luggageSpace,
-    this.notes,
-  });
+        required this.serviceDetails,
+        required this.equipmentSafety,
+        required this.licensingInsurance,
+        required this.marketing,
+        required this.bookingAvailability,
+        required this.serviceAreas,
+        required this.availabilityPeriod,
+        required this.specialPriceDays,
+        required this.pricing,
+        required this.coupons,
+        required this.images,
+        required this.pricingDetails,
+        required this.areasCovered,
+        required this.fleetDetails,
+        required this.uploadedDocuments,
+        required this.seatBeltsInAllVehicles,
+        required this.miniBusRates,
+        required this.occasionsCovered,
+        required this.serviceFleetDetails,
+        required this.features,
+        required this.featurePricing,
+        required this.fullDayRate,
+        required this.hourlyRate,
+        required this.halfDayRate,
+        required this.weddingPackageRate,
+        required this.airportTransferRate,
+        required this.fuelIncluded,
+        required this.mileageCapLimit,
+        required this.mileageCapExcessCharge,
+        required this.bookingDateFrom,
+        required this.bookingDateTo,
+        required this.servicesProvided,
+        required this.serviceBookingDateFrom,
+        required this.serviceBookingDateTo,
+        required this.serviceSpecialPriceDays,
+        required this.offeringPrice,
+        required this.operatingHours,
+        required this.basePostcode,
+        required this.bookingTypes,
+        required this.fleetSize,
+        required this.brandingLogoRemoval,
+        required this.comfort,
+        required this.events,
+        required this.accessibility,
+        required this.security,
+        required this.driverDetails,
+        required this.licensing,
+        required this.documents,
+        required this.serviceHighlights,
+        required this.promotionalDescription,
+        required this.cancellationPolicyType,
+        required this.documentation,
+        required this.otherOccasions,
+    });
 
-  factory Service.fromJson(Map<String, dynamic> json) => Service(
-        id: json['_id'],
-        categoryId: CategoryId.fromJson(json['categoryId']),
-        subcategoryId: SubcategoryId.fromJson(json['subcategoryId']),
-        serviceName: json['service_name'] as String? ?? json['serviceName'] as String?,
-        serviceDetails: json['serviceDetails'] != null ? ServiceDetails.fromJson(json['serviceDetails']) : null,
-        pricingDetails: json['pricingDetails'] != null ? PricingDetails.fromJson(json['pricingDetails']) : null,
-        boatRates: json['boatRates'], // Map boatRates directly as a dynamic map
-        occasionsCovered: json['occasionsCovered'] != null ? List<String>.from(json['occasionsCovered']) : null,
-        navigableRoutes: json['navigableRoutes'] != null ? List<String>.from(json['navigableRoutes']) : null,
-        areasCovered: json['areasCovered'] != null ? List<String>.from(json['areasCovered']) : null,
-        fleetDetails: json['fleet_details'] != null ? List<FleetDetail>.from(json['fleet_details'].map((x) => FleetDetail.fromJson(x))) : null,
-        fleetInfo: json['fleetInfo'] != null ? FleetInfo.fromJson(json['fleetInfo']) : null,
-        images: json['images'] != null ? List<String>.from(json['images']) : null,
-        serviceImage: json['service_image'] != null ? List<String>.from(json['service_image']) : null,
-        vehicleType: json['vehicleType'],
-        occasionsCatered: json['occasionsCatered'] != null ? OccasionsCatered.fromJson(json['occasionsCatered']) : null,
-        features: json['features'] != null ? Features.fromJson(json['features']) : null,
-        uploadedDocuments: json['uploaded_Documents'] != null ? UploadedDocuments.fromJson(json['uploaded_Documents']) : null,
-        serviceStatus: json['service_status'],
-        serviceApproveStatus: _parseServiceApproveStatus(json['service_approve_status']),
-        createdAt: json['createdAt'],
-        serviceType: json['serviceType'],
-        basePostcode: json['basePostcode'],
-        fullDayRate: json['fullDayRate']?.toDouble(),
-        hourlyRate: json['hourlyRate']?.toDouble(),
-        halfDayRate: json['halfDayRate']?.toDouble(),
-        ceremonyPackageRate: json['ceremonyPackageRate']?.toDouble(),
-        dayRate: json['dayRate']?.toDouble(),
-        mileageLimit: json['mileageLimit']?.toDouble(),
-        extraMileageCharge: json['extraMileageCharge']?.toDouble(),
-        waitTimeFeePerHour: json['waitTimeFeePerHour']?.toDouble(),
-        decoratingFloralServiceFee: json['decoratingFloralServiceFee']?.toDouble(),
-        chauffeurIncluded: json['chauffeurIncluded'],
-        fuelChargesIncluded: json['fuelChargesIncluded'],
-        depositRequired: json['depositRequired'],
-        depositAmount: json['depositAmount']?.toDouble(),
-        seatBeltsInAllVehicles: json['seatBeltsInAllVehicles'],
-        wheelchairAccessible: json['wheelchairAccessible'],
-        airConditioning: json['airConditioning'],
-        luggageSpace: json['luggageSpace'],
-        notes: json['notes'],
-      );
-
-  static String? _parseServiceApproveStatus(dynamic value) {
-    if (value == null) return null;
-    if (value is bool) return value ? "1" : "0";
-    if (value is String) return value;
-    return value.toString(); // Fallback for unexpected types
-  }
-
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'categoryId': categoryId.toJson(),
-        'subcategoryId': subcategoryId.toJson(),
-        'service_name': serviceName,
-        'serviceDetails': serviceDetails?.toJson(),
-        'pricingDetails': pricingDetails?.toJson(),
-        'boatRates': boatRates, // Include boatRates in toJson
-        'occasionsCovered': occasionsCovered,
-        'areasCovered': areasCovered,
-        'navigableRoutes': navigableRoutes,
-        'fleet_details': fleetDetails?.map((x) => x.toJson()).toList(),
-        'fleetInfo': fleetInfo?.toJson(),
-        'images': images,
-        'service_image': serviceImage,
-        'vehicleType': vehicleType,
-        'occasionsCatered': occasionsCatered?.toJson(),
-        'features': features?.toJson(),
-        'uploaded_Documents': uploadedDocuments?.toJson(),
-        'service_status': serviceStatus,
-        'service_approve_status': serviceApproveStatus,
-        'createdAt': createdAt,
-        'serviceType': serviceType,
-        'basePostcode': basePostcode,
-        'fullDayRate': fullDayRate,
-        'hourlyRate': hourlyRate,
-        'halfDayRate': halfDayRate,
-        'ceremonyPackageRate': ceremonyPackageRate,
-        'dayRate': dayRate,
-        'mileageLimit': mileageLimit,
-        'extraMileageCharge': extraMileageCharge,
-        'waitTimeFeePerHour': waitTimeFeePerHour,
-        'decoratingFloralServiceFee': decoratingFloralServiceFee,
-        'chauffeurIncluded': chauffeurIncluded,
-        'fuelChargesIncluded': fuelChargesIncluded,
-        'depositRequired': depositRequired,
-        'depositAmount': depositAmount,
-        'seatBeltsInAllVehicles': seatBeltsInAllVehicles,
-        'wheelchairAccessible': wheelchairAccessible,
-        'airConditioning': airConditioning,
-        'luggageSpace': luggageSpace,
-        'notes': notes,
-      };
+    final String? id;
+    final CategoryId? categoryId;
+    final SubcategoryId? subcategoryId;
+    final String? serviceServiceName;
+    final FleetInfo? fleetInfo;
+    final List<String> navigableRoutes;
+    final BoatRates? boatRates;
+    final List<String> serviceImage;
+    final String? serviceStatus;
+    final dynamic? serviceApproveStatus;
+    final DateTime? createdAt;
+    final String? serviceType;
+    final String? serviceName;
+     final String? serviceName2;
+    final ServiceDetails? serviceDetails;
+    final EquipmentSafety? equipmentSafety;
+    final LicensingInsurance? licensingInsurance;
+    final Marketing? marketing;
+    final BookingAvailability? bookingAvailability;
+    final List<String> serviceAreas;
+    final AvailabilityPeriod? availabilityPeriod;
+    final List<dynamic> specialPriceDays;
+    final Pricing? pricing;
+    final List<Coupon> coupons;
+    final List<String> images;
+    final PricingDetails? pricingDetails;
+    final List<String> areasCovered;
+    final FleetDetails? fleetDetails;
+    final UploadedDocuments? uploadedDocuments;
+    final bool? seatBeltsInAllVehicles;
+    final MiniBusRates? miniBusRates;
+    final List<String> occasionsCovered;
+    final List<FleetDetail> serviceFleetDetails;
+    final Features? features;
+    final FeaturePricing? featurePricing;
+    final int? fullDayRate;
+    final int? hourlyRate;
+    final int? halfDayRate;
+    final int? weddingPackageRate;
+    final int? airportTransferRate;
+    final bool? fuelIncluded;
+    final int? mileageCapLimit;
+    final int? mileageCapExcessCharge;
+    final DateTime? bookingDateFrom;
+    final DateTime? bookingDateTo;
+    final ServicesProvided? servicesProvided;
+    final String? serviceBookingDateFrom;
+    final String? serviceBookingDateTo;
+    final List<dynamic> serviceSpecialPriceDays;
+    final int? offeringPrice;
+    final OperatingHours? operatingHours;
+    final String? basePostcode;
+    final BookingTypes? bookingTypes;
+    final int? fleetSize;
+    final String? brandingLogoRemoval;
+    final Comfort? comfort;
+    final Events? events;
+    final Accessibility? accessibility;
+    final Security? security;
+    final DriverDetails? driverDetails;
+    final Licensing? licensing;
+    final Documents? documents;
+    final String? serviceHighlights;
+    final String? promotionalDescription;
+    final String? cancellationPolicyType;
+    final Documentation? documentation;
+    final String? otherOccasions;
+factory Service.fromJson(Map<String, dynamic> json) {
+  return Service(
+    id: json["_id"],
+    categoryId: json["categoryId"] == null ? null : CategoryId.fromJson(json["categoryId"]),
+    subcategoryId: json["subcategoryId"] == null ? null : SubcategoryId.fromJson(json["subcategoryId"]),
+    serviceServiceName: json["service_name"],
+    fleetInfo: json["fleetInfo"] == null ? null : FleetInfo.fromJson(json["fleetInfo"]),
+    navigableRoutes: json["navigableRoutes"] == null ? [] : List<String>.from(json["navigableRoutes"]!.map((x) => x)),
+    boatRates: json["boatRates"] == null ? null : BoatRates.fromJson(json["boatRates"]),
+    serviceImage: json["service_image"] == null ? [] : List<String>.from(json["service_image"]!.map((x) => x)),
+    serviceStatus: json["service_status"],
+    serviceApproveStatus: json["service_approve_status"],
+    createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+    serviceType: json["serviceType"],
+    serviceName: json["serviceName"],
+    serviceName2: json["service_name"],
+    serviceDetails: json["serviceDetails"] == null ? null : ServiceDetails.fromJson(json["serviceDetails"]),
+    equipmentSafety: json["equipmentSafety"] == null ? null : EquipmentSafety.fromJson(json["equipmentSafety"]),
+    licensingInsurance: json["licensingInsurance"] == null ? null : LicensingInsurance.fromJson(json["licensingInsurance"]),
+    marketing: json["marketing"] == null ? null : Marketing.fromJson(json["marketing"]),
+    bookingAvailability: json["bookingAvailability"] == null ? null : BookingAvailability.fromJson(json["bookingAvailability"]),
+    serviceAreas: json["serviceAreas"] == null ? [] : List<String>.from(json["serviceAreas"]!.map((x) => x)),
+    availabilityPeriod: json["availabilityPeriod"] == null ? null : AvailabilityPeriod.fromJson(json["availabilityPeriod"]),
+    specialPriceDays: json["specialPriceDays"] == null ? [] : List<dynamic>.from(json["specialPriceDays"]!.map((x) => x)),
+    pricing: json["pricing"] == null ? null : Pricing.fromJson(json["pricing"]),
+    coupons: json["coupons"] == null ? [] : List<Coupon>.from(json["coupons"]!.map((x) => Coupon.fromJson(x))),
+    images: json["images"] == null ? [] : List<String>.from(json["images"]!.map((x) => x)),
+    pricingDetails: json["pricingDetails"] == null ? null : PricingDetails.fromJson(json["pricingDetails"]),
+    areasCovered: json["areasCovered"] == null ? [] : List<String>.from(json["areasCovered"]!.map((x) => x)),
+    fleetDetails: json["fleetDetails"] == null ? null : FleetDetails.fromJson(json["fleetDetails"]),
+    uploadedDocuments: json["uploaded_Documents"] == null ? null : UploadedDocuments.fromJson(json["uploaded_Documents"]),
+    seatBeltsInAllVehicles: json["seatBeltsInAllVehicles"],
+    miniBusRates: json["miniBusRates"] == null ? null : MiniBusRates.fromJson(json["miniBusRates"]),
+    occasionsCovered: json["occasionsCovered"] == null ? [] : List<String>.from(json["occasionsCovered"]!.map((x) => x)),
+    serviceFleetDetails: json["fleet_details"] == null ? [] : List<FleetDetail>.from(json["fleet_details"]!.map((x) => FleetDetail.fromJson(x))),
+    features: json["features"] == null ? null : Features.fromJson(json["features"]),
+    featurePricing: json["featurePricing"] == null ? null : FeaturePricing.fromJson(json["featurePricing"]),
+    fullDayRate: json["fullDayRate"],
+    hourlyRate: json["hourlyRate"],
+    halfDayRate: json["halfDayRate"],
+    weddingPackageRate: json["weddingPackageRate"],
+    airportTransferRate: json["airportTransferRate"],
+    fuelIncluded: json["fuelIncluded"],
+    mileageCapLimit: json["mileageCapLimit"],
+    mileageCapExcessCharge: json["mileageCapExcessCharge"],
+    bookingDateFrom: DateTime.tryParse(json["bookingDateFrom"] ?? ""),
+    bookingDateTo: DateTime.tryParse(json["bookingDateTo"] ?? ""),
+    servicesProvided: json["servicesProvided"] == null ? null : ServicesProvided.fromJson(json["servicesProvided"]),
+    serviceBookingDateFrom: json["booking_date_from"],
+    serviceBookingDateTo: json["booking_date_to"],
+    serviceSpecialPriceDays: json["special_price_days"] == null ? [] : List<dynamic>.from(json["special_price_days"]!.map((x) => x)),
+    offeringPrice: json["offering_price"],
+    operatingHours: json["operatingHours"] == null ? null : OperatingHours.fromJson(json["operatingHours"]),
+    basePostcode: json["basePostcode"],
+    bookingTypes: json["bookingTypes"] == null ? null : BookingTypes.fromJson(json["bookingTypes"]),
+    fleetSize: json["fleetSize"],
+    brandingLogoRemoval: json["brandingLogoRemoval"],
+    comfort: json["comfort"] == null ? null : Comfort.fromJson(json["comfort"]),
+    events: json["events"] == null ? null : Events.fromJson(json["events"]),
+    accessibility: json["accessibility"] == null ? null : Accessibility.fromJson(json["accessibility"]),
+    security: json["security"] == null ? null : Security.fromJson(json["security"]),
+    driverDetails: json["driverDetails"] == null ? null : DriverDetails.fromJson(json["driverDetails"]),
+    licensing: json["licensing"] == null ? null : Licensing.fromJson(json["licensing"]),
+    documents: json["documents"] is Map<String, dynamic> ? Documents.fromJson(json["documents"]) : null,
+    serviceHighlights: json["serviceHighlights"],
+    promotionalDescription: json["promotionalDescription"],
+    cancellationPolicyType: json["cancellation_policy_type"],
+    documentation: json["documentation"] == null ? null : Documentation.fromJson(json["documentation"]),
+    otherOccasions: json["otherOccasions"],
+  );
 }
+    Map<String, dynamic> toJson() => {
+        "_id": id,
+        "categoryId": categoryId?.toJson(),
+        "subcategoryId": subcategoryId?.toJson(),
+        "service_name": serviceServiceName,
+        "fleetInfo": fleetInfo?.toJson(),
+        "navigableRoutes": navigableRoutes.map((x) => x).toList(),
+        "boatRates": boatRates?.toJson(),
+        "service_image": serviceImage.map((x) => x).toList(),
+        "service_status": serviceStatus,
+        "service_approve_status": serviceApproveStatus,
+        "createdAt": createdAt?.toIso8601String(),
+        "serviceType": serviceType,
+        "serviceName": serviceName,
+        "serviceName2":serviceName2,
+        "serviceDetails": serviceDetails?.toJson(),
+        "equipmentSafety": equipmentSafety?.toJson(),
+        "licensingInsurance": licensingInsurance?.toJson(),
+        "marketing": marketing?.toJson(),
+        "bookingAvailability": bookingAvailability?.toJson(),
+        "serviceAreas": serviceAreas.map((x) => x).toList(),
+        "availabilityPeriod": availabilityPeriod?.toJson(),
+        "specialPriceDays": specialPriceDays.map((x) => x).toList(),
+        "pricing": pricing?.toJson(),
+        "coupons": coupons.map((x) => x?.toJson()).toList(),
+        "images": images.map((x) => x).toList(),
+        "pricingDetails": pricingDetails?.toJson(),
+        "areasCovered": areasCovered.map((x) => x).toList(),
+        "fleetDetails": fleetDetails?.toJson(),
+        "uploaded_Documents": uploadedDocuments?.toJson(),
+        "seatBeltsInAllVehicles": seatBeltsInAllVehicles,
+        "miniBusRates": miniBusRates?.toJson(),
+        "occasionsCovered": occasionsCovered.map((x) => x).toList(),
+        "fleet_details": serviceFleetDetails.map((x) => x?.toJson()).toList(),
+        "features": features?.toJson(),
+        "featurePricing": featurePricing?.toJson(),
+        "fullDayRate": fullDayRate,
+        "hourlyRate": hourlyRate,
+        "halfDayRate": halfDayRate,
+        "weddingPackageRate": weddingPackageRate,
+        "airportTransferRate": airportTransferRate,
+        "fuelIncluded": fuelIncluded,
+        "mileageCapLimit": mileageCapLimit,
+        "mileageCapExcessCharge": mileageCapExcessCharge,
+        "bookingDateFrom": bookingDateFrom?.toIso8601String(),
+        "bookingDateTo": bookingDateTo?.toIso8601String(),
+        "servicesProvided": servicesProvided?.toJson(),
+        "booking_date_from": serviceBookingDateFrom,
+        "booking_date_to": serviceBookingDateTo,
+        "special_price_days": serviceSpecialPriceDays.map((x) => x).toList(),
+        "offering_price": offeringPrice,
+        "operatingHours": operatingHours?.toJson(),
+        "basePostcode": basePostcode,
+        "bookingTypes": bookingTypes?.toJson(),
+        "fleetSize": fleetSize,
+        "brandingLogoRemoval": brandingLogoRemoval,
+        "comfort": comfort?.toJson(),
+        "events": events?.toJson(),
+        "accessibility": accessibility?.toJson(),
+        "security": security?.toJson(),
+        "driverDetails": driverDetails?.toJson(),
+        "licensing": licensing?.toJson(),
+        "documents": documents?.toJson(),
+        "serviceHighlights": serviceHighlights,
+        "promotionalDescription": promotionalDescription,
+        "cancellation_policy_type": cancellationPolicyType,
+        "documentation": documentation?.toJson(),
+        "otherOccasions": otherOccasions,
+    };
 
-class CategoryId {
-  String id;
-  String categoryName;
-
-  CategoryId({
-    required this.id,
-    required this.categoryName,
-  });
-
-  factory CategoryId.fromJson(Map<String, dynamic> json) => CategoryId(
-        id: json['_id'],
-        categoryName: json['category_name'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'category_name': categoryName,
-      };
-}
-
-class SubcategoryId {
-  String id;
-  String subcategoryName;
-
-  SubcategoryId({
-    required this.id,
-    required this.subcategoryName,
-  });
-
-  factory SubcategoryId.fromJson(Map<String, dynamic> json) => SubcategoryId(
-        id: json['_id'],
-        subcategoryName: json['subcategory_name'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        '_id': id,
-        'subcategory_name': subcategoryName,
-      };
-}
-
-class ServiceDetails {
-  List<String>? occasionsCatered;
-  List<String>? carriageTypes;
-  List<String>? horseTypes;
-  int? numberOfCarriages;
-  int? fleetSize;
-  String? basePostcode;
-
-  ServiceDetails({
-    this.occasionsCatered,
-    this.carriageTypes,
-    this.horseTypes,
-    this.numberOfCarriages,
-    this.fleetSize,
-    this.basePostcode,
-  });
-
-  factory ServiceDetails.fromJson(Map<String, dynamic> json) => ServiceDetails(
-        occasionsCatered: json['occasionsCatered'] != null ? List<String>.from(json['occasionsCatered']) : null,
-        carriageTypes: json['carriageTypes'] != null ? List<String>.from(json['carriageTypes']) : null,
-        horseTypes: json['horseTypes'] != null ? List<String>.from(json['horseTypes']) : null,
-        numberOfCarriages: json['numberOfCarriages'],
-        fleetSize: json['fleetSize'],
-        basePostcode: json['basePostcode'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'occasionsCatered': occasionsCatered,
-        'carriageTypes': carriageTypes,
-        'horseTypes': horseTypes,
-        'numberOfCarriages': numberOfCarriages,
-        'fleetSize': fleetSize,
-        'basePostcode': basePostcode,
-      };
-}
-
-class PricingDetails {
-  double? dayRate;
-  double? mileageLimit;
-  double? extraMileageCharge;
-  bool? chauffeurIncluded;
-  double? hourlyRate;
-  double? halfDayRate;
-  double? weddingPackage;
-  double? airportTransfer;
-  bool? fuelChargesIncluded;
-  double? waitTimeFeePerHour;
-  double? decoratingFloralServiceFee;
-  double? depositAmount;
-  bool? depositRequired;
-  double? mileageAllowance;
-  double? additionalMileageFee;
-  double? multiDayRate;
-
-  PricingDetails({
-    this.dayRate,
-    this.mileageLimit,
-    this.extraMileageCharge,
-    this.chauffeurIncluded,
-    this.hourlyRate,
-    this.halfDayRate,
-    this.weddingPackage,
-    this.airportTransfer,
-    this.fuelChargesIncluded,
-    this.waitTimeFeePerHour,
-    this.decoratingFloralServiceFee,
-    this.depositAmount,
-    this.depositRequired,
-    this.mileageAllowance,
-    this.additionalMileageFee,
-    this.multiDayRate,
-  });
-
-  factory PricingDetails.fromJson(Map<String, dynamic> json) => PricingDetails(
-        dayRate: json['dayRate']?.toDouble(),
-        mileageLimit: json['mileageLimit']?.toDouble(),
-        extraMileageCharge: json['extraMileageCharge']?.toDouble(),
-        chauffeurIncluded: json['chauffeurIncluded'],
-        hourlyRate: json['hourlyRate']?.toDouble(),
-        halfDayRate: json['halfDayRate']?.toDouble(),
-        weddingPackage: json['weddingPackage']?.toDouble(),
-        airportTransfer: json['airportTransfer']?.toDouble(),
-        fuelChargesIncluded: json['fuelChargesIncluded'],
-        waitTimeFeePerHour: json['waitTimeFeePerHour']?.toDouble(),
-        decoratingFloralServiceFee: json['decoratingFloralServiceFee']?.toDouble(),
-        depositAmount: json['depositAmount']?.toDouble(),
-        depositRequired: json['depositRequired'],
-        mileageAllowance: json['mileageAllowance']?.toDouble(),
-        additionalMileageFee: json['additionalMileageFee']?.toDouble(),
-        multiDayRate: json['multiDayRate']?.toDouble(),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'dayRate': dayRate,
-        'mileageLimit': mileageLimit,
-        'extraMileageCharge': extraMileageCharge,
-        'chauffeurIncluded': chauffeurIncluded,
-        'hourlyRate': hourlyRate,
-        'halfDayRate': halfDayRate,
-        'weddingPackage': weddingPackage,
-        'airportTransfer': airportTransfer,
-        'fuelChargesIncluded': fuelChargesIncluded,
-        'waitTimeFeePerHour': waitTimeFeePerHour,
-        'decoratingFloralServiceFee': decoratingFloralServiceFee,
-        'depositAmount': depositAmount,
-        'depositRequired': depositRequired,
-        'mileageAllowance': mileageAllowance,
-        'additionalMileageFee': additionalMileageFee,
-        'multiDayRate': multiDayRate,
-      };
-}
-
-class FleetDetail {
-  String vehicleId;
-  String makeModel;
-  String type;
-  int year;
-  String color;
-  int capacity;
-  String vehicleDescription;
-  String bootSpace;
-  String keyFeatures;
-  String id;
-
-  FleetDetail({
-    required this.vehicleId,
-    required this.makeModel,
-    required this.type,
-    required this.year,
-    required this.color,
-    required this.capacity,
-    required this.vehicleDescription,
-    required this.bootSpace,
-    required this.keyFeatures,
-    required this.id,
-  });
-
-  factory FleetDetail.fromJson(Map<String, dynamic> json) => FleetDetail(
-        vehicleId: json['vehicleId'],
-        makeModel: json['make_Model'],
-        type: json['type'],
-        year: json['year'],
-        color: json['color'],
-        capacity: json['capacity'],
-        vehicleDescription: json['vehicleDescription'],
-        bootSpace: json['bootSpace'],
-        keyFeatures: json['key_Features'],
-        id: json['_id'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'vehicleId': vehicleId,
-        'make_Model': makeModel,
-        'type': type,
-        'year': year,
-        'color': color,
-        'capacity': capacity,
-        'vehicleDescription': vehicleDescription,
-        'bootSpace': bootSpace,
-        'key_Features': keyFeatures,
-        '_id': id,
-      };
-}
-
-class FleetInfo {
-  String? makeAndModel; // Maps to boatName for boats
-  String? type; // Added for boat type (e.g., yacht)
-  int? seats; // For chauffeur
-  int? capacity; // For boat
-  bool? wheelchairAccessible;
-  bool? airConditioning;
-  bool? luggageSpace;
-  String? onboardFacilities;
-  int? year;
-  String? notes;
-  String? colour;
-  String? chauffeurName;
-  String? bootSpace;
-
-  FleetInfo({
-    this.makeAndModel,
-    this.type,
-    this.seats,
-    this.capacity,
-    this.wheelchairAccessible,
-    this.airConditioning,
-    this.luggageSpace,
-    this.onboardFacilities,
-    this.year,
-    this.notes,
-    this.colour,
-    this.chauffeurName,
-    this.bootSpace,
-  });
-
-  factory FleetInfo.fromJson(Map<String, dynamic> json) => FleetInfo(
-        makeAndModel: json['makeAndModel'] ?? json['boatName'], // Handle boatName
-        type: json['type'], // Handle boat type
-        seats: json['seats'], // For chauffeur
-        capacity: json['capacity'], // For boat
-        wheelchairAccessible: json['wheelchairAccessible'],
-        airConditioning: json['airConditioning'],
-        luggageSpace: json['luggageSpace'],
-        onboardFacilities: json['onboardFacilities'],
-        year: json['year'],
-        notes: json['notes'],
-        colour: json['colour'],
-        chauffeurName: json['chauffeurName'],
-        bootSpace: json['bootSpace'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'makeAndModel': makeAndModel,
-        'type': type,
-        'seats': seats,
-        'capacity': capacity,
-        'wheelchairAccessible': wheelchairAccessible,
-        'airConditioning': airConditioning,
-        'luggageSpace': luggageSpace,
-        'onboardFacilities': onboardFacilities,
-        'year': year,
-        'notes': notes,
-        'colour': colour,
-        'chauffeurName': chauffeurName,
-        'bootSpace': bootSpace,
-      };
-}
-
-class OccasionsCatered {
-  bool? weddings;
-  bool? corporateTravel;
-  bool? airportTransfers;
-  bool? proms;
-  bool? vipRedCarpet;
-  bool? filmTVHire;
-
-  OccasionsCatered({
-    this.weddings,
-    this.corporateTravel,
-    this.airportTransfers,
-    this.proms,
-    this.vipRedCarpet,
-    this.filmTVHire,
-  });
-
-  factory OccasionsCatered.fromJson(Map<String, dynamic> json) => OccasionsCatered(
-        weddings: json['weddings'],
-        corporateTravel: json['corporateTravel'],
-        airportTransfers: json['airportTransfers'],
-        proms: json['proms'],
-        vipRedCarpet: json['vipRedCarpet'],
-        filmTVHire: json['filmTVHire'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'weddings': weddings,
-        'corporateTravel': corporateTravel,
-        'airportTransfers': airportTransfers,
-        'proms': proms,
-        'vipRedCarpet': vipRedCarpet,
-        'filmTVHire': filmTVHire,
-      };
-}
-
-class Features {
-  Comfort? comfort;
-  Events? events;
-  Security? security;
-  Accessibility? accessibility;
-
-  Features({
-    this.comfort,
-    this.events,
-    this.security,
-    this.accessibility,
-  });
-
-  factory Features.fromJson(Map<String, dynamic> json) => Features(
-        comfort: json['comfort'] != null ? Comfort.fromJson(json['comfort']) : null,
-        events: json['events'] != null ? Events.fromJson(json['events']) : null,
-        security: json['security'] != null ? Security.fromJson(json['security']) : null,
-        accessibility: json['accessibility'] != null ? Accessibility.fromJson(json['accessibility']) : null,
-      );
-
-  Map<String, dynamic> toJson() => {
-        'comfort': comfort?.toJson(),
-        'events': events?.toJson(),
-        'security': security?.toJson(),
-        'accessibility': accessibility?.toJson(),
-      };
-}
-
-class Comfort {
-  bool? leatherInterior;
-  bool? wifiAccess;
-  bool? airConditioning;
-  ComplimentaryDrinks? complimentaryDrinks;
-  bool? inCarEntertainment;
-  bool? bluetoothUsb;
-  bool? redCarpetService;
-  bool? onboardRestroom;
-  bool? chauffeurInUniform;
-
-  Comfort({
-    this.leatherInterior,
-    this.wifiAccess,
-    this.airConditioning,
-    this.complimentaryDrinks,
-    this.inCarEntertainment,
-    this.bluetoothUsb,
-    this.redCarpetService,
-    this.onboardRestroom,
-    this.chauffeurInUniform,
-  });
-
-  factory Comfort.fromJson(Map<String, dynamic> json) => Comfort(
-        leatherInterior: json['leatherInterior'],
-        wifiAccess: json['wifiAccess'],
-        airConditioning: json['airConditioning'],
-        complimentaryDrinks: json['complimentaryDrinks'] != null ? ComplimentaryDrinks.fromJson(json['complimentaryDrinks']) : null,
-        inCarEntertainment: json['inCarEntertainment'],
-        bluetoothUsb: json['bluetoothUsb'],
-        redCarpetService: json['redCarpetService'],
-        onboardRestroom: json['onboardRestroom'],
-        chauffeurInUniform: json['chauffeurInUniform'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'leatherInterior': leatherInterior,
-        'wifiAccess': wifiAccess,
-        'airConditioning': airConditioning,
-        'complimentaryDrinks': complimentaryDrinks?.toJson(),
-        'inCarEntertainment': inCarEntertainment,
-        'bluetoothUsb': bluetoothUsb,
-        'redCarpetService': redCarpetService,
-        'onboardRestroom': onboardRestroom,
-        'chauffeurInUniform': chauffeurInUniform,
-      };
-}
-
-class ComplimentaryDrinks {
-  bool? available;
-  String? details;
-
-  ComplimentaryDrinks({
-    this.available,
-    this.details,
-  });
-
-  factory ComplimentaryDrinks.fromJson(Map<String, dynamic> json) => ComplimentaryDrinks(
-        available: json['available'],
-        details: json['details'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'available': available,
-        'details': details,
-      };
-}
-
-class Events {
-  bool? weddingDecor;
-  bool? partyLightingSystem;
-  bool? champagnePackages;
-  bool? photographyPackages;
-  double? weddingDecorPrice;
-  double? partyLightingPrice;
-  double? champagnePackagePrice;
-  double? photographyPackagePrice;
-
-  Events({
-    this.weddingDecor,
-    this.partyLightingSystem,
-    this.champagnePackages,
-    this.photographyPackages,
-    this.weddingDecorPrice,
-    this.partyLightingPrice,
-    this.champagnePackagePrice,
-    this.photographyPackagePrice,
-  });
-
-  factory Events.fromJson(Map<String, dynamic> json) => Events(
-        weddingDecor: json['weddingDecor'],
-        partyLightingSystem: json['partyLightingSystem'],
-        champagnePackages: json['champagnePackages'],
-        photographyPackages: json['photographyPackages'],
-        weddingDecorPrice: json['weddingDecorPrice']?.toDouble(),
-        partyLightingPrice: json['partyLightingPrice']?.toDouble(),
-        champagnePackagePrice: json['champagnePackagePrice']?.toDouble(),
-        photographyPackagePrice: json['photographyPackagePrice']?.toDouble(),
-      );
-
-  Map<String, dynamic> toJson() => {
-        'weddingDecor': weddingDecor,
-        'partyLightingSystem': partyLightingSystem,
-        'champagnePackages': champagnePackages,
-        'photographyPackages': photographyPackages,
-        'weddingDecorPrice': weddingDecorPrice,
-        'partyLightingPrice': partyLightingPrice,
-        'champagnePackagePrice': champagnePackagePrice,
-        'photographyPackagePrice': photographyPackagePrice,
-      };
-}
-
-class Security {
-  bool? vehicleTrackingGps;
-  bool? cctvFitted;
-  bool? publicLiabilityInsurance;
-  bool? safetyCertifiedDrivers;
-
-  Security({
-    this.vehicleTrackingGps,
-    this.cctvFitted,
-    this.publicLiabilityInsurance,
-    this.safetyCertifiedDrivers,
-  });
-
-  factory Security.fromJson(Map<String, dynamic> json) => Security(
-        vehicleTrackingGps: json['vehicleTrackingGps'],
-        cctvFitted: json['cctvFitted'],
-        publicLiabilityInsurance: json['publicLiabilityInsurance'],
-        safetyCertifiedDrivers: json['safetyCertifiedDrivers'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        'vehicleTrackingGps': vehicleTrackingGps,
-        'cctvFitted': cctvFitted,
-        'publicLiabilityInsurance': publicLiabilityInsurance,
-        'safetyCertifiedDrivers': safetyCertifiedDrivers,
-      };
 }
 
 class Accessibility {
-  bool? wheelchairAccessVehicle;
-  bool? childCarSeats;
-  bool? petFriendlyService;
-  bool? disabledAccessRamp;
-  bool? seniorFriendlyAssistance;
-  bool? strollerBuggyStorage;
+    Accessibility({
+        required this.wheelchairAccessVehicle,
+        required this.wheelchairAccessPrice,
+        required this.childCarSeats,
+        required this.childCarSeatsPrice,
+        required this.petFriendlyService,
+        required this.petFriendlyPrice,
+        required this.disabledAccessRamp,
+        required this.disabledAccessRampPrice,
+        required this.seniorFriendlyAssistance,
+        required this.seniorAssistancePrice,
+        required this.strollerBuggyStorage,
+        required this.strollerStoragePrice,
+    });
 
-  Accessibility({
-    this.wheelchairAccessVehicle,
-    this.childCarSeats,
-    this.petFriendlyService,
-    this.disabledAccessRamp,
-    this.seniorFriendlyAssistance,
-    this.strollerBuggyStorage,
+    final bool? wheelchairAccessVehicle;
+    final int? wheelchairAccessPrice;
+    final bool? childCarSeats;
+    final int? childCarSeatsPrice;
+    final bool? petFriendlyService;
+    final int? petFriendlyPrice;
+    final bool? disabledAccessRamp;
+    final int? disabledAccessRampPrice;
+    final bool? seniorFriendlyAssistance;
+    final int? seniorAssistancePrice;
+    final bool? strollerBuggyStorage;
+    final int? strollerStoragePrice;
+
+    factory Accessibility.fromJson(Map<String, dynamic> json){ 
+        return Accessibility(
+            wheelchairAccessVehicle: json["wheelchairAccessVehicle"],
+            wheelchairAccessPrice: json["wheelchairAccessPrice"],
+            childCarSeats: json["childCarSeats"],
+            childCarSeatsPrice: json["childCarSeatsPrice"],
+            petFriendlyService: json["petFriendlyService"],
+            petFriendlyPrice: json["petFriendlyPrice"],
+            disabledAccessRamp: json["disabledAccessRamp"],
+            disabledAccessRampPrice: json["disabledAccessRampPrice"],
+            seniorFriendlyAssistance: json["seniorFriendlyAssistance"],
+            seniorAssistancePrice: json["seniorAssistancePrice"],
+            strollerBuggyStorage: json["strollerBuggyStorage"],
+            strollerStoragePrice: json["strollerStoragePrice"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "wheelchairAccessVehicle": wheelchairAccessVehicle,
+        "wheelchairAccessPrice": wheelchairAccessPrice,
+        "childCarSeats": childCarSeats,
+        "childCarSeatsPrice": childCarSeatsPrice,
+        "petFriendlyService": petFriendlyService,
+        "petFriendlyPrice": petFriendlyPrice,
+        "disabledAccessRamp": disabledAccessRamp,
+        "disabledAccessRampPrice": disabledAccessRampPrice,
+        "seniorFriendlyAssistance": seniorFriendlyAssistance,
+        "seniorAssistancePrice": seniorAssistancePrice,
+        "strollerBuggyStorage": strollerBuggyStorage,
+        "strollerStoragePrice": strollerStoragePrice,
+    };
+
+}
+
+class AvailabilityPeriod {
+    AvailabilityPeriod({
+        required this.from,
+        required this.to,
+    });
+
+    final DateTime? from;
+    final DateTime? to;
+
+    factory AvailabilityPeriod.fromJson(Map<String, dynamic> json){ 
+        return AvailabilityPeriod(
+            from: DateTime.tryParse(json["from"] ?? ""),
+            to: DateTime.tryParse(json["to"] ?? ""),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "from": from?.toIso8601String(),
+        "to": to?.toIso8601String(),
+    };
+
+}
+
+class BoatRates {
+    BoatRates({
+        required this.hourlyRate,
+        required this.halfDayRate,
+        required this.fullDayRate,
+        required this.overnightCharterRate,
+        required this.packageDealsDescription,
+    });
+
+    final int? hourlyRate;
+    final int? halfDayRate;
+    final int? fullDayRate;
+    final int? overnightCharterRate;
+    final String? packageDealsDescription;
+
+    factory BoatRates.fromJson(Map<String, dynamic> json){ 
+        return BoatRates(
+            hourlyRate: json["hourlyRate"],
+            halfDayRate: json["halfDayRate"],
+            fullDayRate: json["fullDayRate"],
+            overnightCharterRate: json["overnightCharterRate"],
+            packageDealsDescription: json["packageDealsDescription"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "hourlyRate": hourlyRate,
+        "halfDayRate": halfDayRate,
+        "fullDayRate": fullDayRate,
+        "overnightCharterRate": overnightCharterRate,
+        "packageDealsDescription": packageDealsDescription,
+    };
+
+}
+
+class BookingAvailability {
+    BookingAvailability({
+        required this.availableFor,
+        required this.leadTime,
+        required this.bookingOptions,
+    });
+
+    final List<String> availableFor;
+    final String? leadTime;
+    final List<dynamic> bookingOptions;
+
+    factory BookingAvailability.fromJson(Map<String, dynamic> json){ 
+        return BookingAvailability(
+            availableFor: json["availableFor"] == null ? [] : List<String>.from(json["availableFor"]!.map((x) => x)),
+            leadTime: json["leadTime"],
+            bookingOptions: json["bookingOptions"] == null ? [] : List<dynamic>.from(json["bookingOptions"]!.map((x) => x)),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "availableFor": availableFor.map((x) => x).toList(),
+        "leadTime": leadTime,
+        "bookingOptions": bookingOptions.map((x) => x).toList(),
+    };
+
+}
+
+class BookingTypes {
+    BookingTypes({
+        required this.oneWay,
+        required this.bookingTypesReturn,
+        required this.hourlyHire,
+        required this.dailyLongTermHire,
+        required this.contractualServices,
+    });
+
+    final bool? oneWay;
+    final bool? bookingTypesReturn;
+    final bool? hourlyHire;
+    final bool? dailyLongTermHire;
+    final bool? contractualServices;
+
+    factory BookingTypes.fromJson(Map<String, dynamic> json){ 
+        return BookingTypes(
+            oneWay: json["oneWay"],
+            bookingTypesReturn: json["return"],
+            hourlyHire: json["hourlyHire"],
+            dailyLongTermHire: json["dailyLongTermHire"],
+            contractualServices: json["contractualServices"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "oneWay": oneWay,
+        "return": bookingTypesReturn,
+        "hourlyHire": hourlyHire,
+        "dailyLongTermHire": dailyLongTermHire,
+        "contractualServices": contractualServices,
+    };
+
+}
+
+class CategoryId {
+    CategoryId({
+        required this.id,
+        required this.categoryName,
+    });
+
+    final String? id;
+    final String? categoryName;
+
+    factory CategoryId.fromJson(Map<String, dynamic> json){ 
+        return CategoryId(
+            id: json["_id"],
+            categoryName: json["category_name"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "_id": id,
+        "category_name": categoryName,
+    };
+
+}
+
+class Comfort {
+    Comfort({
+        required this.leatherInterior,
+        required this.wifiAccess,
+        required this.airConditioning,
+        required this.complimentaryDrinks,
+        required this.inCarEntertainment,
+        required this.bluetoothUsb,
+        required this.redCarpetService,
+        required this.onboardRestroom,
+    });
+
+    final bool? leatherInterior;
+    final bool? wifiAccess;
+    final bool? airConditioning;
+    final ComplimentaryDrinks? complimentaryDrinks;
+    final bool? inCarEntertainment;
+    final bool? bluetoothUsb;
+    final bool? redCarpetService;
+    final bool? onboardRestroom;
+
+    factory Comfort.fromJson(Map<String, dynamic> json){ 
+        return Comfort(
+            leatherInterior: json["leatherInterior"],
+            wifiAccess: json["wifiAccess"],
+            airConditioning: json["airConditioning"],
+            complimentaryDrinks: json["complimentaryDrinks"] == null ? null : ComplimentaryDrinks.fromJson(json["complimentaryDrinks"]),
+            inCarEntertainment: json["inCarEntertainment"],
+            bluetoothUsb: json["bluetoothUsb"],
+            redCarpetService: json["redCarpetService"],
+            onboardRestroom: json["onboardRestroom"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "leatherInterior": leatherInterior,
+        "wifiAccess": wifiAccess,
+        "airConditioning": airConditioning,
+        "complimentaryDrinks": complimentaryDrinks?.toJson(),
+        "inCarEntertainment": inCarEntertainment,
+        "bluetoothUsb": bluetoothUsb,
+        "redCarpetService": redCarpetService,
+        "onboardRestroom": onboardRestroom,
+    };
+
+}
+
+class ComplimentaryDrinks {
+    ComplimentaryDrinks({
+        required this.available,
+        required this.details,
+    });
+
+    final bool? available;
+    final String? details;
+
+    factory ComplimentaryDrinks.fromJson(Map<String, dynamic> json){ 
+        return ComplimentaryDrinks(
+            available: json["available"],
+            details: json["details"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "available": available,
+        "details": details,
+    };
+
+}
+
+class Coupon {
+    Coupon({
+        required this.couponCode,
+        required this.discountType,
+        required this.discountValue,
+        required this.usageLimit,
+        required this.currentUsageCount,
+        required this.expiryDate,
+        required this.isGlobal,
+        required this.id,
+    });
+
+    final String? couponCode;
+    final String? discountType;
+    final int? discountValue;
+    final int? usageLimit;
+    final int? currentUsageCount;
+    final DateTime? expiryDate;
+    final bool? isGlobal;
+    final String? id;
+
+    factory Coupon.fromJson(Map<String, dynamic> json){ 
+        return Coupon(
+            couponCode: json["coupon_code"],
+            discountType: json["discount_type"],
+            discountValue: json["discount_value"],
+            usageLimit: json["usage_limit"],
+            currentUsageCount: json["current_usage_count"],
+            expiryDate: DateTime.tryParse(json["expiry_date"] ?? ""),
+            isGlobal: json["is_global"],
+            id: json["_id"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "coupon_code": couponCode,
+        "discount_type": discountType,
+        "discount_value": discountValue,
+        "usage_limit": usageLimit,
+        "current_usage_count": currentUsageCount,
+        "expiry_date": expiryDate?.toIso8601String(),
+        "is_global": isGlobal,
+        "_id": id,
+    };
+
+}
+
+class Documentation {
+    Documentation({required this.json});
+    final Map<String,dynamic> json;
+
+    factory Documentation.fromJson(Map<String, dynamic> json){ 
+        return Documentation(
+        json: json
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+    };
+
+}
+
+class Documents {
+  Documents({
+    required this.psvOperatorLicence,
+    required this.publicLiabilityInsurance,
+    required this.driverLicencesAndDbs,
+    required this.vehicleMotAndInsurance,
   });
 
-  factory Accessibility.fromJson(Map<String, dynamic> json) => Accessibility(
-        wheelchairAccessVehicle: json['wheelchairAccessVehicle'],
-        childCarSeats: json['childCarSeats'],
-        petFriendlyService: json['petFriendlyService'],
-        disabledAccessRamp: json['disabledAccessRamp'],
-        seniorFriendlyAssistance: json['seniorFriendlyAssistance'],
-        strollerBuggyStorage: json['strollerBuggyStorage'],
-      );
+  final DriverLicencesAndDbs? psvOperatorLicence;
+  final DriverLicencesAndDbs? publicLiabilityInsurance;
+  final DriverLicencesAndDbs? driverLicencesAndDbs;
+  final DriverLicencesAndDbs? vehicleMotAndInsurance;
+
+  static DriverLicencesAndDbs? _parseDoc(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return DriverLicencesAndDbs.fromJson(value);
+    } else if (value is String) {
+      return DriverLicencesAndDbs.fromUrl(value);
+    }
+    return null;
+  }
+  
+
+  factory Documents.fromJson(Map<String, dynamic> json) {
+    return Documents(
+      psvOperatorLicence: _parseDoc(json["psvOperatorLicence"]),
+      publicLiabilityInsurance: _parseDoc(json["publicLiabilityInsurance"]),
+      driverLicencesAndDbs: _parseDoc(json["driverLicencesAndDBS"]),
+      vehicleMotAndInsurance: _parseDoc(json["vehicleMOTAndInsurance"]),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        'wheelchairAccessVehicle': wheelchairAccessVehicle,
-        'childCarSeats': childCarSeats,
-        'petFriendlyService': petFriendlyService,
-        'disabledAccessRamp': disabledAccessRamp,
-        'seniorFriendlyAssistance': seniorFriendlyAssistance,
-        'strollerBuggyStorage': strollerBuggyStorage,
+        "psvOperatorLicence": psvOperatorLicence?.toJson(),
+        "publicLiabilityInsurance": publicLiabilityInsurance?.toJson(),
+        "driverLicencesAndDBS": driverLicencesAndDbs?.toJson(),
+        "vehicleMOTAndInsurance": vehicleMotAndInsurance?.toJson(),
+      };
+}
+class DriverLicencesAndDbs {
+  DriverLicencesAndDbs({
+    this.isAttached,
+    required this.image,
+  });
+
+  final bool? isAttached;
+  final String? image;
+
+  factory DriverLicencesAndDbs.fromJson(Map<String, dynamic> json) {
+    return DriverLicencesAndDbs(
+      isAttached: json["isAttached"],
+      image: json["image"],
+    );
+  }
+
+  // Create from a plain string (e.g., a URL)
+  factory DriverLicencesAndDbs.fromUrl(String url) {
+    return DriverLicencesAndDbs(
+      isAttached: true,
+      image: url,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "isAttached": isAttached,
+        "image": image,
       };
 }
 
+
+class DriverDetails {
+    DriverDetails({
+        required this.fullyLicensed,
+        required this.dbsChecked,
+        required this.wearUniforms,
+        required this.languagesSpoken,
+    });
+
+    final bool? fullyLicensed;
+    final bool? dbsChecked;
+    final bool? wearUniforms;
+    final String? languagesSpoken;
+
+    factory DriverDetails.fromJson(Map<String, dynamic> json){ 
+        return DriverDetails(
+            fullyLicensed: json["fullyLicensed"],
+            dbsChecked: json["dbsChecked"],
+            wearUniforms: json["wearUniforms"],
+            languagesSpoken: json["languagesSpoken"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "fullyLicensed": fullyLicensed,
+        "dbsChecked": dbsChecked,
+        "wearUniforms": wearUniforms,
+        "languagesSpoken": languagesSpoken,
+    };
+
+}
+
+class EquipmentSafety {
+    EquipmentSafety({
+        required this.safetyChecks,
+        required this.isMaintained,
+        required this.uniformType,
+        required this.offersRouteInspection,
+        required this.animalWelfareStandards,
+    });
+
+    final List<String> safetyChecks;
+    final bool? isMaintained;
+    final String? uniformType;
+    final bool? offersRouteInspection;
+    final List<String> animalWelfareStandards;
+
+    factory EquipmentSafety.fromJson(Map<String, dynamic> json){ 
+        return EquipmentSafety(
+            safetyChecks: json["safetyChecks"] == null ? [] : List<String>.from(json["safetyChecks"]!.map((x) => x)),
+            isMaintained: json["isMaintained"],
+            uniformType: json["uniformType"],
+            offersRouteInspection: json["offersRouteInspection"],
+            animalWelfareStandards: json["animalWelfareStandards"] == null ? [] : List<String>.from(json["animalWelfareStandards"]!.map((x) => x)),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "safetyChecks": safetyChecks.map((x) => x).toList(),
+        "isMaintained": isMaintained,
+        "uniformType": uniformType,
+        "offersRouteInspection": offersRouteInspection,
+        "animalWelfareStandards": animalWelfareStandards.map((x) => x).toList(),
+    };
+
+}
+
+class Events {
+    Events({
+        required this.weddingDecor,
+        required this.weddingDecorPrice,
+        required this.partyLightingSystem,
+        required this.partyLightingPrice,
+        required this.champagnePackages,
+        required this.champagnePackagePrice,
+        required this.photographyPackages,
+        required this.photographyPackagePrice,
+    });
+
+    final bool? weddingDecor;
+    final int? weddingDecorPrice;
+    final bool? partyLightingSystem;
+    final int? partyLightingPrice;
+    final bool? champagnePackages;
+    final int? champagnePackagePrice;
+    final bool? photographyPackages;
+    final int? photographyPackagePrice;
+
+    factory Events.fromJson(Map<String, dynamic> json){ 
+        return Events(
+            weddingDecor: json["weddingDecor"],
+            weddingDecorPrice: json["weddingDecorPrice"],
+            partyLightingSystem: json["partyLightingSystem"],
+            partyLightingPrice: json["partyLightingPrice"],
+            champagnePackages: json["champagnePackages"],
+            champagnePackagePrice: json["champagnePackagePrice"],
+            photographyPackages: json["photographyPackages"],
+            photographyPackagePrice: json["photographyPackagePrice"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "weddingDecor": weddingDecor,
+        "weddingDecorPrice": weddingDecorPrice,
+        "partyLightingSystem": partyLightingSystem,
+        "partyLightingPrice": partyLightingPrice,
+        "champagnePackages": champagnePackages,
+        "champagnePackagePrice": champagnePackagePrice,
+        "photographyPackages": photographyPackages,
+        "photographyPackagePrice": photographyPackagePrice,
+    };
+
+}
+
+class FeaturePricing {
+    FeaturePricing({
+        required this.eventsAndCustomization,
+        required this.accessibilityServices,
+    });
+
+    final EventsAndCustomization? eventsAndCustomization;
+    final AccessibilityServices? accessibilityServices;
+
+    factory FeaturePricing.fromJson(Map<String, dynamic> json){ 
+        return FeaturePricing(
+            eventsAndCustomization: json["eventsAndCustomization"] == null ? null : EventsAndCustomization.fromJson(json["eventsAndCustomization"]),
+            accessibilityServices: json["accessibilityServices"] == null ? null : AccessibilityServices.fromJson(json["accessibilityServices"]),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "eventsAndCustomization": eventsAndCustomization?.toJson(),
+        "accessibilityServices": accessibilityServices?.toJson(),
+    };
+
+}
+
+class AccessibilityServices {
+    AccessibilityServices({
+        required this.wheelchairAccess,
+        required this.childCarSeats,
+        required this.luggageRackRoofBox,
+        required this.petFriendlyService,
+    });
+
+    final int? wheelchairAccess;
+    final int? childCarSeats;
+    final int? luggageRackRoofBox;
+    final int? petFriendlyService;
+
+    factory AccessibilityServices.fromJson(Map<String, dynamic> json){ 
+        return AccessibilityServices(
+            wheelchairAccess: json["WheelchairAccess"],
+            childCarSeats: json["ChildCarSeats"],
+            luggageRackRoofBox: json["LuggageRack/RoofBox"],
+            petFriendlyService: json["Pet-FriendlyService"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "WheelchairAccess": wheelchairAccess,
+        "ChildCarSeats": childCarSeats,
+        "LuggageRack/RoofBox": luggageRackRoofBox,
+        "Pet-FriendlyService": petFriendlyService,
+    };
+
+}
+
+class EventsAndCustomization {
+    EventsAndCustomization({
+        required this.redCarpetService,
+        required this.champagnePackages,
+        required this.floralDcor,
+        required this.themedInteriors,
+        required this.partyPackages,
+    });
+
+    final int? redCarpetService;
+    final int? champagnePackages;
+    final int? floralDcor;
+    final int? themedInteriors;
+    final int? partyPackages;
+
+    factory EventsAndCustomization.fromJson(Map<String, dynamic> json){ 
+        return EventsAndCustomization(
+            redCarpetService: json["RedCarpetService"],
+            champagnePackages: json["ChampagnePackages"],
+            floralDcor: json["FloralDécor"],
+            themedInteriors: json["ThemedInteriors"],
+            partyPackages: json["PartyPackages"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "RedCarpetService": redCarpetService,
+        "ChampagnePackages": champagnePackages,
+        "FloralDécor": floralDcor,
+        "ThemedInteriors": themedInteriors,
+        "PartyPackages": partyPackages,
+    };
+
+}
+
+class Features {
+    Features({
+        required this.comfortAndLuxury,
+        required this.eventsAndCustomization,
+        required this.accessibilityServices,
+        required this.safetyAndCompliance,
+    });
+
+    final List<String> comfortAndLuxury;
+    final List<String> eventsAndCustomization;
+    final List<String> accessibilityServices;
+    final List<String> safetyAndCompliance;
+
+    factory Features.fromJson(Map<String, dynamic> json){ 
+        return Features(
+            comfortAndLuxury: json["comfortAndLuxury"] == null ? [] : List<String>.from(json["comfortAndLuxury"]!.map((x) => x)),
+            eventsAndCustomization: json["eventsAndCustomization"] == null ? [] : List<String>.from(json["eventsAndCustomization"]!.map((x) => x)),
+            accessibilityServices: json["accessibilityServices"] == null ? [] : List<String>.from(json["accessibilityServices"]!.map((x) => x)),
+            safetyAndCompliance: json["safetyAndCompliance"] == null ? [] : List<String>.from(json["safetyAndCompliance"]!.map((x) => x)),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "comfortAndLuxury": comfortAndLuxury.map((x) => x).toList(),
+        "eventsAndCustomization": eventsAndCustomization.map((x) => x).toList(),
+        "accessibilityServices": accessibilityServices.map((x) => x).toList(),
+        "safetyAndCompliance": safetyAndCompliance.map((x) => x).toList(),
+    };
+
+}
+
+class FleetDetails {
+    FleetDetails({
+        required this.vehicleType,
+        required this.makeModel,
+        required this.color,
+        required this.capacity,
+        required this.year,
+        required this.notes,
+    });
+
+    final String? vehicleType;
+    final String? makeModel;
+    final String? color;
+    final int? capacity;
+    final int? year;
+    final String? notes;
+
+    factory FleetDetails.fromJson(Map<String, dynamic> json){ 
+        return FleetDetails(
+            vehicleType: json["vehicleType"],
+            makeModel: json["makeModel"],
+            color: json["color"],
+            capacity: json["capacity"],
+            year: json["year"],
+            notes: json["notes"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "vehicleType": vehicleType,
+        "makeModel": makeModel,
+        "color": color,
+        "capacity": capacity,
+        "year": year,
+        "notes": notes,
+    };
+
+}
+
+class FleetInfo {
+    FleetInfo({
+        required this.boatName,
+        required this.type,
+        required this.capacity,
+        required this.onboardFeatures,
+        required this.year,
+        required this.notes,
+        required this.makeAndModel,
+        required this.wheelchairAccessible,
+        required this.airConditioning,
+        required this.luggageSpace,
+        required this.onboardFacilities,
+    });
+
+    final String? boatName;
+    final String? type;
+    final int? capacity;
+    final String? onboardFeatures;
+    final int? year;
+    final String? notes;
+    final String? makeAndModel;
+    final bool? wheelchairAccessible;
+    final bool? airConditioning;
+    final bool? luggageSpace;
+    final String? onboardFacilities;
+
+    factory FleetInfo.fromJson(Map<String, dynamic> json){ 
+        return FleetInfo(
+            boatName: json["boatName"],
+            type: json["type"],
+            capacity: json["capacity"],
+            onboardFeatures: json["onboardFeatures"],
+            year: json["year"],
+            notes: json["notes"],
+            makeAndModel: json["makeAndModel"],
+            wheelchairAccessible: json["wheelchairAccessible"],
+            airConditioning: json["airConditioning"],
+            luggageSpace: json["luggageSpace"],
+            onboardFacilities: json["onboardFacilities"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "boatName": boatName,
+        "type": type,
+        "capacity": capacity,
+        "onboardFeatures": onboardFeatures,
+        "year": year,
+        "notes": notes,
+        "makeAndModel": makeAndModel,
+        "wheelchairAccessible": wheelchairAccessible,
+        "airConditioning": airConditioning,
+        "luggageSpace": luggageSpace,
+        "onboardFacilities": onboardFacilities,
+    };
+
+}
+
+class Licensing {
+    Licensing({
+        required this.psvOperatorLicenceNumber,
+        required this.licensingAuthority,
+        required this.publicLiabilityInsuranceProvider,
+        required this.policyNumber,
+        required this.expiryDate,
+    });
+
+    final String? psvOperatorLicenceNumber;
+    final String? licensingAuthority;
+    final String? publicLiabilityInsuranceProvider;
+    final String? policyNumber;
+    final DateTime? expiryDate;
+
+    factory Licensing.fromJson(Map<String, dynamic> json){ 
+        return Licensing(
+            psvOperatorLicenceNumber: json["psvOperatorLicenceNumber"],
+            licensingAuthority: json["licensingAuthority"],
+            publicLiabilityInsuranceProvider: json["publicLiabilityInsuranceProvider"],
+            policyNumber: json["policyNumber"],
+            expiryDate: DateTime.tryParse(json["expiryDate"] ?? ""),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "psvOperatorLicenceNumber": psvOperatorLicenceNumber,
+        "licensingAuthority": licensingAuthority,
+        "publicLiabilityInsuranceProvider": publicLiabilityInsuranceProvider,
+        "policyNumber": policyNumber,
+        "expiryDate": expiryDate?.toIso8601String(),
+    };
+
+}
+
+class LicensingInsurance {
+    LicensingInsurance({
+        required this.hasPublicLiabilityInsurance,
+        required this.insuranceProviderName,
+        required this.policyNumber,
+        required this.policyExpiryDate,
+        required this.hasAnimalLicense,
+        required this.issuingAuthority,
+    });
+
+    final bool? hasPublicLiabilityInsurance;
+    final String? insuranceProviderName;
+    final String? policyNumber;
+    final DateTime? policyExpiryDate;
+    final bool? hasAnimalLicense;
+    final String? issuingAuthority;
+
+    factory LicensingInsurance.fromJson(Map<String, dynamic> json){ 
+        return LicensingInsurance(
+            hasPublicLiabilityInsurance: json["hasPublicLiabilityInsurance"],
+            insuranceProviderName: json["insuranceProviderName"],
+            policyNumber: json["policyNumber"],
+            policyExpiryDate: DateTime.tryParse(json["policyExpiryDate"] ?? ""),
+            hasAnimalLicense: json["hasAnimalLicense"],
+            issuingAuthority: json["issuingAuthority"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "hasPublicLiabilityInsurance": hasPublicLiabilityInsurance,
+        "insuranceProviderName": insuranceProviderName,
+        "policyNumber": policyNumber,
+        "policyExpiryDate": policyExpiryDate?.toIso8601String(),
+        "hasAnimalLicense": hasAnimalLicense,
+        "issuingAuthority": issuingAuthority,
+    };
+
+}
+
+class Marketing {
+    Marketing({
+        required this.description,
+        required this.serviceHighlights,
+    });
+
+    final String? description;
+    final List<dynamic> serviceHighlights;
+
+    factory Marketing.fromJson(Map<String, dynamic> json){ 
+        return Marketing(
+            description: json["description"],
+            serviceHighlights: json["serviceHighlights"] == null ? [] : List<dynamic>.from(json["serviceHighlights"]!.map((x) => x)),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "description": description,
+        "serviceHighlights": serviceHighlights.map((x) => x).toList(),
+    };
+
+}
+
+class MiniBusRates {
+    MiniBusRates({
+        required this.hourlyRate,
+        required this.halfDayRate,
+        required this.fullDayRate,
+        required this.mileageAllowance,
+        required this.additionalMileageFee,
+    });
+
+    final int? hourlyRate;
+    final int? halfDayRate;
+    final int? fullDayRate;
+    final int? mileageAllowance;
+    final int? additionalMileageFee;
+
+    factory MiniBusRates.fromJson(Map<String, dynamic> json){ 
+        return MiniBusRates(
+            hourlyRate: json["hourlyRate"],
+            halfDayRate: json["halfDayRate"],
+            fullDayRate: json["fullDayRate"],
+            mileageAllowance: json["mileageAllowance"],
+            additionalMileageFee: json["additionalMileageFee"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "hourlyRate": hourlyRate,
+        "halfDayRate": halfDayRate,
+        "fullDayRate": fullDayRate,
+        "mileageAllowance": mileageAllowance,
+        "additionalMileageFee": additionalMileageFee,
+    };
+
+}
+
+class OperatingHours {
+    OperatingHours({
+        required this.available24X7,
+        required this.specificTimes,
+    });
+
+    final bool? available24X7;
+    final String? specificTimes;
+
+    factory OperatingHours.fromJson(Map<String, dynamic> json){ 
+        return OperatingHours(
+            available24X7: json["available24x7"],
+            specificTimes: json["specificTimes"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "available24x7": available24X7,
+        "specificTimes": specificTimes,
+    };
+
+}
+
+class Pricing {
+    Pricing({
+        required this.hourlyRate,
+        required this.halfDayRate,
+        required this.fullDayRate,
+        required this.ceremonyPackageRate,
+    });
+
+    final int? hourlyRate;
+    final int? halfDayRate;
+    final int? fullDayRate;
+    final int? ceremonyPackageRate;
+
+    factory Pricing.fromJson(Map<String, dynamic> json){ 
+        return Pricing(
+            hourlyRate: json["hourlyRate"],
+            halfDayRate: json["halfDayRate"],
+            fullDayRate: json["fullDayRate"],
+            ceremonyPackageRate: json["ceremonyPackageRate"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "hourlyRate": hourlyRate,
+        "halfDayRate": halfDayRate,
+        "fullDayRate": fullDayRate,
+        "ceremonyPackageRate": ceremonyPackageRate,
+    };
+
+}
+
+class PricingDetails {
+    PricingDetails({
+        required this.dayRate,
+        required this.halfDayRate,
+        required this.hourlyRate,
+        required this.fuelChargesIncluded,
+        required this.extraMileageCharge,
+        required this.waitTimeFeePerHour,
+        required this.decoratingFloralServiceFee,
+        required this.mileageLimit,
+        required this.fullDayRate,
+        required this.multiDayRate,
+        required this.depositRequired,
+        required this.depositAmount,
+        required this.mileageAllowance,
+        required this.additionalMileageFee,
+    });
+
+    final int? dayRate;
+    final int? halfDayRate;
+    final int? hourlyRate;
+    final bool? fuelChargesIncluded;
+    final int? extraMileageCharge;
+    final int? waitTimeFeePerHour;
+    final int? decoratingFloralServiceFee;
+    final int? mileageLimit;
+    final int? fullDayRate;
+    final int? multiDayRate;
+    final bool? depositRequired;
+    final int? depositAmount;
+    final int? mileageAllowance;
+    final int? additionalMileageFee;
+
+    factory PricingDetails.fromJson(Map<String, dynamic> json){ 
+        return PricingDetails(
+            dayRate: json["dayRate"],
+            halfDayRate: json["halfDayRate"],
+            hourlyRate: json["hourlyRate"],
+            fuelChargesIncluded: json["fuelChargesIncluded"],
+            extraMileageCharge: json["extraMileageCharge"],
+            waitTimeFeePerHour: json["waitTimeFeePerHour"],
+            decoratingFloralServiceFee: json["decoratingFloralServiceFee"],
+            mileageLimit: json["mileageLimit"],
+            fullDayRate: json["fullDayRate"],
+            multiDayRate: json["multiDayRate"],
+            depositRequired: json["depositRequired"],
+            depositAmount: json["depositAmount"],
+            mileageAllowance: json["mileageAllowance"],
+            additionalMileageFee: json["additionalMileageFee"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "dayRate": dayRate,
+        "halfDayRate": halfDayRate,
+        "hourlyRate": hourlyRate,
+        "fuelChargesIncluded": fuelChargesIncluded,
+        "extraMileageCharge": extraMileageCharge,
+        "waitTimeFeePerHour": waitTimeFeePerHour,
+        "decoratingFloralServiceFee": decoratingFloralServiceFee,
+        "mileageLimit": mileageLimit,
+        "fullDayRate": fullDayRate,
+        "multiDayRate": multiDayRate,
+        "depositRequired": depositRequired,
+        "depositAmount": depositAmount,
+        "mileageAllowance": mileageAllowance,
+        "additionalMileageFee": additionalMileageFee,
+    };
+
+}
+
+class Security {
+    Security({
+        required this.vehicleTrackingGps,
+        required this.cctvFitted,
+        required this.publicLiabilityInsurance,
+        required this.safetyCertifiedDrivers,
+    });
+
+    final bool? vehicleTrackingGps;
+    final bool? cctvFitted;
+    final bool? publicLiabilityInsurance;
+    final bool? safetyCertifiedDrivers;
+
+    factory Security.fromJson(Map<String, dynamic> json){ 
+        return Security(
+            vehicleTrackingGps: json["vehicleTrackingGps"],
+            cctvFitted: json["cctvFitted"],
+            publicLiabilityInsurance: json["publicLiabilityInsurance"],
+            safetyCertifiedDrivers: json["safetyCertifiedDrivers"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "vehicleTrackingGps": vehicleTrackingGps,
+        "cctvFitted": cctvFitted,
+        "publicLiabilityInsurance": publicLiabilityInsurance,
+        "safetyCertifiedDrivers": safetyCertifiedDrivers,
+    };
+
+}
+
+class ServiceDetails {
+    ServiceDetails({
+        required this.occasionsCatered,
+        required this.carriageTypes,
+        required this.horseTypes,
+        required this.numberOfCarriages,
+        required this.fleetSize,
+        required this.basePostcode,
+    });
+
+    final List<String> occasionsCatered;
+    final List<String> carriageTypes;
+    final List<String> horseTypes;
+    final int? numberOfCarriages;
+    final int? fleetSize;
+    final String? basePostcode;
+
+    factory ServiceDetails.fromJson(Map<String, dynamic> json){ 
+        return ServiceDetails(
+            occasionsCatered: json["occasionsCatered"] == null ? [] : List<String>.from(json["occasionsCatered"]!.map((x) => x)),
+            carriageTypes: json["carriageTypes"] == null ? [] : List<String>.from(json["carriageTypes"]!.map((x) => x)),
+            horseTypes: json["horseTypes"] == null ? [] : List<String>.from(json["horseTypes"]!.map((x) => x)),
+            numberOfCarriages: json["numberOfCarriages"],
+            fleetSize: json["fleetSize"],
+            basePostcode: json["basePostcode"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "occasionsCatered": occasionsCatered.map((x) => x).toList(),
+        "carriageTypes": carriageTypes.map((x) => x).toList(),
+        "horseTypes": horseTypes.map((x) => x).toList(),
+        "numberOfCarriages": numberOfCarriages,
+        "fleetSize": fleetSize,
+        "basePostcode": basePostcode,
+    };
+
+}
+
+class FleetDetail {
+    FleetDetail({
+        required this.vehicleId,
+        required this.makeModel,
+        required this.type,
+        required this.year,
+        required this.color,
+        required this.capacity,
+        required this.vehicleDescription,
+        required this.bootSpace,
+        required this.keyFeatures,
+        required this.id,
+    });
+
+    final String? vehicleId;
+    final String? makeModel;
+    final String? type;
+    final int? year;
+    final String? color;
+    final int? capacity;
+    final String? vehicleDescription;
+    final String? bootSpace;
+    final String? keyFeatures;
+    final String? id;
+
+    factory FleetDetail.fromJson(Map<String, dynamic> json){ 
+        return FleetDetail(
+            vehicleId: json["vehicleId"],
+            makeModel: json["make_Model"],
+            type: json["type"],
+            year: json["year"],
+            color: json["color"],
+            capacity: json["capacity"],
+            vehicleDescription: json["vehicleDescription"],
+            bootSpace: json["bootSpace"],
+            keyFeatures: json["key_Features"],
+            id: json["_id"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "vehicleId": vehicleId,
+        "make_Model": makeModel,
+        "type": type,
+        "year": year,
+        "color": color,
+        "capacity": capacity,
+        "vehicleDescription": vehicleDescription,
+        "bootSpace": bootSpace,
+        "key_Features": keyFeatures,
+        "_id": id,
+    };
+
+}
+
+class ServicesProvided {
+    ServicesProvided({
+        required this.schoolTrips,
+        required this.corporateTransport,
+        required this.privateGroupTours,
+        required this.airportTransfers,
+        required this.longDistanceTravel,
+        required this.weddingOrEventTransport,
+        required this.shuttleServices,
+        required this.accessibleCoachHire,
+        required this.other,
+        required this.otherSpecified,
+    });
+
+    final bool? schoolTrips;
+    final bool? corporateTransport;
+    final bool? privateGroupTours;
+    final bool? airportTransfers;
+    final bool? longDistanceTravel;
+    final bool? weddingOrEventTransport;
+    final bool? shuttleServices;
+    final bool? accessibleCoachHire;
+    final bool? other;
+    final String? otherSpecified;
+
+    factory ServicesProvided.fromJson(Map<String, dynamic> json){ 
+        return ServicesProvided(
+            schoolTrips: json["schoolTrips"],
+            corporateTransport: json["corporateTransport"],
+            privateGroupTours: json["privateGroupTours"],
+            airportTransfers: json["airportTransfers"],
+            longDistanceTravel: json["longDistanceTravel"],
+            weddingOrEventTransport: json["weddingOrEventTransport"],
+            shuttleServices: json["shuttleServices"],
+            accessibleCoachHire: json["accessibleCoachHire"],
+            other: json["other"],
+            otherSpecified: json["otherSpecified"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "schoolTrips": schoolTrips,
+        "corporateTransport": corporateTransport,
+        "privateGroupTours": privateGroupTours,
+        "airportTransfers": airportTransfers,
+        "longDistanceTravel": longDistanceTravel,
+        "weddingOrEventTransport": weddingOrEventTransport,
+        "shuttleServices": shuttleServices,
+        "accessibleCoachHire": accessibleCoachHire,
+        "other": other,
+        "otherSpecified": otherSpecified,
+    };
+
+}
+
+class SubcategoryId {
+    SubcategoryId({
+        required this.id,
+        required this.subcategoryName,
+    });
+
+    final String? id;
+    final String? subcategoryName;
+
+    factory SubcategoryId.fromJson(Map<String, dynamic> json){ 
+        return SubcategoryId(
+            id: json["_id"],
+            subcategoryName: json["subcategory_name"],
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "_id": id,
+        "subcategory_name": subcategoryName,
+    };
+
+}
+
 class UploadedDocuments {
-  String? operatorLicence;
-  String? insuranceCertificate;
-  String? driverLicencesAndDBS;
-  String? vehicleMOTs;
-  List<String>? fleetPhotos;
+    UploadedDocuments({
+        required this.operatorLicence,
+        required this.insuranceCertificate,
+        required this.driverLicencesAndDbs,
+        required this.vehicleMoTs,
+        required this.fleetPhotos,
+    });
 
-  UploadedDocuments({
-    this.operatorLicence,
-    this.insuranceCertificate,
-    this.driverLicencesAndDBS,
-    this.vehicleMOTs,
-    this.fleetPhotos,
-  });
+    final String? operatorLicence;
+    final String? insuranceCertificate;
+    final String? driverLicencesAndDbs;
+    final String? vehicleMoTs;
+    final List<String> fleetPhotos;
 
-  factory UploadedDocuments.fromJson(Map<String, dynamic> json) => UploadedDocuments(
-        operatorLicence: json['operatorLicence'],
-        insuranceCertificate: json['insuranceCertificate'],
-        driverLicencesAndDBS: json['driverLicencesAndDBS'],
-        vehicleMOTs: json['vehicleMOTs'],
-        fleetPhotos: json['fleetPhotos'] != null ? List<String>.from(json['fleetPhotos']) : null,
-      );
+    factory UploadedDocuments.fromJson(Map<String, dynamic> json){ 
+        return UploadedDocuments(
+            operatorLicence: json["operatorLicence"],
+            insuranceCertificate: json["insuranceCertificate"],
+            driverLicencesAndDbs: json["driverLicencesAndDBS"],
+            vehicleMoTs: json["vehicleMOTs"],
+            fleetPhotos: json["fleetPhotos"] == null ? [] : List<String>.from(json["fleetPhotos"]!.map((x) => x)),
+        );
+    }
 
-  Map<String, dynamic> toJson() => {
-        'operatorLicence': operatorLicence,
-        'insuranceCertificate': insuranceCertificate,
-        'driverLicencesAndDBS': driverLicencesAndDBS,
-        'vehicleMOTs': vehicleMOTs,
-        'fleetPhotos': fleetPhotos,
-      };
+    Map<String, dynamic> toJson() => {
+        "operatorLicence": operatorLicence,
+        "insuranceCertificate": insuranceCertificate,
+        "driverLicencesAndDBS": driverLicencesAndDbs,
+        "vehicleMOTs": vehicleMoTs,
+        "fleetPhotos": fleetPhotos.map((x) => x).toList(),
+    };
+
 }

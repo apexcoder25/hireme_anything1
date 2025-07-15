@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
@@ -16,20 +17,16 @@ class _ServicesScreenState extends State<ServicesScreen> {
   final AllServicesController controller = Get.put(AllServicesController());
   final DropdownController subCatController = Get.put(DropdownController());
 
-  int _selectedIndex = 2; 
+  int _selectedIndex = 2;
 
-  String? selectedCategory;
-  String? selectedSubcategory;
   String? selectedLocation;
   String? selectedBudget;
   DateTime? selectedDate;
-
 
   void _onDrawerItemSelected(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    // Navigation is handled in UserDrawer, so we just update the index here
   }
 
   @override
@@ -46,12 +43,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   Future<void> _applyFilters() async {
     await controller.applyFilter(
-      category: subCatController.selectedCategory.value,
-      subcategory: subCatController.selectedSubcategory.value,
+      categoryId: subCatController.selectedCategoryId.value,
+      subCategoryId: subCatController.selectedSubcategoryId.value,
       location: selectedLocation,
-      date: selectedDate != null
-          ? DateFormat('yyyy-MM-dd').format(selectedDate!)
-          : null,
+      date: selectedDate != null ? DateFormat('yyyy-MM-dd').format(selectedDate!) : null,
       budgetRange: selectedBudget,
     );
   }
@@ -59,15 +54,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: Colors.lightBlue[50], 
+      backgroundColor: Colors.lightBlue[50],
       appBar: AppBar(
         title: Text(
           "Available Services",
-          style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
-         backgroundColor: Colors.lightBlue[50],
-         leading: Builder(
+        backgroundColor: Colors.lightBlue[50],
+        leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: colors.black),
             onPressed: () => Scaffold.of(context).openDrawer(),
@@ -84,13 +79,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 return Center(child: CircularProgressIndicator());
               }
 
-              var filteredServices = [
-                ...controller.vendorServices.where((s) => s.serviceApproveStatus == "1"),
-                ...controller.tutorHireServices.where((s) => s.serviceApproveStatus == "1"),
-                ...controller.automotiveHireServices.where((s) => s.serviceApproveStatus == "1"),
-              ];
+              var filteredFuneral = controller.funeralServices.where((s) => s.serviceApproveStatus == true).toList();
+              var filteredHorse = controller.horseServices.where((s) => s.serviceApproveStatus == true).toList();
+              var filteredChauffeur = controller.chauffeurServices.where((s) => s.serviceApproveStatus == "1").toList();
+              print("Rendering - Funeral: ${filteredFuneral.length}, Horse: ${filteredHorse.length}, Chauffeur: ${filteredChauffeur.length}");
 
-              if (filteredServices.isEmpty) {
+              if (filteredFuneral.isEmpty && filteredHorse.isEmpty && filteredChauffeur.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -105,13 +99,33 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
               return RefreshIndicator(
                 onRefresh: _refreshServices,
-                child: ListView.builder(
+                child: ListView(
                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  itemCount: filteredServices.length,
-                  itemBuilder: (context, index) {
-                    final service = filteredServices[index];
-                    return ServiceCard(service: service);
-                  },
+                  children: [
+                    // Funeral Services Section
+                    if (filteredFuneral.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Funeral Services", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      ),
+                    ...filteredFuneral.map((service) => ServiceCard(service: service)).toList(),
+
+                    // Horse Services Section
+                    if (filteredHorse.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Horse and Carriage Services", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      ),
+                    ...filteredHorse.map((service) => ServiceCard(service: service)).toList(),
+
+                    // Chauffeur Services Section
+                    if (filteredChauffeur.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Chauffeur Services", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      ),
+                    ...filteredChauffeur.map((service) => ServiceCard(service: service)).toList(),
+                  ],
                 ),
               );
             }),
@@ -120,7 +134,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
       ),
     );
   }
-
   Widget _buildFilterSection() {
     return Container(
       padding: EdgeInsets.all(12),
@@ -209,15 +222,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
   }
 
   Widget _buildCategoryDropdown() {
-    final DropdownController catController = Get.put(DropdownController());
     return Obx(() {
       return DropdownButtonFormField<String>(
-        decoration: _dropdownDecoration("Photographers"),
-        value: catController.selectedCategory.value,
-        hint: Text("Photographers"),
+        decoration: _dropdownDecoration("Category"),
+        value: subCatController.selectedCategory.value,
+        hint: Text("Category"),
         isExpanded: true,
         icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
-        items: catController.categories.map((category) {
+        items: subCatController.categories.map((category) {
           return DropdownMenuItem<String>(
             value: category,
             child: Text(category),
@@ -225,7 +237,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         }).toList(),
         onChanged: (value) {
           if (value != null) {
-            catController.selectCategory(value);
+            subCatController.selectCategory(value);
           }
         },
       );
@@ -233,12 +245,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
   }
 
   Widget _buildSubcategoryDropdown() {
-    final DropdownController subCatController = Get.put(DropdownController());
     return Obx(() {
       return DropdownButtonFormField<String>(
-        decoration: _dropdownDecoration("Event Type"),
+        decoration: _dropdownDecoration("Subcategory"),
         value: subCatController.selectedSubcategory.value,
-        hint: Text("Event Type"),
+        hint: Text("Subcategory"),
         isExpanded: true,
         icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
         items: subCatController.subcategories.map((subcat) {
@@ -344,11 +355,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   void _clearFilters() {
     setState(() {
-      selectedCategory = null;
-      selectedSubcategory = null;
       selectedLocation = null;
       selectedBudget = null;
       selectedDate = null;
     });
+    subCatController.selectedCategory.value = null;
+    subCatController.selectedSubcategory.value = null;
+    subCatController.selectedCategoryId.value = null;
+    subCatController.selectedSubcategoryId.value = null;
+    controller.fetchServices(); // Re-fetch with default Passenger Transport
   }
 }

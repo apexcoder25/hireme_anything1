@@ -4,6 +4,10 @@ class AppUrlsVendorSide{
   // var baseUrlImages="https://api.hireanything.com/uploads/";
   var baseUrlImages="http://10.0.2.2:5003/uploads/";
 
+static var baseUrlVendorSideUrls2="https://stag-api.hireanything.com/vendor/";
+
+static var profile = "${baseUrlVendorSideUrls2}profile";
+static var updateprofile = "${baseUrlVendorSideUrls2}vendors";
 
   static const String vendorBookingsUrl = '/vendor-bookings';
 

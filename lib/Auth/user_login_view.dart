@@ -105,8 +105,9 @@ class _UserLoginScreeenState extends State<UserLoginScreeen> {
                             });
 
                             if (isRegistered) {
-                              Get.offAllNamed(UserRoutesName.homeUserView);
                               profileController.fetchProfile();
+                              Get.offAllNamed(UserRoutesName.homeUserView);
+                              
                             } else {
                               Get.snackbar(
                                 "Error",

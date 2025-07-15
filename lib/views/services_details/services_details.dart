@@ -24,6 +24,11 @@ class ServicesDetails extends StatefulWidget {
   final String? registration;
   final int? noOfSeats;
   final String serviceImage;
+  final String? vehicleTypes; // For Funeral
+  final String? packageOptions; // For Funeral
+  final String? carriageTypes; // For Horse
+  final String? horseTypes; // For Horse
+  final String? vehicleType; // For Chauffeur
 
   const ServicesDetails({
     super.key,
@@ -46,6 +51,11 @@ class ServicesDetails extends StatefulWidget {
     this.noOfSeats,
     required this.serviceImage,
     this.service,
+    this.vehicleTypes,
+    this.packageOptions,
+    this.carriageTypes,
+    this.horseTypes,
+    this.vehicleType,
   });
 
   @override
@@ -53,56 +63,52 @@ class ServicesDetails extends StatefulWidget {
 }
 
 class _ServicesDetailsState extends State<ServicesDetails> {
+  bool _showMoreDetails = false;
+
   String formatDateTime(String isoString) {
     DateTime dateTime = DateTime.parse(isoString).toLocal();
     return DateFormat('dd-MM-yyyy hh:mm a').format(dateTime);
   }
 
-  
   List<String> getCityList(String cityNames) {
-  return cityNames.split(',').map((city) => city.trim().replaceAll('[', '').replaceAll(']', '')).where((city) => city.isNotEmpty).toList();
-}
+    return cityNames
+        .split(',')
+        .map((city) => city.trim().replaceAll('[', '').replaceAll(']', ''))
+        .where((city) => city.isNotEmpty)
+        .toList();
+  }
+
   void _showCityDialog() {
     final cities = getCityList(widget.cityNames);
     showDialog(
-      
       context: context,
       builder: (context) => AlertDialog(
-         backgroundColor: Colors.lightBlue[50],
-        title: const Text('All Service Areas',style: TextStyle(fontWeight: FontWeight.bold),),
+        backgroundColor: Colors.lightBlue[50],
+        title: const Text('All Service Areas', style: TextStyle(fontWeight: FontWeight.bold)),
         content: SizedBox(
-          
-          
           width: double.maxFinite,
           child: SingleChildScrollView(
             child: Container(
-             
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.9,
               ),
               child: Wrap(
-                
-                
-  spacing: 8.0,
-  runSpacing: 8.0,
-  alignment: WrapAlignment.center,
-  children: cities.map((city) => _buildCityTile(city, context)).toList(),
-),
-
+                spacing: 8.0,
+                runSpacing: 8.0,
+                alignment: WrapAlignment.center,
+                children: cities.map((city) => _buildCityTile(city, context)).toList(),
+              ),
             ),
           ),
         ),
         actions: [
-        ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                          backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                       
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+            ),
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
           ),
@@ -111,13 +117,10 @@ class _ServicesDetailsState extends State<ServicesDetails> {
     );
   }
 
-
   Widget _buildCityTile(String city, BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.28, 
-      ),
+      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.28),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(4.0),
@@ -125,16 +128,13 @@ class _ServicesDetailsState extends State<ServicesDetails> {
       ),
       child: Text(
         city,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-          overflow: TextOverflow.ellipsis,
-        ),
-        maxLines: 4, 
+        style: TextStyle(fontSize: 14, color: Colors.grey[600], overflow: TextOverflow.ellipsis),
+        maxLines: 4,
         softWrap: true,
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,7 +170,6 @@ class _ServicesDetailsState extends State<ServicesDetails> {
                   ],
                 ),
               ),
-
               Container(
                 margin: const EdgeInsets.all(16.0),
                 padding: const EdgeInsets.all(16.0),
@@ -194,24 +193,17 @@ class _ServicesDetailsState extends State<ServicesDetails> {
                       children: [
                         Text(
                           widget.serviceName ?? 'Unknown Service',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '£${widget.kmPrice}/mile',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 16, color: Colors.green, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8.0),
                     Icon(Icons.location_on, color: Colors.green),
-                    const SizedBox(height: 4.0), // Add spacing before the clickable text
+                    const SizedBox(height: 4.0),
                     GestureDetector(
                       onTap: _showCityDialog,
                       child: Row(
@@ -219,11 +211,7 @@ class _ServicesDetailsState extends State<ServicesDetails> {
                         children: [
                           Text(
                             '${getCityList(widget.cityNames).length} cities',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
+                            style: TextStyle(fontSize: 14, color: Colors.blue, decoration: TextDecoration.underline),
                           ),
                           const SizedBox(width: 4.0),
                           Icon(Icons.arrow_drop_down, color: Colors.blue, size: 16),
@@ -231,7 +219,6 @@ class _ServicesDetailsState extends State<ServicesDetails> {
                       ),
                     ),
                     const SizedBox(height: 16.0),
-
                     Container(
                       height: 200,
                       decoration: BoxDecoration(
@@ -243,13 +230,9 @@ class _ServicesDetailsState extends State<ServicesDetails> {
                       ),
                     ),
                     const SizedBox(height: 16.0),
-
                     const Text(
                       'Available Amenities',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8.0),
                     Row(
@@ -262,33 +245,21 @@ class _ServicesDetailsState extends State<ServicesDetails> {
                       ],
                     ),
                     const SizedBox(height: 16.0),
-
                     const Text(
                       'Description',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8.0),
                     Text(
                       widget.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     const SizedBox(height: 16.0),
-
                     const Text(
                       'Service Details',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8.0),
-
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -300,35 +271,61 @@ class _ServicesDetailsState extends State<ServicesDetails> {
                         _buildDetailRow('Distance Range', '${widget.minDistance} - ${widget.maxDistance} miles'),
                       ],
                     ),
-
+                    if (_showMoreDetails) ...[
+                      const SizedBox(height: 16.0),
+                      if (widget.vehicleTypes != null)
+                        _buildDetailRow('Vehicle Types', widget.vehicleTypes!),
+                      if (widget.packageOptions != null)
+                        _buildDetailRow('Package Options', widget.packageOptions!),
+                      if (widget.carriageTypes != null)
+                        _buildDetailRow('Carriage Types', widget.carriageTypes!),
+                      if (widget.horseTypes != null)
+                        _buildDetailRow('Horse Types', widget.horseTypes!),
+                      if (widget.vehicleType != null)
+                        _buildDetailRow('Vehicle Type', widget.vehicleType!),
+                    ],
                     const SizedBox(height: 16.0),
-
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showMoreDetails = !_showMoreDetails;
+                        });
+                      },
+                      child: Center(
+                        child: Text(
+                          _showMoreDetails ? 'Show less details' : 'Show more details',
+                          style: TextStyle(color: Colors.grey, decoration: TextDecoration.underline),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          widget.service is VendorServiceModel
-                              ? Get.to(() => BookServices(
-                                    categoryId: widget.service.categoryId.id,
-                                    subcategoryId: widget.service.subcategoryId.id,
-                                    fromDate: widget.service.bookingDateFrom,
-                                    todate: widget.service.bookingDateTo,
-                                    capacity: widget.service.noOfSeats.toString(),
-                                    minDistance: widget.service.minimumDistance,
-                                    maxDistsnce: widget.service.maximumDistance,
-                                    ServiceCities: widget.service.cityName.toString(),
-                                  ))
-                              : widget.service is TutorHireService
-                                  ? Get.to(() => BookServices(
-                                        categoryId: widget.service.categoryId.id,
-                                        subcategoryId: widget.service.subcategoryId.id,
-                                      ))
-                                  : widget.service is AutomotiveHireService
-                                      ? Get.to(() => BookServices(
-                                            categoryId: widget.service.categoryId.id,
-                                            subcategoryId: widget.service.subcategoryId.id,
-                                          ))
-                                      : Get.snackbar("Invalid Route", "No Route Found");
+                          Get.to(() => BookServices(
+                                id: widget.service is VendorServiceModel
+                                    ? widget.service.id ?? ""
+                                    : widget.service is TutorHireService
+                                        ? widget.service.id ?? ""
+                                        : widget.service is AutomotiveHireService
+                                            ? widget.service.id ?? ""
+                                            : "",
+                                categoryId: widget.categoryId,
+                                subcategoryId: widget.subcategoryId,
+                                fromDate: widget.bookingDateFrom,
+                                todate: widget.bookingDateTo,
+                                capacity: widget.noOfSeats?.toString() ?? "",
+                                minDistance: widget.minDistance ?? "",
+                                maxDistsnce: widget.maxDistance ?? "",
+                                ServiceCities: widget.cityNames,
+                                vehicleTypes: widget.vehicleTypes,
+                                packageOptions: widget.packageOptions,
+                                carriageTypes: widget.carriageTypes,
+                                horseTypes: widget.horseTypes,
+                                vehicleType: widget.vehicleType,
+                                makeModel: widget.makeAndModel,
+                              ));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
@@ -366,10 +363,7 @@ class _ServicesDetailsState extends State<ServicesDetails> {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
               overflow: TextOverflow.ellipsis,
               softWrap: true,
             ),
@@ -378,10 +372,7 @@ class _ServicesDetailsState extends State<ServicesDetails> {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               textAlign: TextAlign.end,
               overflow: TextOverflow.ellipsis,
               softWrap: true,
@@ -401,11 +392,7 @@ class _ServicesDetailsState extends State<ServicesDetails> {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          overflow: TextOverflow.ellipsis,
-        ),
+        style: const TextStyle(color: Colors.white, fontSize: 12, overflow: TextOverflow.ellipsis),
       ),
     );
   }

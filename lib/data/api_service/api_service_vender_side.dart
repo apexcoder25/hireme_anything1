@@ -281,8 +281,11 @@ Future<bool> sendOtpPhone(String phone, String countryCode) async {
     return false;
   }Future<bool> vendorLogin(Map<String, dynamic> data) async {
   try {
+    // https://api.hireanything.com/vendor/partnerlogin
+    
+
     var response = await http.post(
-      Uri.parse('https://api.hireanything.com/vendor/partnerlogin'),
+      Uri.parse('https://stag-api.hireanything.com/vendor/partnerlogin'),
       body: data,
     );
 

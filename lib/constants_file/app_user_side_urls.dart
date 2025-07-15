@@ -4,7 +4,15 @@ class AppUrlsUserSide{
   // https://api.hireanything.com/user/add_enquiry
   
 // https://api.hireanything.com/user/login
-  var login = "${baseUrlUserSideUrls}login";
+ static var baseUrlUserSideUrls2 ="https://stag-api.hireanything.com/user/";
+
+
+ var login = "${baseUrlUserSideUrls2}login";
+ static var profile = "${baseUrlUserSideUrls2}profile";
+
+
+
+  // var login = "${baseUrlUserSideUrls}login";
   var signup="${baseUrlUserSideUrls}signup";
   var verifyOtp="${baseUrlUserSideUrls}verify_otp";
   var updateUserProfile="${baseUrlUserSideUrls}update_user";

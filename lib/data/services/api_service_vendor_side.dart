@@ -17,7 +17,7 @@ class ApiServiceVenderSide implements BaseApiServices {
     };
 
     final options = BaseOptions(
-      baseUrl: AppUrlsVendorSide.baseUrlVendorSideUrls,
+      baseUrl: AppUrlsVendorSide.baseUrlVendorSideUrls2,
       headers: headers,
       connectTimeout: AppUrlsUserSide.connectionTimeout,
       receiveTimeout: AppUrlsUserSide.receiveTimeout,
@@ -103,12 +103,15 @@ class ApiServiceVenderSide implements BaseApiServices {
 
   @override
   Future<dynamic> putApi(String url, dynamic data,
-      {Map<String, dynamic>? queryParameters}) async {
+      {Map<String, dynamic>? queryParameters, Map<String, String>? headers}) async {
     try {
       final Response response = await _dio.put(
         url,
         data: data,
         queryParameters: queryParameters,
+        options: Options(
+          headers: headers,
+        ),
       );
       return _handleResponse(response);
     } on DioException catch (e) {

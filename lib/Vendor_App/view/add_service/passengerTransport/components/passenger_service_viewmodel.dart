@@ -1,14 +1,14 @@
 // passenger_service_viewmodel.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
 import 'package:hire_any_thing/data/models/user_side_model/allvendorServicesList.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
-import 'package:hire_any_thing/Vendor_App/view/serviceses/add_servie_home.dart';
 
 class PassengerServiceViewModel extends GetxController {
   final vendorServiceModel = VendorServiceModel(

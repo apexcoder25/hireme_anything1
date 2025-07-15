@@ -52,7 +52,7 @@ class WelcomeSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Welcome to\nHireAnything.com',
+          'Welcome to\nhireanything.com',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
@@ -70,8 +70,8 @@ class WelcomeSection extends StatelessWidget {
         ),
         SizedBox(height: 16),
         Text(
-          'At HireAnything.com, our mission is simple: to make hiring or renting anything you need – easy, reliable, and hassle-free. Whether you’re a customer searching for a service or item, or a vendor offering your services or products for hire, we’ve built a platform that connects you effortlessly.\n\n'
-          'From tools and vehicles to party supplies, home services, or professionals – HireAnything.com is your one-stop rental and hiring marketplace.',
+          'At hireanything.com, our mission is simple: to make hiring or renting anything you need – easy, reliable, and hassle-free. Whether you’re a customer searching for a service or item, or a vendor offering your services or products for hire, we’ve built a platform that connects you effortlessly.\n\n'
+          'From tools and vehicles to party supplies, home services, or professionals – hireanything.com is your one-stop rental and hiring marketplace.',
           style: TextStyle(
             fontSize: 14,
             color: Colors.grey[600],
@@ -91,7 +91,7 @@ class WhatMakesDifferentSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'What Makes\nHireAnything.com\nDifferent?',
+          'What Makes\nhireanything.com\nDifferent?',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -375,7 +375,7 @@ class MakeHiringSmarterSection extends StatelessWidget {
           ),
           SizedBox(height: 16),
           Text(
-            'Whether you’re someone in need or someone with something to offer, HireAnything.com is your partner in making hiring and renting seamless. We’re building a trusted ecosystem that benefits both sides of the transaction.',
+            'Whether you’re someone in need or someone with something to offer, hireanything.com is your partner in making hiring and renting seamless. We’re building a trusted ecosystem that benefits both sides of the transaction.',
             style: TextStyle(
               fontSize: 14,
               color: Colors.white70,

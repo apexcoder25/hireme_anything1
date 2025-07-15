@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/add_service_screen_1.dart';
 import 'package:hire_any_thing/Vendor_App/view/booking_status/booking_status_view.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/profile_page.dart';
-import 'package:hire_any_thing/Vendor_App/view/serviceses/add_servie_home.dart';
+import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/profile_controller.dart';
 import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';

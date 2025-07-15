@@ -3,7 +3,7 @@ import 'package:hire_any_thing/Auth/agree.dart';
 import 'package:hire_any_thing/Auth/user_login_view.dart';
 import 'package:hire_any_thing/Vendor_App/view/accounts_and_payment/accounts_and_payment.dart';
 import 'package:hire_any_thing/Vendor_App/view/login_view.dart/login_view.dart';
-import 'package:hire_any_thing/Vendor_App/view/serviceses/add_servie_home.dart';
+import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/Vendor_App/view/signup%20form/user_signup_view.dart';
 import 'package:hire_any_thing/Vendor_App/view/signup%20form/vendor_signup_view.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';

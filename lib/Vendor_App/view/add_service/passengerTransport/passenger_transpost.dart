@@ -13,7 +13,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/co
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupon_list.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupondialog.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
-import 'package:hire_any_thing/Vendor_App/view/serviceses/add_servie_home.dart';
+import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';

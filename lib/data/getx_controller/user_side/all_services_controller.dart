@@ -1,15 +1,14 @@
-import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/category_sub_model.dart';
-import 'package:hire_any_thing/data/models/user_side_model/allvendorServicesList.dart';
-import 'package:http/http.dart' as http;
+import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
+import 'package:hire_any_thing/data/services/api_service.dart';
 
 class AllServicesController extends GetxController {
   var isLoading = true.obs;
-  var vendorServices = <VendorServiceModel>[].obs;
-  var tutorHireServices = <TutorHireService>[].obs;
-  var automotiveHireServices = <AutomotiveHireService>[].obs;
+  var services = <Datum>[].obs; // Use Datum directly from FilterModel
+  var funeralServices = <Datum>[].obs;
+  var horseServices = <Datum>[].obs;
+  var chauffeurServices = <Datum>[].obs;
 
   var categories = <String>[].obs;
   var subcategories = <String>[].obs;
@@ -18,9 +17,11 @@ class AllServicesController extends GetxController {
   var selectedSubcategory = Rxn<String>();
   var selectedSubcategoryId = Rxn<String>();
 
-  final String apiUrl = "https://api.hireanything.com/vendor/allVendorService";
+  final String apiUrl = "https://stag-api.hireanything.com/user/global-filter";
 
   var subcategoryMap = <String, List<Model1>>{}.obs; // Store mapping globally
+
+  final ApiService _apiService = ApiService();
 
   @override
   void onInit() {
@@ -31,43 +32,33 @@ class AllServicesController extends GetxController {
   Future<void> fetchServices() async {
     try {
       isLoading(true);
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await _apiService.postApi(
+        apiUrl,
+        {
+          "categoryId": "676ac544234968d45b494992", // Default to Passenger Transport
+          "subCategoryId": "",
+          "minBudget": null,
+          "maxBudget": null,
+        },
+      );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data != null) {
-          // Parse vendor services
-          vendorServices.value = (data['vendorServices'] as List?)
-                  ?.map((e) => VendorServiceModel.fromJson(e))
-                  .whereType<VendorServiceModel>()
-                  .toList() ??
-              [];
-          print("Vendor Services fetched: ${vendorServices.length} items");
-
-          // Parse tutor hire services
-          tutorHireServices.value = (data['tutorHireServices'] as List?)
-                  ?.map((e) => TutorHireService.fromJson(e))
-                  .whereType<TutorHireService>()
-                  .toList() ??
-              [];
-          print("Tutor Hire Services fetched: ${tutorHireServices.length} items");
-
-          // Parse automotive hire services
-          automotiveHireServices.value = (data['automotiveHireServices'] as List?)
-                  ?.map((e) => AutomotiveHireService.fromJson(e))
-                  .whereType<AutomotiveHireService>()
-                  .toList() ??
-              [];
-          print("Automotive Hire Services fetched: ${automotiveHireServices.length} items");
-
+      if (response != null) {
+        final data = FilterModel.fromJson(response);
+        if (data.success == true && data.data.isNotEmpty) {
+          services.value = data.data;
+          print("Total services fetched: ${services.length}");
+          // Separate services by _sourceModel
+          funeralServices.value = services.where((service) => service.sourceModel == "funeral").toList();
+          horseServices.value = services.where((service) => service.sourceModel == "horse").toList();
+          chauffeurServices.value = services.where((service) => service.sourceModel == "chauffeur").toList();
+          print("Funeral: ${funeralServices.length}, Horse: ${horseServices.length}, Chauffeur: ${chauffeurServices.length}");
           extractCategories();
         } else {
-          print("API response is null or empty");
+          print("API response is empty or unsuccessful");
         }
       } else {
-        print("API Error: ${response.statusCode} - ${response.body}");
-        throw Exception("Failed to load services: ${response.statusCode}");
+        print("API response is null");
+        throw Exception("Failed to load services");
       }
     } catch (e, stackTrace) {
       print("Error fetching services: $e, StackTrace: $stackTrace");
@@ -78,33 +69,14 @@ class AllServicesController extends GetxController {
   }
 
   void extractCategories() {
-    var allServices = [
-      ...vendorServices,
-      ...tutorHireServices,
-      ...automotiveHireServices
-    ];
-
     var categorySet = <String>{};
     subcategoryMap.clear(); // Reset subcategory mapping
 
-    for (var service in allServices) {
-      String categoryName = "Unknown";
-      String subcategoryName = "Unknown";
-
-      if (service is VendorServiceModel) {
-        categoryName = service.categoryId?.categoryName ?? "Unknown";
-        subcategoryName = service.subcategoryId?.subcategoryName ?? "Unknown";
-      } else if (service is TutorHireService) {
-        categoryName = service.categoryId?.categoryName ?? "Unknown";
-        subcategoryName = service.subcategoryId?.subcategoryName ?? "Unknown";
-      } else if (service is AutomotiveHireService) {
-        categoryName = service.categoryId?.categoryName ?? "Unknown";
-        subcategoryName = service.subcategoryId?.subcategoryName ?? "Unknown";
-      }
+    for (var service in services) {
+      String categoryName = service.categoryId?.categoryName ?? "Unknown";
+      String subcategoryName = service.subcategoryId?.subcategoryName ?? "Unknown";
 
       categorySet.add(categoryName);
-
-      // Ensure subcategories are stored correctly
       subcategoryMap.putIfAbsent(categoryName, () => []).add(Model1(subcategoryName: subcategoryName));
     }
 
@@ -113,8 +85,8 @@ class AllServicesController extends GetxController {
   }
 
   Future<void> applyFilter({
-    String? category,
-    String? subcategory,
+    String? categoryId,
+    String? subCategoryId,
     String? location,
     String? date,
     String? budgetRange,
@@ -122,46 +94,44 @@ class AllServicesController extends GetxController {
     try {
       isLoading(true);
 
-      // Build URL dynamically based on provided filters
-      String filterUrl = "https://hireanything.com/offering?";
-      Map<String, String> queryParams = {};
+      double? minBudget;
+      double? maxBudget;
+      if (budgetRange != null && budgetRange.isNotEmpty) {
+        final parts = budgetRange.split('-');
+        if (parts.length == 2) {
+          minBudget = double.tryParse(parts[0]) ?? 0.0;
+          maxBudget = double.tryParse(parts[1]) ?? 0.0;
+        } else if (budgetRange == "200+") {
+          minBudget = 200.0;
+          maxBudget = null;
+        }
+      }
 
-      if (category != null && category.isNotEmpty) queryParams["category"] = category;
-      if (subcategory != null && subcategory.isNotEmpty) queryParams["subcategory"] = subcategory;
-      if (location != null && location.isNotEmpty) queryParams["location"] = location;
-      if (date != null && date.isNotEmpty) queryParams["date"] = date;
-      if (budgetRange != null && budgetRange.isNotEmpty) queryParams["budgetRange"] = budgetRange;
+      final response = await _apiService.postApi(
+        apiUrl,
+        {
+          "categoryId": categoryId ?? "676ac544234968d45b494992",
+          "subCategoryId": subCategoryId ?? "",
+          "minBudget": minBudget,
+          "maxBudget": maxBudget,
+        },
+      );
 
-      // Append query parameters to URL
-      filterUrl += Uri(queryParameters: queryParams).query;
-
-      print("Filter URL: $filterUrl"); // Debugging
-
-      final response = await http.get(Uri.parse(filterUrl));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data != null) {
-          // Update filtered services
-          vendorServices.value = (data['vendorServices'] as List?)
-                  ?.map((e) => VendorServiceModel.fromJson(e))
-                  .whereType<VendorServiceModel>()
-                  .toList() ??
-              [];
-          tutorHireServices.value = (data['tutorHireServices'] as List?)
-                  ?.map((e) => TutorHireService.fromJson(e))
-                  .whereType<TutorHireService>()
-                  .toList() ??
-              [];
-          automotiveHireServices.value = (data['automotiveHireServices'] as List?)
-                  ?.map((e) => AutomotiveHireService.fromJson(e))
-                  .whereType<AutomotiveHireService>()
-                  .toList() ??
-              [];
+      if (response != null) {
+        final data = FilterModel.fromJson(response);
+        if (data.success == true && data.data.isNotEmpty) {
+          services.value = data.data;
+          funeralServices.value = services.where((service) => service.sourceModel == "funeral").toList();
+          horseServices.value = services.where((service) => service.sourceModel == "horse").toList();
+          chauffeurServices.value = services.where((service) => service.sourceModel == "chauffeur").toList();
+          print("Filtered - Funeral: ${funeralServices.length}, Horse: ${horseServices.length}, Chauffeur: ${chauffeurServices.length}");
+        } else {
+          print("API Error: Response is empty or unsuccessful");
+          throw Exception("Failed to apply filters");
         }
       } else {
-        print("API Error: ${response.statusCode} - ${response.body}");
-        throw Exception("Failed to apply filters: ${response.statusCode}");
+        print("API Error: Response is null");
+        throw Exception("Failed to apply filters");
       }
     } catch (e) {
       print("Error applying filter: $e");
@@ -175,9 +145,7 @@ class AllServicesController extends GetxController {
     selectedCategory.value = null;
     selectedSubcategory.value = null;
     selectedSubcategoryId.value = null;
-    vendorServices.clear();
-    tutorHireServices.clear();
-    automotiveHireServices.clear();
-    fetchServices(); // Re-fetch all services to reset
+    services.clear();
+    fetchServices(); // Re-fetch with default Passenger Transport
   }
 }

@@ -32,7 +32,7 @@ class PdfGenerator {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Center(
-                    child: pw.Text('HireAnything.com',
+                    child: pw.Text('hireanything.com',
                         style: pw.TextStyle(
                             fontSize: 24, fontWeight: pw.FontWeight.bold))),
                 pw.SizedBox(height: 8),
@@ -84,7 +84,7 @@ class PdfGenerator {
                 pw.Text('Transaction ID: ${booking.paypalOrderId ?? 'N/A'}'),
                 pw.Text('Status: ${booking.bookingStatus ?? 'N/A'}'),
                 pw.SizedBox(height: 24),
-                pw.Text('Thank you for choosing HireAnything.com!',
+                pw.Text('Thank you for choosing hireanything.com!',
                     style: pw.TextStyle(
                         fontSize: 12, fontStyle: pw.FontStyle.italic)),
               ],

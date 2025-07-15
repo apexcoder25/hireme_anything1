@@ -15,6 +15,12 @@ class BookServices extends StatefulWidget {
   final String ServiceCities;
   final String minDistance;
   final String maxDistsnce;
+  final String? vehicleTypes; // Optional for funeral
+  final String? packageOptions; // Optional for funeral
+  final String? carriageTypes; // Optional for horse
+  final String? horseTypes; // Optional for horse
+  final String? vehicleType; // Optional for chauffeur
+  final String? makeModel; // Optional for chauffeur
   const BookServices({
     super.key,
     this.categoryId = "",
@@ -26,6 +32,12 @@ class BookServices extends StatefulWidget {
     this.ServiceCities = "",
     this.minDistance = "",
     this.maxDistsnce = "",
+    this.vehicleTypes,
+    this.packageOptions,
+    this.carriageTypes,
+    this.horseTypes,
+    this.vehicleType,
+    this.makeModel,
   });
 
   @override
@@ -46,12 +58,18 @@ class _BookServicesState extends State<BookServices> {
   bool _showToSuggestions = false;
   String? _fromPlaceId;
   String? _toPlaceId;
+  bool _isFormValid = false;
 
   @override
   void initState() {
     super.initState();
     pickupDateController.text = "dd-mm-yyyy";
     pickupTimeController.text = "--:--";
+
+    _fromLocationController.addListener(_validateForm);
+    _toLocationController.addListener(_validateForm);
+    pickupDateController.addListener(_validateForm);
+    pickupTimeController.addListener(_validateForm);
 
     _fromLocationController.addListener(() {
       cityFetchController.onTextChanged(_fromLocationController.text);
@@ -70,6 +88,15 @@ class _BookServicesState extends State<BookServices> {
     });
   }
 
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _fromLocationController.text.isNotEmpty &&
+          _toLocationController.text.isNotEmpty &&
+          pickupDateController.text != "dd-mm-yyyy" &&
+          pickupTimeController.text != "--:--";
+    });
+  }
+
   @override
   void dispose() {
     _fromLocationController.dispose();
@@ -80,10 +107,11 @@ class _BookServicesState extends State<BookServices> {
   }
 
   Future<void> _selectDateTime() async {
+    DateTime now = DateTime.now();
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2022),
+      initialDate: now,
+      firstDate: now, // Prevent past dates
       lastDate: DateTime(2050),
     );
 
@@ -113,32 +141,28 @@ class _BookServicesState extends State<BookServices> {
       return;
     }
 
-    // Get available service cities
     List<String> serviceCities = getCityList(widget.ServiceCities);
 
-    // Extract city names from the selected locations
     String fromCity = pickup.split(',')[0].trim();
     String toCity = drop.split(',')[0].trim();
 
-    // Check if cities are in service areas
     bool fromCityValid = serviceCities.contains(fromCity);
     bool toCityValid = serviceCities.contains(toCity);
 
-    // if (!fromCityValid || !toCityValid) {
-    //   String unavailableCities = '';
-    //   if (!fromCityValid) unavailableCities += '$fromCity';
-    //   if (!toCityValid) unavailableCities += (unavailableCities.isNotEmpty ? ', $toCity' : toCity);
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text(
-    //         'Service is available only in these areas: ${serviceCities.join(", ")}. Unavailable: $unavailableCities',
-    //       ),
-    //     ),
-    //   );
-    //   return;
-    // }
+    if (!fromCityValid || !toCityValid) {
+      String unavailableCities = '';
+      if (!fromCityValid) unavailableCities += '$fromCity';
+      if (!toCityValid) unavailableCities += (unavailableCities.isNotEmpty ? ', $toCity' : toCity);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Service is available only in these areas: ${serviceCities.join(", ")}. Unavailable: $unavailableCities',
+          ),
+        ),
+      );
+      return;
+    }
 
-    // Calculate road distance
     double? distanceMiles = await cityFetchController.calculateDistanceMiles(_fromPlaceId!, _toPlaceId!);
     if (distanceMiles != null) {
       if (distanceMiles == -1) {
@@ -150,7 +174,6 @@ class _BookServicesState extends State<BookServices> {
           ),
         );
       } else {
-        // Convert minDistance and maxDistance to doubles for comparison
         double minDistance = double.tryParse(widget.minDistance) ?? 0;
         double maxDistance = double.tryParse(widget.maxDistsnce) ?? double.infinity;
 
@@ -169,25 +192,30 @@ class _BookServicesState extends State<BookServices> {
             availableFrom = "${formatDateTime(widget.fromDate)} - ${formatDateTime(widget.todate)}";
           });
 
- 
           try {
-             double distance = double.parse(distanceMiles.toStringAsFixed(1));
-
-  Get.to(
-    YourServicesBooking(
-      id: widget.id,
-      distance: distance,
-      fromLocation: _fromLocationController.text,
-      toLocation: _toLocationController.text,
-      pickupTime:pickupTimeController.text,
-            pickupDate: pickupDateController.text,
-    ),
-  );
-} catch (e) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Invalid distance format')),
-  );
-}
+            double distance = double.parse(distanceMiles.toStringAsFixed(1));
+            Get.to(
+              YourServicesBooking(
+                id: widget.id,
+                distance: distance,
+                fromLocation: _fromLocationController.text,
+                toLocation: _toLocationController.text,
+                pickupTime: pickupTimeController.text,
+                pickupDate: pickupDateController.text,
+                // capacity: widget.capacity,
+                // vehicleTypes: widget.vehicleTypes,
+                // packageOptions: widget.packageOptions,
+                // carriageTypes: widget.carriageTypes,
+                // horseTypes: widget.horseTypes,
+                // vehicleType: widget.vehicleType,
+                // makeModel: widget.makeModel,
+              ),
+            );
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Invalid distance format')),
+            );
+          }
         }
       }
     } else {
@@ -355,6 +383,24 @@ class _BookServicesState extends State<BookServices> {
                         style: const TextStyle(fontSize: 14, color: Colors.blue)),
                     Text('• Maximum Capacity: ${widget.capacity}',
                         style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                    if (widget.vehicleTypes != null)
+                      Text('• Vehicle Types: ${widget.vehicleTypes}',
+                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                    if (widget.packageOptions != null)
+                      Text('• Package Options: ${widget.packageOptions}',
+                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                    if (widget.carriageTypes != null)
+                      Text('• Carriage Types: ${widget.carriageTypes}',
+                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                    if (widget.horseTypes != null)
+                      Text('• Horse Types: ${widget.horseTypes}',
+                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                    if (widget.vehicleType != null)
+                      Text('• Vehicle Type: ${widget.vehicleType}',
+                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                    if (widget.makeModel != null)
+                      Text('• Make/Model: ${widget.makeModel}',
+                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
                     Row(
                       children: [
                         const Text('• Service Areas: +', style: TextStyle(fontSize: 14, color: Colors.blue)),
@@ -453,9 +499,9 @@ class _BookServicesState extends State<BookServices> {
               const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
-                  onPressed: _calculateDistance,
+                  onPressed: _isFormValid ? _calculateDistance : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
+                    backgroundColor: _isFormValid ? Colors.blue : Colors.grey,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
