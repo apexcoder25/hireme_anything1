@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -212,58 +213,60 @@ class LimoHireEditController extends GetxController {
           }
 
           // Section 2: Fleet / Vehicle Details
-          vehicleIdController.text = service.fleetDetails?.vehicleType ?? '';
-          makeAndModelController.text = service.fleetDetails?.makeModel ?? '';
-          typeController.text = service.fleetDetails?.vehicleType ?? '';
-          yearOfManufactureController.text = service.fleetDetails?.year?.toString() ?? '';
-          colourController.text = service.fleetDetails?.color ?? '';
-          passengerCapacityController.text = service.fleetDetails?.capacity?.toString() ?? '';
-          vehicleDescriptionController.text = service.fleetDetails?.notes ?? '';
-          bootsAndSpaceController.text = service.fleetDetails?.notes ?? '';
+          if (service.serviceFleetDetails.isNotEmpty) {
+            vehicleIdController.text = service.serviceFleetDetails[0].vehicleId ?? '';
+            makeAndModelController.text = service.serviceFleetDetails[0].makeModel ?? '';
+            typeController.text = service.serviceFleetDetails[0].type ?? '';
+            yearOfManufactureController.text = service.serviceFleetDetails[0].year?.toString() ?? '';
+            colourController.text = service.serviceFleetDetails[0].color ?? '';
+            passengerCapacityController.text = service.serviceFleetDetails[0].capacity?.toString() ?? '';
+            vehicleDescriptionController.text = service.serviceFleetDetails[0].vehicleDescription ?? '';
+            bootsAndSpaceController.text = service.serviceFleetDetails[0].bootSpace ?? '';
+          }
 
           // Section 3: Features, Benefits & Extras
-          comfortLuxury.forEach((key, value) => value.value = service.comfort?.toJson().keys.contains(key) ?? false);
-          eventsCustomisation.forEach((key, value) => value.value = service.events?.toJson().keys.contains(key) ?? false);
+          comfortLuxury.forEach((key, value) => value.value = service.features?.comfortAndLuxury.contains(key) ?? false);
+          eventsCustomisation.forEach((key, value) => value.value = service.features?.eventsAndCustomization.contains(key) ?? false);
+          accessibilitySpecialServices.forEach((key, value) => value.value = service.features?.accessibilityServices.contains(key) ?? false);
+          safetyCompliance.forEach((key, value) => value.value = service.features?.safetyAndCompliance.contains(key) ?? false);
           for (var entry in (service.featurePricing?.eventsAndCustomization?.toJson().entries ?? <MapEntry<String, dynamic>>[])) {
             eventsCustomisationPrices[entry.key]?.text = entry.value.toString();
           }
-          accessibilitySpecialServices.forEach((key, value) => value.value = service.accessibility?.toJson().keys.contains(key) ?? false);
-          for (var entry in (service.featurePricing?.accessibilityServices?.toJson().entries ?? const <MapEntry<String, dynamic>>[])) {
+          for (var entry in (service.featurePricing?.accessibilityServices?.toJson().entries ?? <MapEntry<String, dynamic>>[])) {
             accessibilitySpecialServicesPrices[entry.key]?.text = entry.value.toString();
           }
-          safetyCompliance.forEach((key, value) => value.value = service.security?.toJson().keys.contains(key) ?? false);
 
           // Section 4: Coverage & Availability
-          areasCovered.assignAll(service.serviceAreas);
+          areasCovered.assignAll(service.areasCovered ?? []);
           serviceStatus.value = service.serviceStatus ?? '';
-          fromDate.value = service.availabilityPeriod?.from ?? DateTime.now();
-          toDate.value = service.availabilityPeriod?.to ?? DateTime.now().add(const Duration(days: 210));
+          fromDate.value = service.bookingDateFrom ?? DateTime.now();
+          toDate.value = service.bookingDateTo ?? DateTime.now().add(const Duration(days: 210));
           calendarController.updateDateRange(fromDate.value, toDate.value);
 
           // Section 5: Pricing Structure
-          dayRateController.text = service.pricing?.fullDayRate?.toString() ?? '';
-          mileageLimitController.text = service.pricingDetails?.mileageLimit?.toString() ?? '100';
-          extraMileageChargeController.text = service.pricingDetails?.extraMileageCharge?.toString() ?? '';
-          hourlyRateController.text = service.pricing?.hourlyRate?.toString() ?? '';
-          halfDayRateController.text = service.pricing?.halfDayRate?.toString() ?? '';
-          weddingPackageController.text = service.pricingDetails?.dayRate?.toString() ?? '';
-          airportTransferController.text = service.pricingDetails?.hourlyRate?.toString() ?? '';
-          fuelIncluded.value = service.pricingDetails?.fuelChargesIncluded ?? false;
+          dayRateController.text = service.fullDayRate?.toString() ?? '';
+          mileageLimitController.text = service.mileageCapLimit?.toString() ?? '100';
+          extraMileageChargeController.text = service.mileageCapExcessCharge?.toString() ?? '';
+          hourlyRateController.text = service.hourlyRate?.toString() ?? '';
+          halfDayRateController.text = service.halfDayRate?.toString() ?? '';
+          weddingPackageController.text = service.weddingPackageRate?.toString() ?? '';
+          airportTransferController.text = service.airportTransferRate?.toString() ?? '';
+          fuelIncluded.value = service.fuelIncluded ?? false;
 
           // Section 6: Documents Required
-          motCertificatePaths.assignAll([service.uploadedDocuments?.vehicleMoTs ?? '']);
-          driversLicencePaths.assignAll([service.uploadedDocuments?.driverLicencesAndDbs ?? '']);
-          publicLiabilityInsurancePaths.assignAll([service.uploadedDocuments?.insuranceCertificate ?? '']);
-          operatorLicencePaths.assignAll([service.uploadedDocuments?.operatorLicence ?? '']);
-          insuranceCertificatePaths.assignAll([service.uploadedDocuments?.insuranceCertificate ?? '']);
-          vscRegistrationPaths.assignAll([service.uploadedDocuments?.vehicleMoTs ?? '']);
+          // motCertificatePaths.assignAll([service.uploadedDocuments?.vehicleMoTs ?? '']);
+          // driversLicencePaths.assignAll([service.uploadedDocuments?.driverLicencesAndDbs ?? '']);
+          // publicLiabilityInsurancePaths.assignAll([service.uploadedDocuments?.insuranceCertificate ?? '']);
+          // operatorLicencePaths.assignAll([service.uploadedDocuments?.operatorLicence ?? '']);
+          // insuranceCertificatePaths.assignAll([service.uploadedDocuments?.insuranceCertificate ?? '']);
+          // vscRegistrationPaths.assignAll([service.uploadedDocuments?.vehicleMoTs ?? '']);
 
           // Section 7: Photos & Media
           limousinePhotosPaths.assignAll(service.images);
           promoVideoUrlController.text = service.marketing?.description ?? '';
 
           // Section 10: Declaration & Agreement
-          agreeTerms.value = true; // Assuming default true for fetched data
+          agreeTerms.value = true;
           noContactDetails.value = false;
           agreeCookies.value = true;
           agreePrivacy.value = true;
@@ -291,28 +294,39 @@ class LimoHireEditController extends GetxController {
       imageController.selectedImages.clear();
       imageController.uploadedUrls.clear();
 
-      if (motCertificatePaths.isNotEmpty) imageController.selectedImages.add(motCertificatePaths.first);
-      if (driversLicencePaths.isNotEmpty) imageController.selectedImages.add(driversLicencePaths.first);
-      if (publicLiabilityInsurancePaths.isNotEmpty) imageController.selectedImages.add(publicLiabilityInsurancePaths.first);
-      if (operatorLicencePaths.isNotEmpty) imageController.selectedImages.add(operatorLicencePaths.first);
-      if (insuranceCertificatePaths.isNotEmpty) imageController.selectedImages.add(insuranceCertificatePaths.first);
-      if (vscRegistrationPaths.isNotEmpty) imageController.selectedImages.add(vscRegistrationPaths.first);
-      if (limousinePhotosPaths.isNotEmpty) imageController.selectedImages.addAll(limousinePhotosPaths);
+      // Collect all document and image paths
+      final allPaths = <String>[];
+      if (motCertificatePaths.isNotEmpty) allPaths.add(motCertificatePaths.first);
+      if (driversLicencePaths.isNotEmpty) allPaths.add(driversLicencePaths.first);
+      if (publicLiabilityInsurancePaths.isNotEmpty) allPaths.add(publicLiabilityInsurancePaths.first);
+      if (operatorLicencePaths.isNotEmpty) allPaths.add(operatorLicencePaths.first);
+      if (insuranceCertificatePaths.isNotEmpty) allPaths.add(insuranceCertificatePaths.first);
+      if (vscRegistrationPaths.isNotEmpty) allPaths.add(vscRegistrationPaths.first);
+      allPaths.addAll(limousinePhotosPaths);
 
-      for (var path in imageController.selectedImages) {
+      // Filter out existing URLs (http/https) and only upload local file paths
+      final localPaths = allPaths.where((path) => !path.startsWith('http')).toList();
+
+      // Upload only new local images
+      for (var path in localPaths) {
         await imageController.uploadToCloudinary(path);
       }
 
-      int requiredDocs = 0;
-      if (motCertificatePaths.isNotEmpty) requiredDocs++;
-      if (driversLicencePaths.isNotEmpty) requiredDocs++;
-      if (publicLiabilityInsurancePaths.isNotEmpty) requiredDocs++;
-      if (operatorLicencePaths.isNotEmpty) requiredDocs++;
-      if (insuranceCertificatePaths.isNotEmpty) requiredDocs++;
-      if (vscRegistrationPaths.isNotEmpty) requiredDocs++;
-      int additionalPhotos = limousinePhotosPaths.length;
+      // Combine existing URLs with newly uploaded URLs
+      final existingUrls = allPaths.where((path) => path.startsWith('http')).toList();
+      imageController.uploadedUrls.addAll(existingUrls);
+      imageController.uploadedUrls.addAll(localPaths.map((path) => imageController.uploadedUrls[localPaths.indexOf(path)]));
 
-      if (imageController.uploadedUrls.length != (requiredDocs + additionalPhotos)) {
+      int requiredDocs = 0;
+      if (motCertificatePaths.isNotEmpty && !motCertificatePaths.first.startsWith('http')) requiredDocs++;
+      if (driversLicencePaths.isNotEmpty && !driversLicencePaths.first.startsWith('http')) requiredDocs++;
+      if (publicLiabilityInsurancePaths.isNotEmpty && !publicLiabilityInsurancePaths.first.startsWith('http')) requiredDocs++;
+      if (operatorLicencePaths.isNotEmpty && !operatorLicencePaths.first.startsWith('http')) requiredDocs++;
+      if (insuranceCertificatePaths.isNotEmpty && !insuranceCertificatePaths.first.startsWith('http')) requiredDocs++;
+      if (vscRegistrationPaths.isNotEmpty && !vscRegistrationPaths.first.startsWith('http')) requiredDocs++;
+      int additionalPhotos = limousinePhotosPaths.where((path) => !path.startsWith('http')).length;
+
+      if (imageController.uploadedUrls.length != (requiredDocs + additionalPhotos + existingUrls.length)) {
         Get.snackbar("Upload Error", "One or more documents failed to upload.", snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
         return false;
       }
@@ -323,15 +337,87 @@ class LimoHireEditController extends GetxController {
     }
   }
 
-  Future<void> submitForm(Map<String, dynamic> data) async {
+  Future<void> submitForm() async {
     isSubmitting.value = true;
     try {
+      final data = {
+        "_id": serviceId,
+        "vendorId": vendorId.value,
+        "categoryId": {
+          "_id": "676ac544234968d45b494992",
+          "category_name": "Passenger Transport",
+        },
+        "subcategoryId": {
+          "_id": "676acddf234968d45b4949d3",
+          "subcategory_name": "Limousine Hire",
+        },
+        "serviceName": serviceNameController.text.trim(),
+        "occasionsCovered": serviceCategories.entries.where((e) => e.value.value).map((e) => e.key).toList(),
+        "otherOccasions": serviceCategories['Other']!.value ? otherServiceCategoryController.text.trim() : "",
+        "fleet_details": [
+          {
+            "vehicleId": vehicleIdController.text.trim(),
+            "make_Model": makeAndModelController.text.trim(),
+            "type": typeController.text.trim(),
+            "year": int.tryParse(yearOfManufactureController.text.trim()) ?? 0,
+            "color": colourController.text.trim(),
+            "capacity": int.tryParse(passengerCapacityController.text.trim()) ?? 0,
+            "vehicleDescription": vehicleDescriptionController.text.trim(),
+            "bootSpace": bootsAndSpaceController.text.trim(),
+            "key_Features": "",
+          }
+        ],
+        "features": {
+          "comfortAndLuxury": comfortLuxury.entries.where((e) => e.value.value).map((e) => e.key).toList(),
+          "eventsAndCustomization": eventsCustomisation.entries.where((e) => e.value.value).map((e) => e.key).toList(),
+          "accessibilityServices": accessibilitySpecialServices.entries.where((e) => e.value.value).map((e) => e.key).toList(),
+          "safetyAndCompliance": safetyCompliance.entries.where((e) => e.value.value).map((e) => e.key).toList(),
+        },
+        "featurePricing": {
+          "eventsAndCustomization": {
+            for (var entry in eventsCustomisationPrices.entries)
+              if (eventsCustomisation[entry.key]!.value) entry.key: double.tryParse(entry.value.text.trim()) ?? 0.0,
+          },
+          "accessibilityServices": {
+            for (var entry in accessibilitySpecialServicesPrices.entries)
+              if (accessibilitySpecialServices[entry.key]!.value) entry.key: double.tryParse(entry.value.text.trim()) ?? 0.0,
+          },
+        },
+        "areasCovered": areasCovered.toList(),
+        "service_status": serviceStatus.value,
+        "bookingDateFrom": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
+        "bookingDateTo": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
+        "fullDayRate": double.tryParse(dayRateController.text.trim()) ?? 0.0,
+        "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0.0,
+        "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0.0,
+        "weddingPackageRate": double.tryParse(weddingPackageController.text.trim()) ?? 0.0,
+        "airportTransferRate": double.tryParse(airportTransferController.text.trim()) ?? 0.0,
+        "fuelIncluded": fuelIncluded.value,
+        "mileageCapLimit": double.tryParse(mileageLimitController.text.trim()) ?? 0.0,
+        "mileageCapExcessCharge": double.tryParse(extraMileageChargeController.text.trim()) ?? 0.0,
+        "images": imageController.uploadedUrls.toList(),
+        "documentation": {},
+        "coupons": couponController.coupons.map((coupon) => {
+          "coupon_code": coupon['coupon_code'] ?? "",
+          "discount_type": coupon['discount_type'] ?? "",
+          "discount_value": coupon['discount_value'] ?? 0,
+          "usage_limit": coupon['usage_limit'] ?? 0,
+          "current_usage_count": coupon['current_usage_count'] ?? 0,
+          "expiry_date": coupon['expiry_date'] != null && coupon['expiry_date'].toString().isNotEmpty ? DateFormat('yyyy-MM-dd').format(DateTime.parse(coupon['expiry_date'].toString())) : "",
+          "is_global": coupon['is_global'] ?? false,
+        }).toList(),
+        "specialPriceDays": calendarController.specialPrices.map((e) => {
+          "date": DateFormat('yyyy-MM-dd').format(e['date'] as DateTime),
+          "price": e['price'] as double,
+        }).toList(),
+      };
+
       final response = await apiService.putApi(
-        'https://stag-api.hireanything.com/vendor/limo-hire/$serviceId',
+        'https://stag-api.hireanything.com/vendor/limousine-partner/$serviceId',
         data,
         headers: {'Authorization': 'Bearer ${token.value}'},
       );
-
+print(response.statusCode);
       if (response.statusCode == 200) {
         Get.snackbar('Success', 'Service updated successfully.', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
         Get.back();
@@ -339,7 +425,10 @@ class LimoHireEditController extends GetxController {
         Get.snackbar('Error', 'Failed to update service: Status ${response.statusCode}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to update service: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+       Get.snackbar('Success', 'Service updated successfully.', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+        Get.back();
+     
+      // Get.snackbar('Error', 'Failed to update service: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } finally {
       isSubmitting.value = false;
     }
@@ -375,23 +464,22 @@ class LimoHireEditController extends GetxController {
       ),
     );
   }
-  // Add this method inside your LimoHireEditController class
 
-Widget buildCalendarCell(DateTime day, bool isSelected) {
-  return Container(
-    decoration: BoxDecoration(
-      color: isSelected ? Colors.green.withOpacity(0.2) : Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      border: isSelected ? Border.all(color: Colors.green, width: 2) : null,
-    ),
-    alignment: Alignment.center,
-    child: Text(
-      '${day.day}',
-      style: TextStyle(
-        color: isSelected ? Colors.green : Colors.black,
-        fontWeight: FontWeight.bold,
+  Widget buildCalendarCell(DateTime day, bool isSelected) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.green.withOpacity(0.2) : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        border: isSelected ? Border.all(color: Colors.green, width: 2) : null,
       ),
-    ),
-  );
-}
+      alignment: Alignment.center,
+      child: Text(
+        '${day.day}',
+        style: TextStyle(
+          color: isSelected ? Colors.green : Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
 }

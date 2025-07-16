@@ -709,12 +709,16 @@ class Documents {
     required this.publicLiabilityInsurance,
     required this.driverLicencesAndDbs,
     required this.vehicleMotAndInsurance,
+    required this.animalLicense,
+    required this.riskAssessment,
   });
 
   final DriverLicencesAndDbs? psvOperatorLicence;
   final DriverLicencesAndDbs? publicLiabilityInsurance;
   final DriverLicencesAndDbs? driverLicencesAndDbs;
   final DriverLicencesAndDbs? vehicleMotAndInsurance;
+  final DriverLicencesAndDbs? animalLicense;
+  final DriverLicencesAndDbs? riskAssessment;
 
   static DriverLicencesAndDbs? _parseDoc(dynamic value) {
     if (value is Map<String, dynamic>) {
@@ -724,7 +728,6 @@ class Documents {
     }
     return null;
   }
-  
 
   factory Documents.fromJson(Map<String, dynamic> json) {
     return Documents(
@@ -732,6 +735,8 @@ class Documents {
       publicLiabilityInsurance: _parseDoc(json["publicLiabilityInsurance"]),
       driverLicencesAndDbs: _parseDoc(json["driverLicencesAndDBS"]),
       vehicleMotAndInsurance: _parseDoc(json["vehicleMOTAndInsurance"]),
+      animalLicense: _parseDoc(json["animalLicense"]),
+      riskAssessment: _parseDoc(json["riskAssessment"]),
     );
   }
 
@@ -740,8 +745,11 @@ class Documents {
         "publicLiabilityInsurance": publicLiabilityInsurance?.toJson(),
         "driverLicencesAndDBS": driverLicencesAndDbs?.toJson(),
         "vehicleMOTAndInsurance": vehicleMotAndInsurance?.toJson(),
+        "animalLicense": animalLicense?.toJson(),
+        "riskAssessment": riskAssessment?.toJson(),
       };
 }
+
 class DriverLicencesAndDbs {
   DriverLicencesAndDbs({
     this.isAttached,
@@ -758,7 +766,6 @@ class DriverLicencesAndDbs {
     );
   }
 
-  // Create from a plain string (e.g., a URL)
   factory DriverLicencesAndDbs.fromUrl(String url) {
     return DriverLicencesAndDbs(
       isAttached: true,
@@ -771,6 +778,7 @@ class DriverLicencesAndDbs {
         "image": image,
       };
 }
+
 
 
 class DriverDetails {
