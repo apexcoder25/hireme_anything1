@@ -1273,12 +1273,14 @@ class Pricing {
         required this.halfDayRate,
         required this.fullDayRate,
         required this.ceremonyPackageRate,
+        required this.perMileCharge,
     });
 
     final int? hourlyRate;
     final int? halfDayRate;
     final int? fullDayRate;
     final int? ceremonyPackageRate;
+    final int? perMileCharge;
 
     factory Pricing.fromJson(Map<String, dynamic> json){ 
         return Pricing(
@@ -1286,6 +1288,7 @@ class Pricing {
             halfDayRate: json["halfDayRate"],
             fullDayRate: json["fullDayRate"],
             ceremonyPackageRate: json["ceremonyPackageRate"],
+            perMileCharge: json["perMileCharge"],
         );
     }
 
@@ -1294,6 +1297,7 @@ class Pricing {
         "halfDayRate": halfDayRate,
         "fullDayRate": fullDayRate,
         "ceremonyPackageRate": ceremonyPackageRate,
+        "perMileCharge":perMileCharge
     };
 
 }
@@ -1408,6 +1412,10 @@ class ServiceDetails {
         required this.numberOfCarriages,
         required this.fleetSize,
         required this.basePostcode,
+        required this.mileage,
+        required this.otherOccasion,
+        required  this.otherHorseType,
+        required this.otherCarriageType,
     });
 
     final List<String> occasionsCatered;
@@ -1416,6 +1424,10 @@ class ServiceDetails {
     final int? numberOfCarriages;
     final int? fleetSize;
     final String? basePostcode;
+    final int? mileage;
+    final String? otherOccasion;
+    final String? otherHorseType;
+    final String? otherCarriageType;
 
     factory ServiceDetails.fromJson(Map<String, dynamic> json){ 
         return ServiceDetails(
@@ -1425,6 +1437,10 @@ class ServiceDetails {
             numberOfCarriages: json["numberOfCarriages"],
             fleetSize: json["fleetSize"],
             basePostcode: json["basePostcode"],
+            mileage: json["mileage"],
+            otherOccasion: json["otherOccasion"],
+            otherCarriageType: json["otherCarriageType"],
+            otherHorseType: json["otherHorseType"],
         );
     }
 
@@ -1435,6 +1451,11 @@ class ServiceDetails {
         "numberOfCarriages": numberOfCarriages,
         "fleetSize": fleetSize,
         "basePostcode": basePostcode,
+        "mileage": mileage,
+        "otherOccasion":otherOccasion,
+        "otherCarriageType":otherCarriageType,
+        "otherHorseType":otherHorseType
+
     };
 
 }
