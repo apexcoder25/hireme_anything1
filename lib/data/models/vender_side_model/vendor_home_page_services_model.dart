@@ -260,7 +260,12 @@ factory Service.fromJson(Map<String, dynamic> json) {
     features: json["features"] == null ? null : Features.fromJson(json["features"]),
     featurePricing: json["featurePricing"] == null ? null : FeaturePricing.fromJson(json["featurePricing"]),
     fullDayRate: json["fullDayRate"],
-    hourlyRate: json["hourlyRate"],
+    hourlyRate: (json["hourlyRate"] is int)
+    ? json["hourlyRate"]
+    : (json["hourlyRate"] is double)
+        ? (json["hourlyRate"] as double).toInt()
+        : null,
+
     halfDayRate: json["halfDayRate"],
     weddingPackageRate: json["weddingPackageRate"],
     airportTransferRate: json["airportTransferRate"],
@@ -1280,7 +1285,8 @@ class Pricing {
     final int? halfDayRate;
     final int? fullDayRate;
     final int? ceremonyPackageRate;
-    final int? perMileCharge;
+    final double? perMileCharge;
+
 
     factory Pricing.fromJson(Map<String, dynamic> json){ 
         return Pricing(
@@ -1288,7 +1294,8 @@ class Pricing {
             halfDayRate: json["halfDayRate"],
             fullDayRate: json["fullDayRate"],
             ceremonyPackageRate: json["ceremonyPackageRate"],
-            perMileCharge: json["perMileCharge"],
+            perMileCharge: (json["perMileCharge"] as num?)?.toDouble(),
+
         );
     }
 
