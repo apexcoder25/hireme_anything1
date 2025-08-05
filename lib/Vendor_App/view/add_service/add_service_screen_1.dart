@@ -44,11 +44,10 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
 
   TextEditingController jobTitleController = TextEditingController();
 
-    TextEditingController experienceController = TextEditingController();
-   TextEditingController SpecializationsController = TextEditingController();
-    TextEditingController KeySkillsCompletedController = TextEditingController();
-     TextEditingController KeyProjectCompletedController = TextEditingController();
-     
+  TextEditingController experienceController = TextEditingController();
+  TextEditingController SpecializationsController = TextEditingController();
+  TextEditingController KeySkillsCompletedController = TextEditingController();
+  TextEditingController KeyProjectCompletedController = TextEditingController();
 
   TextEditingController preferredWorkLocationsController =
       TextEditingController();
@@ -61,12 +60,12 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
   bool isPerHourHire = false;
 
   bool isGDPR = false;
-   bool isTNC = false;
-    bool isContactDetails = false;
-     bool isCookiesPolicy = false;
-      bool isPrivacyPolicy = false;
+  bool isTNC = false;
+  bool isContactDetails = false;
+  bool isCookiesPolicy = false;
+  bool isPrivacyPolicy = false;
 
-   final Map<String, bool> days = {
+  final Map<String, bool> days = {
     'Monday': false,
     'Tuesday': false,
     'Wednesday': false,
@@ -199,7 +198,7 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
     return Scaffold(
       backgroundColor: colors.scaffold_background_color,
       appBar: AppBar(
-                backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -311,11 +310,8 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
                     },
                   );
                 }),
-            
 
                 const SizedBox(height: 40),
-
-              
 
                 Container(
                   width: double.infinity,
@@ -323,77 +319,98 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
                   child: ElevatedButton(
                     onPressed: () {
                       print(controller.selectedSubcategory);
-                      if (controller.selectedCategory == 'Passenger Transport') {
-
-                        if(controller.selectedSubcategory == 'Boat Hire'){
-                           Get.to(BoatHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));
+                      if (controller.selectedCategory ==
+                          'Passenger Transport') {
+                        if (controller.selectedSubcategory == 'Boat Hire') {
+                          Get.to(BoatHireService(
+                            Category: controller.selectedCategory,
+                            SubCategory: controller.selectedSubcategory,
+                            CategoryId: controller
+                                .selectedCategoryId.value, // Pass categoryId
+                            SubCategoryId:
+                                controller.selectedSubcategoryId.value,
+                          ));
+                        } else if (controller.selectedSubcategory ==
+                            'Chauffeur Driven Prestige Car Hire') {
+                          Get.to(ChauffeurHireService(
+                            Category: controller.selectedCategory,
+                            SubCategory: controller.selectedSubcategory,
+                            CategoryId: controller
+                                .selectedCategoryId.value, // Pass categoryId
+                            SubCategoryId:
+                                controller.selectedSubcategoryId.value,
+                          ));
+                        } else if (controller.selectedSubcategory ==
+                            'Coach Hire') {
+                          Get.to(CoachHireService(
+                            Category: controller.selectedCategory,
+                            SubCategory: controller.selectedSubcategory,
+                            CategoryId: controller
+                                .selectedCategoryId.value, // Pass categoryId
+                            SubCategoryId:
+                                controller.selectedSubcategoryId.value,
+                          ));
+                        } else if (controller.selectedSubcategory ==
+                            'Funeral Car Hire') {
+                          Get.to(FuneralCarHireService(
+                            Category: controller.selectedCategory,
+                            SubCategory: controller.selectedSubcategory,
+                            CategoryId: controller
+                                .selectedCategoryId.value, // Pass categoryId
+                            SubCategoryId:
+                                controller.selectedSubcategoryId.value,
+                          ));
+                        } else if (controller.selectedSubcategory ==
+                            'Horse and Carriage Hire') {
+                          Get.to(HorseAndCarriageHireService(
+                            Category: controller.selectedCategory,
+                            SubCategory: controller.selectedSubcategory,
+                            CategoryId: controller
+                                .selectedCategoryId.value, // Pass categoryId
+                            SubCategoryId:
+                                controller.selectedSubcategoryId.value,
+                          ));
+                        } else if (controller.selectedSubcategory ==
+                            'Limousine Hire') {
+                          Get.to(LimousineHireService(
+                            Category: controller.selectedCategory,
+                            SubCategory: controller.selectedSubcategory,
+                            CategoryId: controller
+                                .selectedCategoryId.value, // Pass categoryId
+                            SubCategoryId:
+                                controller.selectedSubcategoryId.value,
+                          ));
+                        } else if (controller.selectedSubcategory ==
+                            'Minibus Hire') {
+                          Get.to(MinibusHireService(
+                            Category: controller.selectedCategory,
+                            SubCategory: controller.selectedSubcategory,
+                            CategoryId: controller
+                                .selectedCategoryId.value, // Pass categoryId
+                            SubCategoryId:
+                                controller.selectedSubcategoryId.value,
+                          ));
                         }
-                        else if(controller.selectedSubcategory == 'Chauffeur Driven Prestige Car Hire'){
-                            Get.to(ChauffeurHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));}
-                        
-
-                        
-                        else if (controller.selectedSubcategory == 'Coach Hire') {
-
-                          Get.to(CoachHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));}
-                          else if (controller.selectedSubcategory == 'Funeral Car Hire') {
-
-                          Get.to(FuneralCarHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));}
-                         else if (controller.selectedSubcategory == 'Horse and Carriage Hire') {
-
-                          Get.to(HorseAndCarriageHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));}
-                         else if (controller.selectedSubcategory == 'Limousine Hire') {
-
-                          Get.to(LimousineHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));}
-                         else if (controller.selectedSubcategory == 'Minibus Hire') {
-
-                          Get.to(MinibusHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));}
-
-                        
-                      }
-                      
-                        
-
-                       
-                        
-
-                     
-                        
-                      
-                      else if (controller.selectedCategory == 'Passenger Transport' && controller.selectedSubcategory.isNotEmpty != null) {
-
-                        Get.to(PassengerTransportService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));}
-                      else  if (controller.selectedCategory == 'Automotive and Electric Hire' && controller.selectedSubcategory.isNotEmpty != null) {
-
-                        Get.to(AutomotiveElectricHireService(Category: controller.selectedCategory, SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller.selectedCategoryId.value, // Pass categoryId
-    SubCategoryId: controller.selectedSubcategoryId.value,
+                      } else if (controller.selectedCategory ==
+                              'Passenger Transport' &&
+                          controller.selectedSubcategory.isNotEmpty != null) {
+                        Get.to(PassengerTransportService(
+                          Category: controller.selectedCategory,
+                          SubCategory: controller.selectedSubcategory,
+                          CategoryId: controller
+                              .selectedCategoryId.value, // Pass categoryId
+                          SubCategoryId: controller.selectedSubcategoryId.value,
                         ));
-                        
+                      } else if (controller.selectedCategory ==
+                              'Automotive and Electric Hire' &&
+                          controller.selectedSubcategory.isNotEmpty != null) {
+                        Get.to(AutomotiveElectricHireService(
+                          Category: controller.selectedCategory,
+                          SubCategory: controller.selectedSubcategory,
+                          CategoryId: controller
+                              .selectedCategoryId.value, // Pass categoryId
+                          SubCategoryId: controller.selectedSubcategoryId.value,
+                        ));
                       }
                     },
                     style: ButtonStyle(

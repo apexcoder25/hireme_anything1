@@ -32,7 +32,7 @@ class AddVendorServiceApi {
         error: true,
         compact: true,
         maxWidth: 90,
-        enabled: kDebugMode, // Only log in debug mode
+        enabled: kDebugMode,
       ),
     );
   }

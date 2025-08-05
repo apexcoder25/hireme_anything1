@@ -259,19 +259,46 @@ factory Service.fromJson(Map<String, dynamic> json) {
     serviceFleetDetails: json["fleet_details"] == null ? [] : List<FleetDetail>.from(json["fleet_details"]!.map((x) => FleetDetail.fromJson(x))),
     features: json["features"] == null ? null : Features.fromJson(json["features"]),
     featurePricing: json["featurePricing"] == null ? null : FeaturePricing.fromJson(json["featurePricing"]),
-    fullDayRate: json["fullDayRate"],
-    hourlyRate: (json["hourlyRate"] is int)
-    ? json["hourlyRate"]
-    : (json["hourlyRate"] is double)
-        ? (json["hourlyRate"] as double).toInt()
-        : null,
+    fullDayRate: json["fullDayRate"] == null
+    ? null
+    : json["fullDayRate"] is int
+        ? json["fullDayRate"]
+        : json["fullDayRate"] is double
+            ? (json["fullDayRate"] as double).toInt()
+            : null,
+    hourlyRate: json["hourlyRate"] == null
+    ? null
+    : json["hourlyRate"] is int
+        ? json["hourlyRate"]
+        : json["hourlyRate"] is double
+            ? (json["hourlyRate"] as double).toInt()
+            : null,
 
-    halfDayRate: json["halfDayRate"],
-    weddingPackageRate: json["weddingPackageRate"],
+    halfDayRate: json["halfDayRate"] == null
+    ? null
+    : json["halfDayRate"] is int
+        ? json["halfDayRate"]
+        : json["halfDayRate"] is double
+            ? (json["halfDayRate"] as double).toInt()
+            : null,
+weddingPackageRate: json["weddingPackageRate"] == null
+    ? null
+    : json["weddingPackageRate"] is int
+        ? json["weddingPackageRate"]
+        : json["weddingPackageRate"] is double
+            ? (json["weddingPackageRate"] as double).toInt()
+            : null,
+// Apply similar logic to other int? fields
     airportTransferRate: json["airportTransferRate"],
     fuelIncluded: json["fuelIncluded"],
     mileageCapLimit: json["mileageCapLimit"],
-    mileageCapExcessCharge: json["mileageCapExcessCharge"],
+    mileageCapExcessCharge: json["mileageCapExcessCharge"] == null
+    ? null
+    : json["mileageCapExcessCharge"] is int
+        ? json["mileageCapExcessCharge"]
+        : json["mileageCapExcessCharge"] is double
+            ? (json["mileageCapExcessCharge"] as double).toInt()
+            : null,
     bookingDateFrom: DateTime.tryParse(json["bookingDateFrom"] ?? ""),
     bookingDateTo: DateTime.tryParse(json["bookingDateTo"] ?? ""),
     servicesProvided: json["servicesProvided"] == null ? null : ServicesProvided.fromJson(json["servicesProvided"]),
