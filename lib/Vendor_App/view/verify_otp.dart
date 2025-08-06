@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../data/api_service/api_service_vender_side.dart';
+import '../api_service/api_service_vender_side.dart';
 import '../cutom_widgets/button.dart';
 import '../uiltis/color.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/cutom_widgets/button.dart';
 import 'package:hire_any_thing/Vendor_App/view/signup%20form/user_signup_view.dart';
-import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
+import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

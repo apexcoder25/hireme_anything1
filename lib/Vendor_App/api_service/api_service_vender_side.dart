@@ -12,9 +12,9 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../Vendor_App/view/login.dart';
-import '../../Vendor_App/view/verify_otp.dart';
-import '../session_manage/session_vendor_side_manager.dart';
+import '../view/login.dart';
+import '../view/verify_otp.dart';
+import '../../data/session_manage/session_vendor_side_manager.dart';
 
 AppUrlsVendorSide appUrlsVendorSide = AppUrlsVendorSide();
 

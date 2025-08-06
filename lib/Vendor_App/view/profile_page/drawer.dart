@@ -20,7 +20,7 @@ class CustomDrawer extends StatefulWidget {
 class _CustomDrawerState extends State<CustomDrawer> {
   Future<void> _loadToken() async {
     dynamic token = await SessionVendorSideManager().getToken() ?? "";
-    print("Loaded Token: $token");
+    print("Loaded Tokens $token");
   }
 
   void _showLogoutDialog(BuildContext context) {

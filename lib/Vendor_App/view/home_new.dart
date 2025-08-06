@@ -5,7 +5,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_product/notificationn.dart';
 import 'package:hire_any_thing/Vendor_App/view/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
+import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';

@@ -16,7 +16,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/ho
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/limousine_hire_service.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/minibus_hire_services.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/passenger_transpost.dart';
-import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
+import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';

@@ -21,6 +21,8 @@ import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.d
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
+
 class ChauffeurHireService extends StatefulWidget {
   final Rxn<String> Category;
   final Rxn<String> SubCategory;
@@ -370,15 +372,12 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
       return;
     }
 
-    // Debug: Check uploaded URLs
     print("Total uploaded URLs: ${imageController.uploadedUrls.length}");
     print("Uploaded URLs: ${imageController.uploadedUrls}");
 
-    // FIXED: Safe document URL extraction
     Map<String, String> documentUrls = {};
     int urlIndex = 0;
 
-    // Extract document URLs in the order they were uploaded
     if (operatorLicenceEnabled && operatorLicencePaths.isNotEmpty) {
       documentUrls['operatorLicence'] =
           urlIndex < imageController.uploadedUrls.length
@@ -419,7 +418,6 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
       urlIndex++;
     }
 
-    // Get additional media URLs (remaining URLs)
     List<String> additionalMediaUrls = [];
     if (urlIndex < imageController.uploadedUrls.length) {
       additionalMediaUrls = imageController.uploadedUrls.sublist(urlIndex);
@@ -637,6 +635,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
       setState(() {
         _isSubmitting = false;
       });
+      final ServiceController controller = Get.find<ServiceController>();
+      controller.fetchServices();
     }
   }
 
