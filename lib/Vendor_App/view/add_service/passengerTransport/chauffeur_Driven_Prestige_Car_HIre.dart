@@ -249,52 +249,52 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
   }
 
   Future<bool> _uploadDocuments() async {
-  try {
-    imageController.selectedImages.clear();
-    imageController.uploadedUrls.clear();
+    try {
+      imageController.selectedImages.clear();
+      imageController.uploadedUrls.clear();
 
-    // Add documents in specific order
-    List<String> documentsToUpload = [];
-    
-    if (operatorLicenceEnabled && operatorLicencePaths.isNotEmpty) {
-      documentsToUpload.add(operatorLicencePaths.first);
-    }
-    if (vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty) {
-      documentsToUpload.add(vehicleInsurancePaths.first);
-    }
-    if (publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty) {
-      documentsToUpload.add(publicLiabilityPaths.first);
-    }
-    if (v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty) {
-      documentsToUpload.add(v5cLogbookPaths.first);
-    }
-    if (chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty) {
-      documentsToUpload.add(chauffeurLicencePaths.first);
-    }
-    if (additionalMediaPaths.isNotEmpty) {
-      documentsToUpload.addAll(additionalMediaPaths);
-    }
+      // Add documents in specific order
+      List<String> documentsToUpload = [];
 
-    // Upload all documents
-    for (var path in documentsToUpload) {
-      await imageController.uploadToCloudinary(path);
-    }
+      if (operatorLicenceEnabled && operatorLicencePaths.isNotEmpty) {
+        documentsToUpload.add(operatorLicencePaths.first);
+      }
+      if (vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty) {
+        documentsToUpload.add(vehicleInsurancePaths.first);
+      }
+      if (publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty) {
+        documentsToUpload.add(publicLiabilityPaths.first);
+      }
+      if (v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty) {
+        documentsToUpload.add(v5cLogbookPaths.first);
+      }
+      if (chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty) {
+        documentsToUpload.add(chauffeurLicencePaths.first);
+      }
+      if (additionalMediaPaths.isNotEmpty) {
+        documentsToUpload.addAll(additionalMediaPaths);
+      }
 
-    print("Documents uploaded successfully: ${imageController.uploadedUrls.length}");
-    return true;
-  } catch (e) {
-    Get.snackbar(
-      "Upload Error",
-      "Failed to upload documents: $e",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-      duration: const Duration(seconds: 3),
-    );
-    return false;
+      // Upload all documents
+      for (var path in documentsToUpload) {
+        await imageController.uploadToCloudinary(path);
+      }
+
+      print(
+          "Documents uploaded successfully: ${imageController.uploadedUrls.length}");
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        "Upload Error",
+        "Failed to upload documents: $e",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+      return false;
+    }
   }
-}
-
 
   void _submitForm() async {
     if (!_formKey.currentState!.validate()) {
@@ -426,178 +426,195 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
     }
 
     final data = {
-  // Core identifiers
-  "vendorId": vendorId,
-  "categoryId": widget.CategoryId,
-  "subcategoryId": widget.SubCategoryId,
-  
-  // Basic service information
-  "service_name": serviceNameController.text.trim(),
-  "listingTitle": serviceNameController.text.trim(),
-  "serviceType": serviceType,
-  "service_type": "chauffeur",
-  "category": "PassengerTransport",
-  "sub_category": "Chauffeur Driven Prestige Car Hire",
-  
-  // Location and coverage
-  "baseLocationPostcode": baseLocationController.text.trim(),
-  "locationRadius": "202", // String format as per API
-  "areasCovered": areasCovered.toList(),
-  
-  // Service status
-  "service_status": "open",
-  "service_approve_status": "0",
-  
-  // Fleet information (match API structure exactly)
-  "fleetInfo": {
-    "capacity": "",
-    "make": "",
-    "model": "",
-    "year": yearController.text.trim(),
-    "wheelchairAccessible": accessibilitySpecial['wheelchairAccess'] ?? false,
-    "makeAndModel": makeModelController.text.trim(),
-    "seats": seatsController.text.trim(),
-    "firstRegistration": yearController.text.trim().isNotEmpty 
-        ? "${yearController.text.trim()}-01-01" 
-        : ""
-  },
-  
-  // Chauffeur details
-  "chauffeurDetails": {
-    "yearsExperience": 0, // Add controller if you have this field
-    "dresscode": "" // Add controller if you have this field
-  },
-  
-  // Pricing details (strings for some fields as per API)
-  "pricingDetails": {
-    "dayRate": dayRate.toString(),
-    "mileageLimit": (double.tryParse(mileageLimitController.text.trim()) ?? 0).toString(),
-    "extraMileageCharge": (double.tryParse(extraMileageChargeController.text.trim()) ?? 0).toString(),
-    "chauffeurIncluded": chauffeurIncluded,
-    "hourlyRate": hourlyRate.toString(),
-    "halfDayRate": halfDayRate.toString(),
-    "weddingPackage": (double.tryParse(weddingPackageController.text.trim()) ?? 0).toString(),
-    "airportTransfer": (double.tryParse(airportTransferController.text.trim()) ?? 0).toString(),
-    "fuelChargesIncluded": fuelChargesIncluded,
-  },
-  
-  // Availability details
-  "availabilityDetails": {
-    "available24x7": false // Add controller if you have this field
-  },
-  
-  // Booking dates
-  "booking_date_from": calendarController.fromDate.value != null
-      ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(calendarController.fromDate.value)
-      : "",
-  "booking_date_to": calendarController.toDate.value != null
-      ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(calendarController.toDate.value)
-      : "",
-      
-  // Special pricing days
-  "special_price_days": calendarController.specialPrices
-      .map((e) => {
-            "date": e['date'] != null
-                ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime)
-                : "",
-            "price": e['price'] as double? ?? 0
-          })
-      .toList(),
-      
-  // Features (simplified structure as per API)
-  "features": {
-    "comfort": {
-      "leatherInterior": comfortLuxury['leatherInterior'] ?? false,
-      // Add other comfort features as boolean values
-    },
-    "events": {
-      "weddingDecor": eventsExtras['weddingDecor'] ?? false,
-      // Add other event features as boolean values
-    },
-    "accessibility": {
-      "wheelchairAccessVehicle": accessibilitySpecial['wheelchairAccess'] ?? false,
-      // Add other accessibility features as boolean values
-    },
-    "security": {
-      "vehicleTrackingGps": securityCompliance['vehicleTrackingGps'] ?? false,
-      // Add other security features as boolean values
-    }
-  },
-  
-  // Service images
-  "service_image": imageController.uploadedUrls.isNotEmpty
-      ? imageController.uploadedUrls
-      : [],
-      
-  // Licensing documents (simplified structure)
-  "licensing": {
-    "documents": {
-      "vehicleInsurance": {
-        "isAttached": vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty
-      },
-      "v5cLogbook": {
-        "isAttached": v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty
-      },
-      "chauffeurDrivingLicence": {
-        "isAttached": chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty
-      },
-      // Add operator licence if needed
-      if (operatorLicenceEnabled)
-      "operatorLicence": {
-        "isAttached": operatorLicenceEnabled && operatorLicencePaths.isNotEmpty
-      },
-      // Add public liability if needed
-      if (publicLiabilityEnabled)
-      "publicLiabilityInsurance": {
-        "isAttached": publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty
-      }
-    }
-  },
-  
-  // Cancellation policy
-  "cancellation_policy_type": cancellationPolicy ?? "MODERATE",
-  
-  // Additional fields from API format
-  "kilometer_price": "", // Add controller if you have this field
-  "city_name": [], // Add if you have city selection
-  "certifications": [], // Add if you have certifications
-  "operators": [], // Add if you have operators
-  
-  // Form errors (if any)
-  "formErrors": {
-    "booking_date_to": ""
-  },
-  
-  // Auto-generated listing data (API might generate this, but include for completeness)
-  "listing_data": {
-    "title": "${serviceNameController.text.trim()} Chauffeur Service",
-    "description": "${serviceNameController.text.trim()} chauffeur service based in ${baseLocationController.text.trim()}",
-    "price": dayRate.toString(),
-    "price_formatted": "£${dayRate.toString()}/day",
-    "location": baseLocationController.text.trim(),
-    "image": imageController.uploadedUrls.isNotEmpty 
-        ? imageController.uploadedUrls.first 
-        : "",
-    "status": "open",
-    "category": "Chauffeur Service",
-    "features": [
-      makeModelController.text.trim(),
-      "${seatsController.text.trim()} seats",
-      "${yearController.text.trim()} model",
-      serviceType
-    ].where((f) => f!.isNotEmpty).toList(),
-    "areasCovered": areasCovered.take(3).toList(), // First 3 areas for summary
-    "summary": {
-      "day_rate": dayRate.toString(),
-      "hourly_rate": hourlyRate.toString(),
-      "vehicle": makeModelController.text.trim(),
-      "availability": calendarController.fromDate.value != null && calendarController.toDate.value != null
-          ? "${DateFormat('dd/MM/yyyy').format(calendarController.fromDate.value)} - ${DateFormat('dd/MM/yyyy').format(calendarController.toDate.value)}"
-          : ""
-    }
-  }
-};
+      // Core identifiers
+      "vendorId": vendorId,
+      "categoryId": widget.CategoryId,
+      "subcategoryId": widget.SubCategoryId,
 
+      // Basic service information
+      "service_name": serviceNameController.text.trim(),
+      "listingTitle": serviceNameController.text.trim(),
+      "serviceType": serviceType,
+      "service_type": "chauffeur",
+      "category": "PassengerTransport",
+      "sub_category": "Chauffeur Driven Prestige Car Hire",
+
+      // Location and coverage
+      "baseLocationPostcode": baseLocationController.text.trim(),
+      "locationRadius": "202", // String format as per API
+      "areasCovered": areasCovered.toList(),
+
+      // Service status
+      "service_status": "open",
+      "service_approve_status": "0",
+
+      // Fleet information (match API structure exactly)
+      "fleetInfo": {
+        "capacity": "",
+        "make": "",
+        "model": "",
+        "year": yearController.text.trim(),
+        "wheelchairAccessible":
+            accessibilitySpecial['wheelchairAccess'] ?? false,
+        "makeAndModel": makeModelController.text.trim(),
+        "seats": seatsController.text.trim(),
+        "firstRegistration": yearController.text.trim().isNotEmpty
+            ? "${yearController.text.trim()}-01-01"
+            : ""
+      },
+
+      // Chauffeur details
+      "chauffeurDetails": {
+        "yearsExperience": 0, // Add controller if you have this field
+        "dresscode": "" // Add controller if you have this field
+      },
+
+      // Pricing details (strings for some fields as per API)
+      "pricingDetails": {
+        "dayRate": dayRate.toString(),
+        "mileageLimit":
+            (double.tryParse(mileageLimitController.text.trim()) ?? 0)
+                .toString(),
+        "extraMileageCharge":
+            (double.tryParse(extraMileageChargeController.text.trim()) ?? 0)
+                .toString(),
+        "chauffeurIncluded": chauffeurIncluded,
+        "hourlyRate": hourlyRate.toString(),
+        "halfDayRate": halfDayRate.toString(),
+        "weddingPackage":
+            (double.tryParse(weddingPackageController.text.trim()) ?? 0)
+                .toString(),
+        "airportTransfer":
+            (double.tryParse(airportTransferController.text.trim()) ?? 0)
+                .toString(),
+        "fuelChargesIncluded": fuelChargesIncluded,
+      },
+
+      // Availability details
+      "availabilityDetails": {
+        "available24x7": false // Add controller if you have this field
+      },
+
+      // Booking dates
+      "booking_date_from": calendarController.fromDate.value != null
+          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+              .format(calendarController.fromDate.value)
+          : "",
+      "booking_date_to": calendarController.toDate.value != null
+          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+              .format(calendarController.toDate.value)
+          : "",
+
+      // Special pricing days
+      "special_price_days": calendarController.specialPrices
+          .map((e) => {
+                "date": e['date'] != null
+                    ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime)
+                    : "",
+                "price": e['price'] as double? ?? 0
+              })
+          .toList(),
+
+      // Features (simplified structure as per API)
+      "features": {
+        "comfort": {
+          "leatherInterior": comfortLuxury['leatherInterior'] ?? false,
+          // Add other comfort features as boolean values
+        },
+        "events": {
+          "weddingDecor": eventsExtras['weddingDecor'] ?? false,
+          // Add other event features as boolean values
+        },
+        "accessibility": {
+          "wheelchairAccessVehicle":
+              accessibilitySpecial['wheelchairAccess'] ?? false,
+          // Add other accessibility features as boolean values
+        },
+        "security": {
+          "vehicleTrackingGps":
+              securityCompliance['vehicleTrackingGps'] ?? false,
+          // Add other security features as boolean values
+        }
+      },
+
+      // Service images
+      "service_image": imageController.uploadedUrls.isNotEmpty
+          ? imageController.uploadedUrls
+          : [],
+
+      // Licensing documents (simplified structure)
+      "licensing": {
+        "documents": {
+          "vehicleInsurance": {
+            "isAttached":
+                vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty
+          },
+          "v5cLogbook": {
+            "isAttached": v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty
+          },
+          "chauffeurDrivingLicence": {
+            "isAttached":
+                chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty
+          },
+          // Add operator licence if needed
+          if (operatorLicenceEnabled)
+            "operatorLicence": {
+              "isAttached":
+                  operatorLicenceEnabled && operatorLicencePaths.isNotEmpty
+            },
+          // Add public liability if needed
+          if (publicLiabilityEnabled)
+            "publicLiabilityInsurance": {
+              "isAttached":
+                  publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty
+            }
+        }
+      },
+
+      // Cancellation policy
+      "cancellation_policy_type": cancellationPolicy ?? "MODERATE",
+
+      // Additional fields from API format
+      "kilometer_price": "", // Add controller if you have this field
+      "city_name": [], // Add if you have city selection
+      "certifications": [], // Add if you have certifications
+      "operators": [], // Add if you have operators
+
+      // Form errors (if any)
+      "formErrors": {"booking_date_to": ""},
+
+      // Auto-generated listing data (API might generate this, but include for completeness)
+      "listing_data": {
+        "title": "${serviceNameController.text.trim()} Chauffeur Service",
+        "description":
+            "${serviceNameController.text.trim()} chauffeur service based in ${baseLocationController.text.trim()}",
+        "price": dayRate.toString(),
+        "price_formatted": "£${dayRate.toString()}/day",
+        "location": baseLocationController.text.trim(),
+        "image": imageController.uploadedUrls.isNotEmpty
+            ? imageController.uploadedUrls.first
+            : "",
+        "status": "open",
+        "category": "Chauffeur Service",
+        "features": [
+          makeModelController.text.trim(),
+          "${seatsController.text.trim()} seats",
+          "${yearController.text.trim()} model",
+          serviceType
+        ].where((f) => f!.isNotEmpty).toList(),
+        "areasCovered":
+            areasCovered.take(3).toList(), // First 3 areas for summary
+        "summary": {
+          "day_rate": dayRate.toString(),
+          "hourly_rate": hourlyRate.toString(),
+          "vehicle": makeModelController.text.trim(),
+          "availability": calendarController.fromDate.value != null &&
+                  calendarController.toDate.value != null
+              ? "${DateFormat('dd/MM/yyyy').format(calendarController.fromDate.value)} - ${DateFormat('dd/MM/yyyy').format(calendarController.toDate.value)}"
+              : ""
+        }
+      }
+    };
 
     final api = AddVendorServiceApi();
     try {
