@@ -43,7 +43,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
   final ImageController imageController = Get.put(ImageController());
   final CouponController couponController = Get.put(CouponController());
   final CalendarController calendarController = Get.put(CalendarController());
-  final CityFetchController cityFetchController = Get.put(CityFetchController());
+  final CityFetchController cityFetchController =
+      Get.put(CityFetchController());
 
   // Section 1: Business Information
   TextEditingController serviceNameController = TextEditingController();
@@ -75,7 +76,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
 
   // Section 4: Pricing Details
   TextEditingController dayRateController = TextEditingController();
-  TextEditingController mileageLimitController = TextEditingController(text: '100');
+  TextEditingController mileageLimitController =
+      TextEditingController(text: '100');
   TextEditingController extraMileageChargeController = TextEditingController();
   bool chauffeurIncluded = false;
   TextEditingController hourlyRateController = TextEditingController();
@@ -156,17 +158,22 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
 
   // Price Controllers for Events & Extras
   TextEditingController weddingDecorPriceController = TextEditingController();
-  TextEditingController champagnePackagesPriceController = TextEditingController();
+  TextEditingController champagnePackagesPriceController =
+      TextEditingController();
   TextEditingController partyLightingPriceController = TextEditingController();
-  TextEditingController photographyPackagesPriceController = TextEditingController();
+  TextEditingController photographyPackagesPriceController =
+      TextEditingController();
 
   // Price Controllers for Accessibility & Special Services
-  TextEditingController wheelchairAccessPriceController = TextEditingController();
+  TextEditingController wheelchairAccessPriceController =
+      TextEditingController();
   TextEditingController petFriendlyPriceController = TextEditingController();
   TextEditingController seniorFriendlyPriceController = TextEditingController();
   TextEditingController childCarSeatsPriceController = TextEditingController();
-  TextEditingController disabledAccessRampPriceController = TextEditingController();
-  TextEditingController strollerBuggyStoragePriceController = TextEditingController();
+  TextEditingController disabledAccessRampPriceController =
+      TextEditingController();
+  TextEditingController strollerBuggyStoragePriceController =
+      TextEditingController();
 
   String? vendorId;
 
@@ -177,7 +184,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
     super.initState();
     _loadVendorId();
     hourlyRateController.addListener(() {
-      calendarController.setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
+      calendarController
+          .setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
     });
     // Ensure fromDate and toDate are not before firstDay (DateTime.now())
     if (fromDate.value.isBefore(DateTime.now())) {
@@ -241,90 +249,88 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
   }
 
   Future<bool> _uploadDocuments() async {
-    try {
-      imageController.selectedImages.clear();
-      imageController.uploadedUrls.clear();
+  try {
+    imageController.selectedImages.clear();
+    imageController.uploadedUrls.clear();
 
-      if (operatorLicenceEnabled && operatorLicencePaths.isNotEmpty) {
-        imageController.selectedImages.add(operatorLicencePaths.first);
-      }
-      if (vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty) {
-        imageController.selectedImages.add(vehicleInsurancePaths.first);
-      }
-      if (publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty) {
-        imageController.selectedImages.add(publicLiabilityPaths.first);
-      }
-      if (v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty) {
-        imageController.selectedImages.add(v5cLogbookPaths.first);
-      }
-      if (chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty) {
-        imageController.selectedImages.add(chauffeurLicencePaths.first);
-      }
-      if (additionalMediaPaths.isNotEmpty) {
-        imageController.selectedImages.addAll(additionalMediaPaths);
-      }
-
-      for (var path in imageController.selectedImages) {
-        await imageController.uploadToCloudinary(path);
-      }
-
-      int requiredDocs = 0;
-      if (operatorLicenceEnabled && operatorLicencePaths.isNotEmpty) requiredDocs++;
-      if (vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty) requiredDocs++;
-      if (publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty) requiredDocs++;
-      if (v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty) requiredDocs++;
-      if (chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty) requiredDocs++;
-      int additionalDocs = additionalMediaPaths.length;
-
-      if (imageController.uploadedUrls.length != (requiredDocs + additionalDocs)) {
-        Get.snackbar(
-          "Upload Error",
-          "One or more documents failed to upload.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 3),
-        );
-        return false;
-      }
-
-      return true;
-    } catch (e) {
-      Get.snackbar(
-        "Upload Error",
-        "Failed to upload documents: $e",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-      return false;
+    // Add documents in specific order
+    List<String> documentsToUpload = [];
+    
+    if (operatorLicenceEnabled && operatorLicencePaths.isNotEmpty) {
+      documentsToUpload.add(operatorLicencePaths.first);
     }
+    if (vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty) {
+      documentsToUpload.add(vehicleInsurancePaths.first);
+    }
+    if (publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty) {
+      documentsToUpload.add(publicLiabilityPaths.first);
+    }
+    if (v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty) {
+      documentsToUpload.add(v5cLogbookPaths.first);
+    }
+    if (chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty) {
+      documentsToUpload.add(chauffeurLicencePaths.first);
+    }
+    if (additionalMediaPaths.isNotEmpty) {
+      documentsToUpload.addAll(additionalMediaPaths);
+    }
+
+    // Upload all documents
+    for (var path in documentsToUpload) {
+      await imageController.uploadToCloudinary(path);
+    }
+
+    print("Documents uploaded successfully: ${imageController.uploadedUrls.length}");
+    return true;
+  } catch (e) {
+    Get.snackbar(
+      "Upload Error",
+      "Failed to upload documents: $e",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.redAccent,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+    );
+    return false;
   }
+}
+
 
   void _submitForm() async {
     if (!_formKey.currentState!.validate()) {
-      Get.snackbar("Validation Error", "Please fill all required fields correctly.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar(
+          "Validation Error", "Please fill all required fields correctly.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       return;
     }
 
     if (!occasions.values.any((v) => v)) {
-      Get.snackbar("Missing Information", "Please select at least one occasion.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar(
+          "Missing Information", "Please select at least one occasion.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       return;
     }
     if (areasCovered.isEmpty) {
-      Get.snackbar("Missing Information", "At least one area covered is required.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar(
+          "Missing Information", "At least one area covered is required.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       return;
     }
     final dayRate = double.tryParse(dayRateController.text.trim()) ?? 0;
     final hourlyRate = double.tryParse(hourlyRateController.text.trim()) ?? 0;
     final halfDayRate = double.tryParse(halfDayRateController.text.trim()) ?? 0;
     if (dayRate == 0 && hourlyRate == 0 && halfDayRate == 0) {
-      Get.snackbar("Missing Information", "At least one rate (day, hourly, or half-day) must be provided.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar("Missing Information",
+          "At least one rate (day, hourly, or half-day) must be provided.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       return;
     }
     if ((operatorLicenceEnabled && operatorLicencePaths.isEmpty) ||
@@ -333,19 +339,29 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
         (v5cLogbookEnabled && v5cLogbookPaths.isEmpty) ||
         (chauffeurLicenceEnabled && chauffeurLicencePaths.isEmpty) ||
         imageController.selectedImages.length < 3) {
-      Get.snackbar("Missing Information", "All enabled document uploads and at least 3 vehicle images are required.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar("Missing Information",
+          "All enabled document uploads and at least 3 vehicle images are required.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       return;
     }
-    if (!agreeTerms || !noContactDetails || !agreeCookies || !agreePrivacy || !agreeCancellation) {
+    if (!agreeTerms ||
+        !noContactDetails ||
+        !agreeCookies ||
+        !agreePrivacy ||
+        !agreeCancellation) {
       Get.snackbar("Missing Information", "Please agree to all declarations.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       return;
     }
 
     setState(() {
       _isSubmitting = true;
     });
+
     final documentsUploaded = await _uploadDocuments();
     if (!documentsUploaded) {
       setState(() {
@@ -354,110 +370,234 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
       return;
     }
 
+    // Debug: Check uploaded URLs
+    print("Total uploaded URLs: ${imageController.uploadedUrls.length}");
+    print("Uploaded URLs: ${imageController.uploadedUrls}");
+
+    // FIXED: Safe document URL extraction
+    Map<String, String> documentUrls = {};
+    int urlIndex = 0;
+
+    // Extract document URLs in the order they were uploaded
+    if (operatorLicenceEnabled && operatorLicencePaths.isNotEmpty) {
+      documentUrls['operatorLicence'] =
+          urlIndex < imageController.uploadedUrls.length
+              ? imageController.uploadedUrls[urlIndex]
+              : "";
+      urlIndex++;
+    }
+
+    if (vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty) {
+      documentUrls['vehicleInsurance'] =
+          urlIndex < imageController.uploadedUrls.length
+              ? imageController.uploadedUrls[urlIndex]
+              : "";
+      urlIndex++;
+    }
+
+    if (publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty) {
+      documentUrls['publicLiability'] =
+          urlIndex < imageController.uploadedUrls.length
+              ? imageController.uploadedUrls[urlIndex]
+              : "";
+      urlIndex++;
+    }
+
+    if (v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty) {
+      documentUrls['v5cLogbook'] =
+          urlIndex < imageController.uploadedUrls.length
+              ? imageController.uploadedUrls[urlIndex]
+              : "";
+      urlIndex++;
+    }
+
+    if (chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty) {
+      documentUrls['chauffeurLicence'] =
+          urlIndex < imageController.uploadedUrls.length
+              ? imageController.uploadedUrls[urlIndex]
+              : "";
+      urlIndex++;
+    }
+
+    // Get additional media URLs (remaining URLs)
+    List<String> additionalMediaUrls = [];
+    if (urlIndex < imageController.uploadedUrls.length) {
+      additionalMediaUrls = imageController.uploadedUrls.sublist(urlIndex);
+    }
+
     final data = {
-      "vendorId": vendorId,
-      "categoryId": widget.CategoryId,
-      "subcategoryId": widget.SubCategoryId,
-      "service_name": serviceNameController.text.trim(),
-      "serviceType": serviceType,
-      "chauffeurType": chauffeurType == "Other" ? otherChauffeurTypeController.text.trim() : chauffeurType,
-      "baseLocation": baseLocationController.text.trim(),
-      "occasions": {
-        ...occasions,
-        "otherSpecified": occasions['other'] == true ? otherOccasionsController.text.trim() : ""
+  // Core identifiers
+  "vendorId": vendorId,
+  "categoryId": widget.CategoryId,
+  "subcategoryId": widget.SubCategoryId,
+  
+  // Basic service information
+  "service_name": serviceNameController.text.trim(),
+  "listingTitle": serviceNameController.text.trim(),
+  "serviceType": serviceType,
+  "service_type": "chauffeur",
+  "category": "PassengerTransport",
+  "sub_category": "Chauffeur Driven Prestige Car Hire",
+  
+  // Location and coverage
+  "baseLocationPostcode": baseLocationController.text.trim(),
+  "locationRadius": "202", // String format as per API
+  "areasCovered": areasCovered.toList(),
+  
+  // Service status
+  "service_status": "open",
+  "service_approve_status": "0",
+  
+  // Fleet information (match API structure exactly)
+  "fleetInfo": {
+    "capacity": "",
+    "make": "",
+    "model": "",
+    "year": yearController.text.trim(),
+    "wheelchairAccessible": accessibilitySpecial['wheelchairAccess'] ?? false,
+    "makeAndModel": makeModelController.text.trim(),
+    "seats": seatsController.text.trim(),
+    "firstRegistration": yearController.text.trim().isNotEmpty 
+        ? "${yearController.text.trim()}-01-01" 
+        : ""
+  },
+  
+  // Chauffeur details
+  "chauffeurDetails": {
+    "yearsExperience": 0, // Add controller if you have this field
+    "dresscode": "" // Add controller if you have this field
+  },
+  
+  // Pricing details (strings for some fields as per API)
+  "pricingDetails": {
+    "dayRate": dayRate.toString(),
+    "mileageLimit": (double.tryParse(mileageLimitController.text.trim()) ?? 0).toString(),
+    "extraMileageCharge": (double.tryParse(extraMileageChargeController.text.trim()) ?? 0).toString(),
+    "chauffeurIncluded": chauffeurIncluded,
+    "hourlyRate": hourlyRate.toString(),
+    "halfDayRate": halfDayRate.toString(),
+    "weddingPackage": (double.tryParse(weddingPackageController.text.trim()) ?? 0).toString(),
+    "airportTransfer": (double.tryParse(airportTransferController.text.trim()) ?? 0).toString(),
+    "fuelChargesIncluded": fuelChargesIncluded,
+  },
+  
+  // Availability details
+  "availabilityDetails": {
+    "available24x7": false // Add controller if you have this field
+  },
+  
+  // Booking dates
+  "booking_date_from": calendarController.fromDate.value != null
+      ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(calendarController.fromDate.value)
+      : "",
+  "booking_date_to": calendarController.toDate.value != null
+      ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(calendarController.toDate.value)
+      : "",
+      
+  // Special pricing days
+  "special_price_days": calendarController.specialPrices
+      .map((e) => {
+            "date": e['date'] != null
+                ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime)
+                : "",
+            "price": e['price'] as double? ?? 0
+          })
+      .toList(),
+      
+  // Features (simplified structure as per API)
+  "features": {
+    "comfort": {
+      "leatherInterior": comfortLuxury['leatherInterior'] ?? false,
+      // Add other comfort features as boolean values
+    },
+    "events": {
+      "weddingDecor": eventsExtras['weddingDecor'] ?? false,
+      // Add other event features as boolean values
+    },
+    "accessibility": {
+      "wheelchairAccessVehicle": accessibilitySpecial['wheelchairAccess'] ?? false,
+      // Add other accessibility features as boolean values
+    },
+    "security": {
+      "vehicleTrackingGps": securityCompliance['vehicleTrackingGps'] ?? false,
+      // Add other security features as boolean values
+    }
+  },
+  
+  // Service images
+  "service_image": imageController.uploadedUrls.isNotEmpty
+      ? imageController.uploadedUrls
+      : [],
+      
+  // Licensing documents (simplified structure)
+  "licensing": {
+    "documents": {
+      "vehicleInsurance": {
+        "isAttached": vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty
       },
-      "fleetInfo": {
-        "makeModel": makeModelController.text.trim(),
-        "year": yearController.text.trim(),
-        "colour": colourController.text.trim(),
-        "seats": seatsController.text.trim(),
-        "chauffeurName": chauffeurNameController.text.trim(),
-        "bootSpace": bootSpaceController.text.trim(),
+      "v5cLogbook": {
+        "isAttached": v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty
       },
-      "pricing": {
-        "dayRate": dayRate,
-        "mileageLimit": double.tryParse(mileageLimitController.text.trim()) ?? 0,
-        "extraMileageCharge": double.tryParse(extraMileageChargeController.text.trim()) ?? 0,
-        "chauffeurIncluded": chauffeurIncluded,
-        "hourlyRate": hourlyRate,
-        "halfDayRate": halfDayRate,
-        "weddingPackage": double.tryParse(weddingPackageController.text.trim()) ?? 0,
-        "airportTransfer": double.tryParse(airportTransferController.text.trim()) ?? 0,
-        "fuelChargesIncluded": fuelChargesIncluded,
+      "chauffeurDrivingLicence": {
+        "isAttached": chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty
       },
-      "coverageAvailability": {
-        "areasCovered": areasCovered.toList(),
-        "serviceStatus": serviceStatus,
-        "fromDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-        "toDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
+      // Add operator licence if needed
+      if (operatorLicenceEnabled)
+      "operatorLicence": {
+        "isAttached": operatorLicenceEnabled && operatorLicencePaths.isNotEmpty
       },
-      "features": {
-        "comfortLuxury": comfortLuxury,
-        "eventsExtras": {
-          ...eventsExtras,
-          "weddingDecorPrice": double.tryParse(weddingDecorPriceController.text.trim()) ?? 0,
-          "champagnePackagesPrice": double.tryParse(champagnePackagesPriceController.text.trim()) ?? 0,
-          "partyLightingPrice": double.tryParse(partyLightingPriceController.text.trim()) ?? 0,
-          "photographyPackagesPrice": double.tryParse(photographyPackagesPriceController.text.trim()) ?? 0,
-        },
-        "accessibilitySpecial": {
-          ...accessibilitySpecial,
-          "wheelchairAccessPrice": double.tryParse(wheelchairAccessPriceController.text.trim()) ?? 0,
-          "petFriendlyPrice": double.tryParse(petFriendlyPriceController.text.trim()) ?? 0,
-          "seniorFriendlyPrice": double.tryParse(seniorFriendlyPriceController.text.trim()) ?? 0,
-          "childCarSeatsPrice": double.tryParse(childCarSeatsPriceController.text.trim()) ?? 0,
-          "disabledAccessRampPrice": double.tryParse(disabledAccessRampPriceController.text.trim()) ?? 0,
-          "strollerBuggyStoragePrice": double.tryParse(strollerBuggyStoragePriceController.text.trim()) ?? 0,
-        },
-        "securityCompliance": securityCompliance,
-        "cancellationPolicy": cancellationPolicy ?? "FLEXIBLE",
-      },
-      "documents": {
-        "operatorLicence": {
-          "isAttached": operatorLicenceEnabled && operatorLicencePaths.isNotEmpty,
-          "image": operatorLicenceEnabled && operatorLicencePaths.isNotEmpty ? imageController.uploadedUrls[0] : ""
-        },
-        "vehicleInsurance": {
-          "isAttached": vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty,
-          "image": vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty ? imageController.uploadedUrls[operatorLicenceEnabled ? 1 : 0] : ""
-        },
-        "publicLiability": {
-          "isAttached": publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty,
-          "image": publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty ? imageController.uploadedUrls[operatorLicenceEnabled ? (vehicleInsuranceEnabled ? 2 : 1) : 0] : ""
-        },
-        "v5cLogbook": {
-          "isAttached": v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty,
-          "image": v5cLogbookEnabled && v5cLogbookPaths.isNotEmpty ? imageController.uploadedUrls[operatorLicenceEnabled ? (vehicleInsuranceEnabled ? (publicLiabilityEnabled ? 3 : 2) : 1) : 0] : ""
-        },
-        "chauffeurLicence": {
-          "isAttached": chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty,
-          "image": chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty ? imageController.uploadedUrls[operatorLicenceEnabled ? (vehicleInsuranceEnabled ? (publicLiabilityEnabled ? (v5cLogbookEnabled ? 4 : 3) : 2) : 1) : 0] : ""
-        },
-        "additionalMedia": additionalMediaPaths.isNotEmpty ? imageController.uploadedUrls : [],
-      },
-      "businessDescription": businessDescriptionController.text.trim(),
-      "service_image": imageController.uploadedUrls.isNotEmpty ? imageController.uploadedUrls : [],
-      "coupons": couponController.coupons.map((coupon) => {
-        "coupon_code": coupon['coupon_code'] ?? "",
-        "discount_type": coupon['discount_type'] ?? "",
-        "discount_value": coupon['discount_value'] ?? 0,
-        "usage_limit": coupon['usage_limit'] ?? 0,
-        "current_usage_count": coupon['current_usage_count'] ?? 0,
-        "expiry_date": coupon['expiry_date'] != null && coupon['expiry_date'].toString().isNotEmpty ? DateFormat('yyyy-MM-dd').format(DateTime.parse(coupon['expiry_date'].toString())) : "",
-        "is_global": coupon['is_global'] ?? false
-      }).toList(),
-      "special_price_days": calendarController.specialPrices.map((e) => {
-        "date": e['date'] != null ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime) : "",
-        "price": e['price'] as double? ?? 0
-      }).toList(),
-      "booking_date_from": calendarController.fromDate.value != null ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(calendarController.fromDate.value) : "",
-      "booking_date_to": calendarController.toDate.value != null ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(calendarController.toDate.value) : "",
-      "isAccurateInfo": agreeTerms,
-      "noContactDetailsShared": noContactDetails,
-      "agreeCookiesPolicy": agreeCookies,
-      "agreePrivacyPolicy": agreePrivacy,
-      "agreeCancellationPolicy": agreeCancellation,
-    };
+      // Add public liability if needed
+      if (publicLiabilityEnabled)
+      "publicLiabilityInsurance": {
+        "isAttached": publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty
+      }
+    }
+  },
+  
+  // Cancellation policy
+  "cancellation_policy_type": cancellationPolicy ?? "MODERATE",
+  
+  // Additional fields from API format
+  "kilometer_price": "", // Add controller if you have this field
+  "city_name": [], // Add if you have city selection
+  "certifications": [], // Add if you have certifications
+  "operators": [], // Add if you have operators
+  
+  // Form errors (if any)
+  "formErrors": {
+    "booking_date_to": ""
+  },
+  
+  // Auto-generated listing data (API might generate this, but include for completeness)
+  "listing_data": {
+    "title": "${serviceNameController.text.trim()} Chauffeur Service",
+    "description": "${serviceNameController.text.trim()} chauffeur service based in ${baseLocationController.text.trim()}",
+    "price": dayRate.toString(),
+    "price_formatted": "£${dayRate.toString()}/day",
+    "location": baseLocationController.text.trim(),
+    "image": imageController.uploadedUrls.isNotEmpty 
+        ? imageController.uploadedUrls.first 
+        : "",
+    "status": "open",
+    "category": "Chauffeur Service",
+    "features": [
+      makeModelController.text.trim(),
+      "${seatsController.text.trim()} seats",
+      "${yearController.text.trim()} model",
+      serviceType
+    ].where((f) => f!.isNotEmpty).toList(),
+    "areasCovered": areasCovered.take(3).toList(), // First 3 areas for summary
+    "summary": {
+      "day_rate": dayRate.toString(),
+      "hourly_rate": hourlyRate.toString(),
+      "vehicle": makeModelController.text.trim(),
+      "availability": calendarController.fromDate.value != null && calendarController.toDate.value != null
+          ? "${DateFormat('dd/MM/yyyy').format(calendarController.fromDate.value)} - ${DateFormat('dd/MM/yyyy').format(calendarController.toDate.value)}"
+          : ""
+    }
+  }
+};
+
 
     final api = AddVendorServiceApi();
     try {
@@ -485,12 +625,15 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
 
   void _showSetPriceDialog(DateTime date) {
     final TextEditingController priceController = TextEditingController();
-    priceController.text = (calendarController.getPriceForDate(date)?.toString() ?? calendarController.defaultPrice.toString());
+    priceController.text =
+        (calendarController.getPriceForDate(date)?.toString() ??
+            calendarController.defaultPrice.toString());
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
+        title: Text(
+            'Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
         content: TextField(
           controller: priceController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -512,7 +655,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                 Navigator.pop(context);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid price (≥ 0)')),
+                  const SnackBar(
+                      content: Text('Please enter a valid price (≥ 0)')),
                 );
               }
             },
@@ -551,7 +695,9 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   '£${price.toStringAsFixed(2)}/hr',
                   style: TextStyle(
                     fontSize: 7,
-                    color: isClickable ? (price > 0 ? Colors.red : Colors.red) : Colors.grey,
+                    color: isClickable
+                        ? (price > 0 ? Colors.red : Colors.red)
+                        : Colors.grey,
                   ),
                 ),
               ],
@@ -562,7 +708,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
     });
   }
 
-  Widget _buildDocumentUploadSection(String title, RxList<String> documentPaths, bool isRequired) {
+  Widget _buildDocumentUploadSection(
+      String title, RxList<String> documentPaths, bool isRequired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -585,7 +732,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: const Icon(Icons.insert_drive_file, size: 40, color: Colors.grey),
+                        child: const Icon(Icons.insert_drive_file,
+                            size: 40, color: Colors.grey),
                       ),
                       Positioned(
                         top: 2,
@@ -594,7 +742,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                           onTap: () {
                             documentPaths.removeAt(index);
                           },
-                          child: const Icon(Icons.cancel, color: Colors.redAccent, size: 20),
+                          child: const Icon(Icons.cancel,
+                              color: Colors.redAccent, size: 20),
                         ),
                       ),
                     ],
@@ -653,7 +802,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     SizedBox(height: 8),
                     Text(
                       'Click to upload PDF, PNG, JPG (max 5MB)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -671,7 +823,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$title *', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        Text('$title *',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -752,17 +905,20 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
               ),
               constraints: const BoxConstraints(minHeight: 50),
               child: selectedCities.isEmpty
-                  ? const Text('No cities selected', style: TextStyle(color: Colors.grey, fontSize: 16))
+                  ? const Text('No cities selected',
+                      style: TextStyle(color: Colors.grey, fontSize: 16))
                   : Wrap(
                       spacing: 8.0,
                       runSpacing: 4.0,
                       children: selectedCities
                           .map((city) => Chip(
-                                label: Text(city, style: const TextStyle(fontSize: 14)),
+                                label: Text(city,
+                                    style: const TextStyle(fontSize: 14)),
                                 deleteIcon: const Icon(Icons.close, size: 18),
                                 onDeleted: () => selectedCities.remove(city),
                                 backgroundColor: Colors.grey[200],
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
                               ))
                           .toList(),
                     ),
@@ -771,7 +927,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
     );
   }
 
-  Widget _buildDatePicker(BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
+  Widget _buildDatePicker(
+      BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -832,7 +989,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
@@ -868,7 +1026,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
         centerTitle: true,
         title: Obx(() => Text(
               'Add ${widget.SubCategory.value ?? ''} Service',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: colors.black),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: colors.black),
             )),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
@@ -942,7 +1101,17 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   width: double.infinity,
                   child: CustomDropdown(
                     hintText: "Select Vehicle Type",
-                    items: ['Rolls Royce', 'Bentley', 'Mercedes', 'BMW', 'Audi', 'Range Rover', 'Maserati/Jaguar/Supercar', 'Classic/Vintage', 'Other'],
+                    items: [
+                      'Rolls Royce',
+                      'Bentley',
+                      'Mercedes',
+                      'BMW',
+                      'Audi',
+                      'Range Rover',
+                      'Maserati/Jaguar/Supercar',
+                      'Classic/Vintage',
+                      'Other'
+                    ],
                     selectedValue: chauffeurType,
                     onChanged: (value) {
                       setState(() {
@@ -966,7 +1135,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                       keytype: TextInputType.text,
                       hinttext: "Please specify other chauffeur type",
                       validator: (value) {
-                        if (chauffeurType == 'Other' && (value == null || value.isEmpty)) {
+                        if (chauffeurType == 'Other' &&
+                            (value == null || value.isEmpty)) {
                           return 'Please specify other chauffeur type';
                         }
                         return null;
@@ -1014,15 +1184,17 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   width: double.infinity,
                   child: Wrap(
                     spacing: 10,
-                    children: occasions.keys.map((occasion) => ChoiceChip(
-                          label: Text(occasion),
-                          selected: occasions[occasion]!,
-                          onSelected: (selected) {
-                            setState(() {
-                              occasions[occasion] = selected;
-                            });
-                          },
-                        )).toList(),
+                    children: occasions.keys
+                        .map((occasion) => ChoiceChip(
+                              label: Text(occasion),
+                              selected: occasions[occasion]!,
+                              onSelected: (selected) {
+                                setState(() {
+                                  occasions[occasion] = selected;
+                                });
+                              },
+                            ))
+                        .toList(),
                   ),
                 ),
                 if (occasions['other']!) ...[
@@ -1037,7 +1209,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                       keytype: TextInputType.text,
                       hinttext: "Please specify other occasion",
                       validator: (value) {
-                        if (occasions['other']! && (value == null || value.isEmpty)) {
+                        if (occasions['other']! &&
+                            (value == null || value.isEmpty)) {
                           return 'Please specify other occasion';
                         }
                         return null;
@@ -1200,7 +1373,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     textfilled_weight: 1,
                     keytype: TextInputType.number,
                     hinttext: "Enter day rate",
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -1247,7 +1423,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                       }
                       return null;
                     },
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -1298,7 +1477,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     textfilled_weight: 1,
                     keytype: TextInputType.number,
                     hinttext: "Enter hourly rate",
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -1316,7 +1498,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     textfilled_weight: 1,
                     keytype: TextInputType.number,
                     hinttext: "Enter half-day rate",
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -1334,7 +1519,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     textfilled_weight: 1,
                     keytype: TextInputType.number,
                     hinttext: "Enter wedding package rate",
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -1352,7 +1540,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     textfilled_weight: 1,
                     keytype: TextInputType.number,
                     hinttext: "Enter airport transfer rate",
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -1424,11 +1615,16 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                 const SizedBox(height: 5),
                 const Text(
                   'Select the Period during which your service will be available',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,
+                      color: Color.fromARGB(255, 109, 104, 104)),
                 ),
                 const SizedBox(height: 20),
-                Obx(() => _buildDatePicker(context, "From", calendarController.fromDate, true)),
-                Obx(() => _buildDatePicker(context, "To", calendarController.toDate, false)),
+                Obx(() => _buildDatePicker(
+                    context, "From", calendarController.fromDate, true)),
+                Obx(() => _buildDatePicker(
+                    context, "To", calendarController.toDate, false)),
                 const SizedBox(height: 10),
                 Obx(() {
                   DateTime focusedDay = calendarController.fromDate.value;
@@ -1437,7 +1633,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   }
                   return TableCalendar(
                     onDaySelected: (selectedDay, focusedDay) {
-                      if (calendarController.visibleDates.any((d) => isSameDay(d, selectedDay))) {
+                      if (calendarController.visibleDates
+                          .any((d) => isSameDay(d, selectedDay))) {
                         _showSetPriceDialog(selectedDay);
                       }
                     },
@@ -1449,7 +1646,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     headerStyle: const HeaderStyle(formatButtonVisible: false),
                     calendarBuilders: CalendarBuilders(
                       defaultBuilder: (context, day, focusedDay) {
-                        if (calendarController.visibleDates.any((d) => isSameDay(d, day))) {
+                        if (calendarController.visibleDates
+                            .any((d) => isSameDay(d, day))) {
                           return _buildCalendarCell(day, true);
                         }
                         return _buildCalendarCell(day, false);
@@ -1468,28 +1666,32 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   child: calendarController.specialPrices.length == 0
                       ? Center(
                           child: Text(
-                            'No special prices set yet',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
-                          ))
+                          'No special prices set yet',
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ))
                       : Obx(() => ListView.builder(
                             shrinkWrap: true,
                             itemCount: calendarController.specialPrices.length,
                             itemBuilder: (context, index) {
-                              final entry = calendarController.specialPrices[index];
+                              final entry =
+                                  calendarController.specialPrices[index];
                               final date = entry['date'] as DateTime;
                               final price = entry['price'] as double;
                               return Container(
-                                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 16),
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: Colors.grey[200],
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      DateFormat('EEE, d MMM yyyy').format(date),
+                                      DateFormat('EEE, d MMM yyyy')
+                                          .format(date),
                                       style: const TextStyle(fontSize: 16),
                                     ),
                                     Row(
@@ -1498,13 +1700,17 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                           '£${price.toStringAsFixed(2)}/hr',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            color: price > 0 ? Colors.black : Colors.red,
+                                            color: price > 0
+                                                ? Colors.black
+                                                : Colors.red,
                                           ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.delete, color: Colors.red),
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.red),
                                           onPressed: () {
-                                            calendarController.deleteSpecialPrice(date);
+                                            calendarController
+                                                .deleteSpecialPrice(date);
                                           },
                                         ),
                                       ],
@@ -1532,15 +1738,17 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   width: double.infinity,
                   child: Wrap(
                     spacing: 10,
-                    children: comfortLuxury.keys.map((feature) => ChoiceChip(
-                          label: Text(feature),
-                          selected: comfortLuxury[feature]!,
-                          onSelected: (selected) {
-                            setState(() {
-                              comfortLuxury[feature] = selected;
-                            });
-                          },
-                        )).toList(),
+                    children: comfortLuxury.keys
+                        .map((feature) => ChoiceChip(
+                              label: Text(feature),
+                              selected: comfortLuxury[feature]!,
+                              onSelected: (selected) {
+                                setState(() {
+                                  comfortLuxury[feature] = selected;
+                                });
+                              },
+                            ))
+                        .toList(),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -1569,7 +1777,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                           ),
                           if (isSelected)
                             SizedBox(
-                              width: 10, // Separation between chip and price field
+                              width:
+                                  10, // Separation between chip and price field
                             ),
                           if (isSelected && extra == 'weddingDecor')
                             SizedBox(
@@ -1581,7 +1790,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && extra == 'champagnePackages')
@@ -1594,7 +1806,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && extra == 'partyLighting')
@@ -1607,7 +1822,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && extra == 'photographyPackages')
@@ -1620,7 +1838,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                         ],
@@ -1654,7 +1875,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                           ),
                           if (isSelected)
                             SizedBox(
-                              width: 10, // Separation between chip and price field
+                              width:
+                                  10, // Separation between chip and price field
                             ),
                           if (isSelected && service == 'wheelchairAccess')
                             SizedBox(
@@ -1666,7 +1888,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && service == 'petFriendly')
@@ -1679,7 +1904,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && service == 'seniorFriendly')
@@ -1692,7 +1920,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && service == 'childCarSeats')
@@ -1705,7 +1936,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && service == 'disabledAccessRamp')
@@ -1718,7 +1952,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                           if (isSelected && service == 'strollerBuggyStorage')
@@ -1731,7 +1968,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
                                 hinttext: "Price (£)",
-                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
                               ),
                             ),
                         ],
@@ -1749,15 +1989,17 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   width: double.infinity,
                   child: Wrap(
                     spacing: 10,
-                    children: securityCompliance.keys.map((compliance) => ChoiceChip(
-                          label: Text(compliance),
-                          selected: securityCompliance[compliance]!,
-                          onSelected: (selected) {
-                            setState(() {
-                              securityCompliance[compliance] = selected;
-                            });
-                          },
-                        )).toList(),
+                    children: securityCompliance.keys
+                        .map((compliance) => ChoiceChip(
+                              label: Text(compliance),
+                              selected: securityCompliance[compliance]!,
+                              onSelected: (selected) {
+                                setState(() {
+                                  securityCompliance[compliance] = selected;
+                                });
+                              },
+                            ))
+                        .toList(),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -1766,7 +2008,11 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   child: CustomDropdown(
                     hintText: "Select a Cancellation Policy",
                     items: cancellationPolicyMap.keys.toList(),
-                    selectedValue: cancellationPolicyMap.entries.firstWhere((entry) => entry.value == cancellationPolicy, orElse: () => const MapEntry("", "")).key,
+                    selectedValue: cancellationPolicyMap.entries
+                        .firstWhere(
+                            (entry) => entry.value == cancellationPolicy,
+                            orElse: () => const MapEntry("", ""))
+                        .key,
                     onChanged: (value) {
                       setState(() {
                         cancellationPolicy = cancellationPolicyMap[value] ?? "";
@@ -1793,7 +2039,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     child: Obx(() => Wrap(
                           spacing: 8.0,
                           runSpacing: 4.0,
-                          children: List.generate(imageController.selectedImages.length, (index) {
+                          children: List.generate(
+                              imageController.selectedImages.length, (index) {
                             return Stack(
                               children: [
                                 Image.file(
@@ -1806,8 +2053,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                   top: 2,
                                   right: 2,
                                   child: GestureDetector(
-                                    onTap: () => imageController.removeImage(index),
-                                    child: const Icon(Icons.close, color: Colors.redAccent),
+                                    onTap: () =>
+                                        imageController.removeImage(index),
+                                    child: const Icon(Icons.close,
+                                        color: Colors.redAccent),
                                   ),
                                 ),
                               ],
@@ -1857,10 +2106,14 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey),
+                            Icon(Icons.cloud_upload_outlined,
+                                size: 40, color: Colors.grey),
                             Text(
                               "Click to upload PNG, JPG (max 5MB)",
-                              style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w700),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -1897,7 +2150,9 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     if (operatorLicenceEnabled) const Text("Deselect"),
                   ],
                 ),
-                if (operatorLicenceEnabled) _buildDocumentUploadSection("Operator Licence", operatorLicencePaths, true),
+                if (operatorLicenceEnabled)
+                  _buildDocumentUploadSection(
+                      "Operator Licence", operatorLicencePaths, true),
                 Row(
                   children: [
                     Radio<bool>(
@@ -1925,7 +2180,9 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     if (vehicleInsuranceEnabled) const Text("Deselect"),
                   ],
                 ),
-                if (vehicleInsuranceEnabled) _buildDocumentUploadSection("Vehicle Insurance", vehicleInsurancePaths, true),
+                if (vehicleInsuranceEnabled)
+                  _buildDocumentUploadSection(
+                      "Vehicle Insurance", vehicleInsurancePaths, true),
                 Row(
                   children: [
                     Radio<bool>(
@@ -1953,7 +2210,9 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     if (publicLiabilityEnabled) const Text("Deselect"),
                   ],
                 ),
-                if (publicLiabilityEnabled) _buildDocumentUploadSection("Public Liability Insurance", publicLiabilityPaths, true),
+                if (publicLiabilityEnabled)
+                  _buildDocumentUploadSection(
+                      "Public Liability Insurance", publicLiabilityPaths, true),
                 Row(
                   children: [
                     Radio<bool>(
@@ -1981,7 +2240,9 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     if (v5cLogbookEnabled) const Text("Deselect"),
                   ],
                 ),
-                if (v5cLogbookEnabled) _buildDocumentUploadSection("V5C / Logbook", v5cLogbookPaths, true),
+                if (v5cLogbookEnabled)
+                  _buildDocumentUploadSection(
+                      "V5C / Logbook", v5cLogbookPaths, true),
                 Row(
                   children: [
                     Radio<bool>(
@@ -2009,7 +2270,9 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     if (chauffeurLicenceEnabled) const Text("Deselect"),
                   ],
                 ),
-                if (chauffeurLicenceEnabled) _buildDocumentUploadSection("Chauffeur Driving Licence", chauffeurLicencePaths, true),
+                if (chauffeurLicenceEnabled)
+                  _buildDocumentUploadSection(
+                      "Chauffeur Driving Licence", chauffeurLicencePaths, true),
                 const SizedBox(height: 20),
                 const Text(
                   "Additional Media (Optional)",
@@ -2022,7 +2285,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     child: Obx(() => Wrap(
                           spacing: 8.0,
                           runSpacing: 4.0,
-                          children: List.generate(additionalMediaPaths.length, (index) {
+                          children: List.generate(additionalMediaPaths.length,
+                              (index) {
                             return Stack(
                               children: [
                                 Container(
@@ -2032,7 +2296,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                     color: Colors.grey[200],
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
-                                  child: const Icon(Icons.insert_drive_file, size: 40, color: Colors.grey),
+                                  child: const Icon(Icons.insert_drive_file,
+                                      size: 40, color: Colors.grey),
                                 ),
                                 Positioned(
                                   top: 2,
@@ -2041,7 +2306,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                     onTap: () {
                                       additionalMediaPaths.removeAt(index);
                                     },
-                                    child: const Icon(Icons.close, color: Colors.redAccent),
+                                    child: const Icon(Icons.close,
+                                        color: Colors.redAccent),
                                   ),
                                 ),
                               ],
@@ -2065,7 +2331,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                               onTap: () {
                                 imageController.pickImages(true);
                                 if (imageController.selectedImages.isNotEmpty) {
-                                  additionalMediaPaths.add(imageController.selectedImages.last);
+                                  additionalMediaPaths
+                                      .add(imageController.selectedImages.last);
                                   imageController.selectedImages.removeLast();
                                 }
                                 Navigator.pop(context);
@@ -2077,7 +2344,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                               onTap: () {
                                 imageController.pickImages(false);
                                 if (imageController.selectedImages.isNotEmpty) {
-                                  additionalMediaPaths.add(imageController.selectedImages.last);
+                                  additionalMediaPaths
+                                      .add(imageController.selectedImages.last);
                                   imageController.selectedImages.removeLast();
                                 }
                                 Navigator.pop(context);
@@ -2099,10 +2367,14 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey),
+                            Icon(Icons.cloud_upload_outlined,
+                                size: 40, color: Colors.grey),
                             Text(
                               "Click to upload PDF, PNG, JPG (max 5MB)",
-                              style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w700),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -2154,13 +2426,17 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   child: ElevatedButton(
                     onPressed: () => Get.dialog(AddCouponDialog()),
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green),
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (states) => Colors.green),
                     ),
-                    child: const Text("Add Coupon", style: TextStyle(color: Colors.white)),
+                    child: const Text("Add Coupon",
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 const SizedBox(height: 20),
-                Obx(() => couponController.coupons.isEmpty ? const SizedBox.shrink() : CouponList()),
+                Obx(() => couponController.coupons.isEmpty
+                    ? const SizedBox.shrink()
+                    : CouponList()),
                 const SizedBox(height: 20),
 
                 // Section 10: Declaration
@@ -2172,7 +2448,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomCheckbox(
-                    title: 'I confirm that all information provided is accurate and current. *',
+                    title:
+                        'I confirm that all information provided is accurate and current. *',
                     value: agreeTerms,
                     onChanged: (value) {
                       setState(() {
@@ -2185,7 +2462,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomCheckbox(
-                    title: 'I have not shared any contact details (Email, Phone, Skype, Website, etc.). *',
+                    title:
+                        'I have not shared any contact details (Email, Phone, Skype, Website, etc.). *',
                     value: noContactDetails,
                     onChanged: (value) {
                       setState(() {
@@ -2234,7 +2512,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text('Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
+                Text(
+                    'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
                 const SizedBox(height: 20),
 
                 // Submit Button
@@ -2253,42 +2532,95 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                                 backgroundColor: Colors.redAccent,
                                 colorText: Colors.white,
                                 duration: const Duration(seconds: 3),
-                                icon: const Icon(Icons.warning, color: Colors.white),
+                                icon: const Icon(Icons.warning,
+                                    color: Colors.white),
                                 margin: const EdgeInsets.all(10),
                               );
                               return;
                             }
                             if (!occasions.values.any((v) => v)) {
-                              Get.snackbar("Missing Information", "Please select at least one occasion.",
-                                  snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white, duration: const Duration(seconds: 3), icon: const Icon(Icons.warning, color: Colors.white), margin: const EdgeInsets.all(10));
+                              Get.snackbar("Missing Information",
+                                  "Please select at least one occasion.",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.redAccent,
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 3),
+                                  icon: const Icon(Icons.warning,
+                                      color: Colors.white),
+                                  margin: const EdgeInsets.all(10));
                               return;
                             }
                             if (areasCovered.isEmpty) {
-                              Get.snackbar("Missing Information", "At least one area covered is required.",
-                                  snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white, duration: const Duration(seconds: 3), icon: const Icon(Icons.warning, color: Colors.white), margin: const EdgeInsets.all(10));
+                              Get.snackbar("Missing Information",
+                                  "At least one area covered is required.",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.redAccent,
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 3),
+                                  icon: const Icon(Icons.warning,
+                                      color: Colors.white),
+                                  margin: const EdgeInsets.all(10));
                               return;
                             }
-                            final dayRate = double.tryParse(dayRateController.text.trim()) ?? 0;
-                            final hourlyRate = double.tryParse(hourlyRateController.text.trim()) ?? 0;
-                            final halfDayRate = double.tryParse(halfDayRateController.text.trim()) ?? 0;
-                            if (dayRate == 0 && hourlyRate == 0 && halfDayRate == 0) {
-                              Get.snackbar("Missing Information", "At least one rate (day, hourly, or half-day) must be provided.",
-                                  snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white, duration: const Duration(seconds: 3), icon: const Icon(Icons.warning, color: Colors.white), margin: const EdgeInsets.all(10));
+                            final dayRate = double.tryParse(
+                                    dayRateController.text.trim()) ??
+                                0;
+                            final hourlyRate = double.tryParse(
+                                    hourlyRateController.text.trim()) ??
+                                0;
+                            final halfDayRate = double.tryParse(
+                                    halfDayRateController.text.trim()) ??
+                                0;
+                            if (dayRate == 0 &&
+                                hourlyRate == 0 &&
+                                halfDayRate == 0) {
+                              Get.snackbar("Missing Information",
+                                  "At least one rate (day, hourly, or half-day) must be provided.",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.redAccent,
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 3),
+                                  icon: const Icon(Icons.warning,
+                                      color: Colors.white),
+                                  margin: const EdgeInsets.all(10));
                               return;
                             }
-                            if ((operatorLicenceEnabled && operatorLicencePaths.isEmpty) ||
-                                (vehicleInsuranceEnabled && vehicleInsurancePaths.isEmpty) ||
-                                (publicLiabilityEnabled && publicLiabilityPaths.isEmpty) ||
-                                (v5cLogbookEnabled && v5cLogbookPaths.isEmpty) ||
-                                (chauffeurLicenceEnabled && chauffeurLicencePaths.isEmpty) ||
+                            if ((operatorLicenceEnabled &&
+                                    operatorLicencePaths.isEmpty) ||
+                                (vehicleInsuranceEnabled &&
+                                    vehicleInsurancePaths.isEmpty) ||
+                                (publicLiabilityEnabled &&
+                                    publicLiabilityPaths.isEmpty) ||
+                                (v5cLogbookEnabled &&
+                                    v5cLogbookPaths.isEmpty) ||
+                                (chauffeurLicenceEnabled &&
+                                    chauffeurLicencePaths.isEmpty) ||
                                 imageController.selectedImages.length < 3) {
-                              Get.snackbar("Missing Information", "All enabled document uploads and at least 3 vehicle images are required.",
-                                  snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white, duration: const Duration(seconds: 3), icon: const Icon(Icons.warning, color: Colors.white), margin: const EdgeInsets.all(10));
+                              Get.snackbar("Missing Information",
+                                  "All enabled document uploads and at least 3 vehicle images are required.",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.redAccent,
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 3),
+                                  icon: const Icon(Icons.warning,
+                                      color: Colors.white),
+                                  margin: const EdgeInsets.all(10));
                               return;
                             }
-                            if (!agreeTerms || !noContactDetails || !agreeCookies || !agreePrivacy || !agreeCancellation) {
-                              Get.snackbar("Missing Information", "Please agree to all declarations.",
-                                  snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white, duration: const Duration(seconds: 3), icon: const Icon(Icons.warning, color: Colors.white), margin: const EdgeInsets.all(10));
+                            if (!agreeTerms ||
+                                !noContactDetails ||
+                                !agreeCookies ||
+                                !agreePrivacy ||
+                                !agreeCancellation) {
+                              Get.snackbar("Missing Information",
+                                  "Please agree to all declarations.",
+                                  snackPosition: SnackPosition.BOTTOM,
+                                  backgroundColor: Colors.redAccent,
+                                  colorText: Colors.white,
+                                  duration: const Duration(seconds: 3),
+                                  icon: const Icon(Icons.warning,
+                                      color: Colors.white),
+                                  margin: const EdgeInsets.all(10));
                               return;
                             }
                             setState(() {
@@ -2300,7 +2632,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                             });
                           },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green),
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (states) => Colors.green),
                     ),
                     child: _isSubmitting
                         ? const SizedBox(
@@ -2313,7 +2646,10 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                           )
                         : const Text(
                             "Submit",
-                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),

@@ -222,12 +222,12 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
       _isSubmitting = false;
       return;
     }
-    if (fleetPhotosPaths.length < 3) {
-      Get.snackbar("Missing Information", "At least 3 fleet photos are required.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
-      return;
-    }
+    // if (fleetPhotosPaths.length < 3) {
+    //   Get.snackbar("Missing Information", "At least 3 fleet photos are required.",
+    //       snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+    //   _isSubmitting = false;
+    //   return;
+    // }
     if (!agreeTerms || !noContactDetails || !agreeCookies || !agreePrivacy || !agreeCancellation) {
       Get.snackbar("Missing Information", "Please agree to all declarations.",
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
