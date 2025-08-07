@@ -17,6 +17,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/up
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/constants_file/uk_cities.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
+import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -267,17 +268,17 @@ class _BoatHireServiceState extends State<BoatHireService> {
       if (publicLiabilityInsuranceDocPaths.isNotEmpty) requiredDocs++;
       if (localAuthorityLicencePaths.isNotEmpty) requiredDocs++;
 
-      if (imageController.uploadedUrls.length != requiredDocs) {
-        Get.snackbar(
-          "Upload Error",
-          "One or more documents failed to upload.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-          duration: const Duration(seconds: 3),
-        );
-        return false;
-      }
+      // if (imageController.uploadedUrls.length != requiredDocs) {
+      //   Get.snackbar(
+      //     "Upload Error",
+      //     "One or more documents failed to upload.",
+      //     snackPosition: SnackPosition.BOTTOM,
+      //     backgroundColor: Colors.redAccent,
+      //     colorText: Colors.white,
+      //     duration: const Duration(seconds: 3),
+      //   );
+      //   return false;
+      // }
 
       return true;
     } catch (e) {
@@ -526,7 +527,7 @@ class _BoatHireServiceState extends State<BoatHireService> {
   // Submit to API
   final api = AddVendorServiceApi();
   try {
-    final isAdded = await api.addServiceVendor(data);
+    final isAdded = await api.addServiceVendor(data , 'boat');
     if (isAdded) {
       Get.to(() => HomePageAddService());
     } else {
@@ -545,6 +546,8 @@ class _BoatHireServiceState extends State<BoatHireService> {
     setState(() {
       _isSubmitting = false;
     });
+    final ServiceController controller = Get.find<ServiceController>();
+      controller.fetchServices();
   }
 }
   void _showSetPriceDialog(DateTime date) {

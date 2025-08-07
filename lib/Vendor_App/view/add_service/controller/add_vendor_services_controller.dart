@@ -7,8 +7,17 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 class AddVendorServiceApi {
   late final Dio _dio;
 
+  final Map<String, String> endpoints = {
+    'boat': '/vendor/add_boat_hire_service',
+    'chauffeur': '/vendor/add_chauffeur_service',
+    'coach': '/vendor/add_coach_service',
+    'funeral': '/vendor/add-funeral-partner',
+    'horseCarriage': '/vendor/add-horse-partner',
+    'limousine': '/vendor/add-limousine-partner',
+    'minibus': '/vendor/add_minibus_service',
+  };
+
   AddVendorServiceApi() {
-    // Initialize Dio with base options
     final options = BaseOptions(
       baseUrl: 'https://stag-api.hireanything.com',
       headers: {
@@ -51,33 +60,32 @@ class AddVendorServiceApi {
         handler.next(response);
       },
       onError: (error, handler) {
-        print('ERROR[${error.response?.statusCode}] => MESSAGE: ${error.message}');
+        print(
+            'ERROR[${error.response?.statusCode}] => MESSAGE: ${error.message}');
         print('ERROR DATA: ${error.response?.data}');
         handler.next(error);
       },
     ));
   }
 
-  Future<bool> addServiceVendor(Map<String, dynamic> data) async {
+  Future<bool> addServiceVendor(Map<String, dynamic> data, String serviceType) async {
     print("Starting API call...");
-      print( 'data hai $data');
+    print('data hai $data');
     try {
-      
       // print("Sending POST request to /vendor/add_chauffeur_service");
 
-      
-      
+      String? endpoint = endpoints[serviceType];
+      print('enpoint hai  $endpoint');
+
       final response = await _dio.post(
-        '/vendor/add_chauffeur_service',
+        endpoint!,
         data: data,
-        
       );
-      print( 'data ye hai $data');
-      
+      print('data ye hai $data');
+
       print('Response status code: ${response.statusCode}');
       // print('Response data: ${response.data}');
       // print('Response data: ${response}');
-
 
       if (response.statusCode == 201) {
         Get.snackbar(
@@ -92,7 +100,8 @@ class AddVendorServiceApi {
         );
         return true;
       } else {
-        String errorMessage = "Failed to add vendor service: ${response.statusMessage}";
+        String errorMessage =
+            "Failed to add vendor service: ${response.statusMessage}";
         if (response.data != null && response.data is Map) {
           errorMessage = response.data['message'] ?? errorMessage;
         }
@@ -112,11 +121,12 @@ class AddVendorServiceApi {
       // print('DioException occurred: ${e.type}');
       // print('Error message: ${e.message}');
       // print('Error response: ${e.response?.data}');
-      
+
       String errorMessage;
       switch (e.type) {
         case DioExceptionType.connectionTimeout:
-          errorMessage = "Connection timeout - Please check your internet connection";
+          errorMessage =
+              "Connection timeout - Please check your internet connection";
           break;
         case DioExceptionType.receiveTimeout:
           errorMessage = "Request timeout - Server took too long to respond";
@@ -125,11 +135,13 @@ class AddVendorServiceApi {
           if (e.response?.statusCode == 401) {
             errorMessage = "Authentication failed - Please login again";
           } else if (e.response?.statusCode == 400) {
-            errorMessage = e.response?.data?['message'] ?? "Invalid request data";
+            errorMessage =
+                e.response?.data?['message'] ?? "Invalid request data";
           } else if (e.response?.statusCode == 422) {
             errorMessage = "Validation failed - Please check your input data";
           } else {
-            errorMessage = "Server error (${e.response?.statusCode}): ${e.response?.statusMessage}";
+            errorMessage =
+                "Server error (${e.response?.statusCode}): ${e.response?.statusMessage}";
           }
           break;
         case DioExceptionType.cancel:
@@ -141,7 +153,7 @@ class AddVendorServiceApi {
         default:
           errorMessage = e.message ?? "An unexpected error occurred";
       }
-      
+
       Get.snackbar(
         "Error",
         errorMessage,

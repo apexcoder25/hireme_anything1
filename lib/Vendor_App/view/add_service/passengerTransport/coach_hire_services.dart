@@ -43,7 +43,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
   final ImageController imageController = Get.put(ImageController());
   final CouponController couponController = Get.put(CouponController());
   final CalendarController calendarController = Get.put(CalendarController());
-  final CityFetchController cityFetchController = Get.put(CityFetchController());
+  final CityFetchController cityFetchController =
+      Get.put(CityFetchController());
 
   // Section 1: Business Information
   TextEditingController serviceNameController = TextEditingController();
@@ -91,7 +92,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
   TextEditingController multiDayRateController = TextEditingController();
   bool depositRequired = false;
   TextEditingController mileageAllowanceController = TextEditingController();
-  TextEditingController additionalMileageFeeController = TextEditingController();
+  TextEditingController additionalMileageFeeController =
+      TextEditingController();
 
   // Section 6: Coverage & Availability
   RxList<String> areasCovered = <String>[].obs;
@@ -106,10 +108,14 @@ class _CoachHireServiceState extends State<CoachHireService> {
     'In-Car Entertainment': false,
     'Red Carpet Service': false,
   };
-  TextEditingController leatherInteriorPriceController = TextEditingController();
-  TextEditingController airConditioningPriceController = TextEditingController();
-  TextEditingController inCarEntertainmentPriceController = TextEditingController();
-  TextEditingController redCarpetServicePriceController = TextEditingController();
+  TextEditingController leatherInteriorPriceController =
+      TextEditingController();
+  TextEditingController airConditioningPriceController =
+      TextEditingController();
+  TextEditingController inCarEntertainmentPriceController =
+      TextEditingController();
+  TextEditingController redCarpetServicePriceController =
+      TextEditingController();
 
   Map<String, bool> wifiAccess = {
     'Wi-Fi Access': false,
@@ -117,7 +123,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
     'Bluetooth/USB': false,
   };
   TextEditingController wifiAccessPriceController = TextEditingController();
-  TextEditingController complimentaryDrinksPriceController = TextEditingController();
+  TextEditingController complimentaryDrinksPriceController =
+      TextEditingController();
   TextEditingController bluetoothUSBPriceController = TextEditingController();
 
   Map<String, bool> eventsExtras = {
@@ -128,8 +135,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
   };
   TextEditingController weddingDecorPriceController = TextEditingController();
   TextEditingController partyLightingPriceController = TextEditingController();
-  TextEditingController champagnePackagesPriceController = TextEditingController();
-  TextEditingController photographyPackagesPriceController = TextEditingController();
+  TextEditingController champagnePackagesPriceController =
+      TextEditingController();
+  TextEditingController photographyPackagesPriceController =
+      TextEditingController();
 
   Map<String, bool> accessibilitySpecial = {
     'Wheelchair Access': false,
@@ -139,12 +148,15 @@ class _CoachHireServiceState extends State<CoachHireService> {
     'Senior-Friendly Assistance': false,
     'Stroller / Buggy Storage': false,
   };
-  TextEditingController wheelchairAccessPriceController = TextEditingController();
+  TextEditingController wheelchairAccessPriceController =
+      TextEditingController();
   TextEditingController childCarSeatsPriceController = TextEditingController();
   TextEditingController petFriendlyPriceController = TextEditingController();
-  TextEditingController disabledAccessRampPriceController = TextEditingController();
+  TextEditingController disabledAccessRampPriceController =
+      TextEditingController();
   TextEditingController seniorFriendlyPriceController = TextEditingController();
-  TextEditingController strollerBuggyStoragePriceController = TextEditingController();
+  TextEditingController strollerBuggyStoragePriceController =
+      TextEditingController();
 
   Map<String, bool> securityCompliance = {
     'Vehicle Tracking / GPS': false,
@@ -155,7 +167,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
 
   // Section 8: Operating Hours
   bool available24_7 = false;
-  TextEditingController specificOperatingTimesController = TextEditingController();
+  TextEditingController specificOperatingTimesController =
+      TextEditingController();
 
   // Section 9: Driver Details
   Map<String, bool> driverDetails = {
@@ -169,10 +182,13 @@ class _CoachHireServiceState extends State<CoachHireService> {
   String? cancellationPolicy;
 
   // Section 11: Licensing & Documents
-  TextEditingController psvOperatorLicenceNumberController = TextEditingController();
+  TextEditingController psvOperatorLicenceNumberController =
+      TextEditingController();
   TextEditingController licensingAuthorityController = TextEditingController();
-  TextEditingController publicLiabilityInsuranceProviderController = TextEditingController();
-  TextEditingController policyNumberExpiryDateController = TextEditingController();
+  TextEditingController publicLiabilityInsuranceProviderController =
+      TextEditingController();
+  TextEditingController policyNumberExpiryDateController =
+      TextEditingController();
   RxList<String> psvOperatorLicencePaths = <String>[].obs;
   RxList<String> publicLiabilityPaths = <String>[].obs;
   RxList<String> driverLicencePaths = <String>[].obs;
@@ -184,7 +200,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
   bool vehicleMotInsuranceEnabled = false;
 
   // Section 12: Business Profile & Promotion
-  TextEditingController promotionalListingDescriptionController = TextEditingController();
+  TextEditingController promotionalListingDescriptionController =
+      TextEditingController();
   TextEditingController serviceHighlightsController = TextEditingController();
   bool brandingLogoRemove = false;
 
@@ -203,17 +220,32 @@ class _CoachHireServiceState extends State<CoachHireService> {
   void initState() {
     super.initState();
     _loadVendorId();
-    if (fromDate.value.isBefore(DateTime.now())) {
-      fromDate.value = DateTime.now();
-    }
-    if (toDate.value.isBefore(DateTime.now())) {
-      toDate.value = DateTime.now();
-    }
-    calendarController.fromDate.value = fromDate.value;
-    calendarController.toDate.value = toDate.value;
-    hourlyRateController.addListener(() {
-      calendarController.setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (fromDate.value.isBefore(DateTime.now()))
+        fromDate.value = DateTime.now();
+      if (toDate.value.isBefore(DateTime.now())) toDate.value = DateTime.now();
+      calendarController.fromDate.value = fromDate.value;
+      calendarController.toDate.value = toDate.value;
     });
+
+    hourlyRateController.addListener(() {
+      calendarController
+          .setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
+    });
+  }
+
+  String mapCancellationPolicy(String? policy) {
+    switch (policy) {
+      case 'Flexible':
+        return 'FLEXIBLE'; 
+      case 'Moderate':
+        return 'MODERATE'; 
+      case 'Strict':
+        return 'STRICT';
+      default:
+        return 'MODERATE'; 
+    }
   }
 
   @override
@@ -267,29 +299,71 @@ class _CoachHireServiceState extends State<CoachHireService> {
   }
 
   void _submitForm() async {
-    _isSubmitting = true;
+    // Prevent duplicate submissions
+    if (_isSubmitting) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    // Validation checks with early returns — make sure to set _isSubmitting = false inside setState
     if (!servicesProvided.values.any((v) => v)) {
-      Get.snackbar("Missing Information", "Please select at least one service.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
+      Get.snackbar(
+        "Missing Information",
+        "Please select at least one service.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      setState(() {
+        _isSubmitting = false;
+      });
       return;
     }
+
     if (areasCovered.isEmpty) {
-      Get.snackbar("Missing Information", "At least one area covered is required.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
+      Get.snackbar(
+        "Missing Information",
+        "At least one area covered is required.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      setState(() {
+        _isSubmitting = false;
+      });
       return;
     }
-    if (vehicleImagesPaths.length < 3) {
-      Get.snackbar("Missing Information", "At least 3 vehicle images are required.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
-      return;
-    }
-    if (!agreeTerms || !noContactDetails || !agreeCookies || !agreePrivacy || !agreeCancellation) {
-      Get.snackbar("Missing Information", "Please agree to all declarations.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
+
+    // if (vehicleImagesPaths.length < 3) {
+    //   Get.snackbar(
+    //     "Missing Information",
+    //     "At least 3 vehicle images are required.",
+    //     snackPosition: SnackPosition.BOTTOM,
+    //     backgroundColor: Colors.redAccent,
+    //     colorText: Colors.white,
+    //   );
+    //   setState(() {
+    //     _isSubmitting = false;
+    //   });
+    //   return;
+    // }
+
+    if (!agreeTerms ||
+        !noContactDetails ||
+        !agreeCookies ||
+        !agreePrivacy ||
+        !agreeCancellation) {
+      Get.snackbar(
+        "Missing Information",
+        "Please agree to all declarations.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      setState(() {
+        _isSubmitting = false;
+      });
       return;
     }
 
@@ -297,122 +371,158 @@ class _CoachHireServiceState extends State<CoachHireService> {
       "vendorId": vendorId,
       "categoryId": widget.CategoryId,
       "subcategoryId": widget.SubCategoryId,
-      "service_name": serviceNameController.text.trim(),
+      "listingTitle":
+          serviceNameController.text.trim(), // Changed from service_name
+      "service_status": serviceStatus, // Add this field
       "basePostcode": basePostcodeController.text.trim(),
+      "locationRadius": "200", // Add this required field
       "servicesProvided": servicesProvided,
-      "otherService": servicesProvided['Other'] == true ? otherServiceController.text.trim() : "",
+      "booking_date_from":
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
+      "booking_date_to":
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
+      "special_price_days": [], // Add this field
+      "offering_price": 0, // Add this field
+      "areasCovered": areasCovered.toList(),
       "bookingTypes": bookingTypes,
+
+      // Fix fleet info structure
       "fleetInfo": {
-        "makeModel": makeModelController.text.trim(),
-        "year": yearController.text.trim(),
+        "makeAndModel":
+            makeModelController.text.trim(), // Changed from makeModel
         "capacity": capacityController.text.trim(),
-        "onboardFacilities": onboardFacilities,
-        "notes": notesController.text.trim(),
-        "fleetSize": fleetSizeController.text.trim(),
+        "firstRegistered": yearController.text.trim(), // Changed from year
       },
-      "rates": {
+
+      // Fix pricing structure
+      "pricingDetails": {
+        // Changed from rates
         "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
         "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
         "fullDayRate": double.tryParse(fullDayRateController.text.trim()) ?? 0,
-        "multiDayRate": double.tryParse(multiDayRateController.text.trim()) ?? 0,
-        "depositRequired": depositRequired,
-        "mileageAllowance": double.tryParse(mileageAllowanceController.text.trim()) ?? 0,
-        "additionalMileageFee": double.tryParse(additionalMileageFeeController.text.trim()) ?? 0,
+        "additionalMileageFee":
+            double.tryParse(additionalMileageFeeController.text.trim()) ?? 0,
+        "mileageLimit": mileageAllowanceController.text
+            .trim(), // Note: this should be string based on backend
       },
-      "coverageAvailability": {
-        "areasCovered": areasCovered.toList(),
-        "serviceStatus": serviceStatus,
-        "fromDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-        "toDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
-      },
-      "features": {
-        "comfortLuxury": {
-          ...comfortLuxury,
-          "Leather Interior Price": 0.0,
-          "Air Conditioning Price": 0.0,
-          "In-Car Entertainment Price": 0.0,
-          "Red Carpet Service Price": 0.0,
+
+      // Map your features to the expected structure
+      "comfort": {
+        "leatherInterior": comfortLuxury["Leather Interior"] ?? false,
+        "wifiAccess": wifiAccess["Wi-Fi Access"] ?? false,
+        "airConditioning": comfortLuxury["Air Conditioning"] ?? false,
+        "complimentaryDrinks": {
+          "available": wifiAccess["Complimentary Drinks"] ?? false,
+          "details": ""
         },
-        "wifiAccess": {
-          ...wifiAccess,
-          "Wi-Fi Access Price": 0.0,
-          "Complimentary Drinks Price": 0.0,
-          "Bluetooth/USB Price": 0.0,
-        },
-        "eventsExtras": {
-          ...eventsExtras,
-          "Wedding Décor (ribbons, flowers) Price": double.tryParse(weddingDecorPriceController.text.trim()) ?? 0,
-          "Party Lighting System Price": double.tryParse(partyLightingPriceController.text.trim()) ?? 0,
-          "Champagne Packages Price": double.tryParse(champagnePackagesPriceController.text.trim()) ?? 0,
-          "Photography Packages Price": double.tryParse(photographyPackagesPriceController.text.trim()) ?? 0,
-        },
-        "accessibilitySpecial": {
-          ...accessibilitySpecial,
-          "Wheelchair Access Price": double.tryParse(wheelchairAccessPriceController.text.trim()) ?? 0,
-          "Child Car Seats Price": double.tryParse(childCarSeatsPriceController.text.trim()) ?? 0,
-          "Pet-Friendly Service Price": double.tryParse(petFriendlyPriceController.text.trim()) ?? 0,
-          "Disabled-Access Ramp Price": double.tryParse(disabledAccessRampPriceController.text.trim()) ?? 0,
-          "Senior-Friendly Assistance Price": double.tryParse(seniorFriendlyPriceController.text.trim()) ?? 0,
-          "Stroller / Buggy Storage Price": double.tryParse(strollerBuggyStoragePriceController.text.trim()) ?? 0,
-        },
-        "securityCompliance": securityCompliance,
+        "inCarEntertainment": comfortLuxury["In-Car Entertainment"] ?? false,
+        "bluetoothUsb": wifiAccess["Bluetooth/USB"] ?? false,
+        "redCarpetService": comfortLuxury["Red Carpet Service"] ?? false,
+        "onboardRestroom": false, // Add if you have this field
       },
-      "operatingHours": {
-        "available24_7": available24_7,
-        "specificOperatingTimes": specificOperatingTimesController.text.trim(),
+
+      "events": {
+        "weddingDecor":
+            eventsExtras["Wedding Décor (ribbons, flowers)"] ?? false,
+        "weddingDecorPrice":
+            double.tryParse(weddingDecorPriceController.text.trim()) ?? 0,
+        "partyLightingSystem": eventsExtras["Party Lighting System"] ?? false,
+        "partyLightingPrice":
+            double.tryParse(partyLightingPriceController.text.trim()) ?? 0,
+        "champagnePackages": eventsExtras["Champagne Packages"] ?? false,
+        "champagnePackagePrice":
+            double.tryParse(champagnePackagesPriceController.text.trim()) ?? 0,
+        "photographyPackages": eventsExtras["Photography Packages"] ?? false,
+        "photographyPackagePrice":
+            double.tryParse(photographyPackagesPriceController.text.trim()) ??
+                0,
       },
-      "driverDetails": {
-        "driverDetails": driverDetails,
-        "languagesSpoken": languagesSpokenController.text.trim(),
+
+      "accessibility": {
+        "wheelchairAccessVehicle":
+            accessibilitySpecial["Wheelchair Access"] ?? false,
+        "wheelchairAccessPrice":
+            double.tryParse(wheelchairAccessPriceController.text.trim()) ?? 0,
+        "childCarSeats": accessibilitySpecial["Child Car Seats"] ?? false,
+        "childCarSeatsPrice":
+            double.tryParse(childCarSeatsPriceController.text.trim()) ?? 0,
+        "petFriendlyService":
+            accessibilitySpecial["Pet-Friendly Service"] ?? false,
+        "petFriendlyPrice":
+            double.tryParse(petFriendlyPriceController.text.trim()) ?? 0,
+        "disabledAccessRamp":
+            accessibilitySpecial["Disabled-Access Ramp"] ?? false,
+        "disabledAccessRampPrice":
+            double.tryParse(disabledAccessRampPriceController.text.trim()) ?? 0,
+        "seniorFriendlyAssistance":
+            accessibilitySpecial["Senior-Friendly Assistance"] ?? false,
+        "seniorAssistancePrice":
+            double.tryParse(seniorFriendlyPriceController.text.trim()) ?? 0,
+        "strollerBuggyStorage":
+            accessibilitySpecial["Stroller / Buggy Storage"] ?? false,
+        "strollerStoragePrice":
+            double.tryParse(strollerBuggyStoragePriceController.text.trim()) ??
+                0,
       },
-      "cancellationPolicy": cancellationPolicy,
-      "licensingDocuments": {
-        "psvOperatorLicenceNumber": psvOperatorLicenceNumberController.text.trim(),
-        "licensingAuthority": licensingAuthorityController.text.trim(),
-        "publicLiabilityInsuranceProvider": publicLiabilityInsuranceProviderController.text.trim(),
-        "policyNumberExpiryDate": policyNumberExpiryDateController.text.trim(),
-        "psvOperatorLicencePaths": psvOperatorLicenceEnabled ? psvOperatorLicencePaths : [],
-        "publicLiabilityPaths": publicLiabilityEnabled ? publicLiabilityPaths : [],
-        "driverLicencePaths": driverLicenceEnabled ? driverLicencePaths : [],
-        "vehicleMotInsurancePaths": vehicleMotInsuranceEnabled ? vehicleMotInsurancePaths : [],
-        "vehicleImagesPaths": vehicleImagesPaths,
+
+      "security": {
+        "vehicleTrackingGps":
+            securityCompliance["Vehicle Tracking/GPS"] ?? false,
+        "cctvFitted": securityCompliance["CCTV Fitted"] ?? false,
+        "publicLiabilityInsurance":
+            securityCompliance["Public Liability Insurance"] ?? false,
+        "safetyCertifiedDrivers":
+            securityCompliance["Safety-Certified Drivers"] ?? false,
       },
-      "businessProfile": {
-        "promotionalListingDescription": promotionalListingDescriptionController.text.trim(),
-        "serviceHighlights": serviceHighlightsController.text.trim(),
-        "brandingLogoRemove": brandingLogoRemove,
-      },
-      "declaration": {
-        "agreeTerms": agreeTerms,
-        "noContactDetails": noContactDetails,
-        "agreeCookies": agreeCookies,
-        "agreePrivacy": agreePrivacy,
-        "agreeCancellation": agreeCancellation,
-      },
+
+      "service_image": vehicleImagesPaths,
+      "cancellation_policy_type": mapCancellationPolicy(cancellationPolicy),
+      "coupons": [],
     };
 
     final api = AddVendorServiceApi();
+
     try {
-      final isAdded = await api.addServiceVendor(data);
+      final isAdded = await api.addServiceVendor(data, 'coach');
       if (isAdded) {
-        _isSubmitting = false;
+        setState(() {
+          _isSubmitting = false;
+        });
         Get.to(() => HomePageAddService());
       } else {
-        Get.snackbar('Error', 'Add Service Failed. Please try again.',
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+        setState(() {
+          _isSubmitting = false;
+        });
+        Get.snackbar(
+          'Error',
+          'Add Service Failed. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       print("API Error: $e");
-      Get.snackbar('Error', 'Server error: $e',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      setState(() {
+        _isSubmitting = false;
+      });
+      Get.snackbar(
+        'Error',
+        'Server error: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     }
   }
 
-  Widget _buildDocumentUploadSection(String title, RxList<String> documentPaths, bool isRequired) {
+  Widget _buildDocumentUploadSection(
+      String title, RxList<String> documentPaths, bool isRequired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("$title${isRequired ? ' *' : ''}", style: const TextStyle(color: Colors.black, fontSize: 16)),
+        Text("$title${isRequired ? ' *' : ''}",
+            style: const TextStyle(color: Colors.black, fontSize: 16)),
         const SizedBox(height: 16),
         Obx(() => Wrap(
               spacing: 8.0,
@@ -428,7 +538,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: const Icon(Icons.insert_drive_file, size: 40, color: Colors.grey),
+                        child: const Icon(Icons.insert_drive_file,
+                            size: 40, color: Colors.grey),
                       ),
                       Positioned(
                         top: 2,
@@ -437,7 +548,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                           onTap: () {
                             documentPaths.removeAt(index);
                           },
-                          child: const Icon(Icons.cancel, color: Colors.redAccent, size: 20),
+                          child: const Icon(Icons.cancel,
+                              color: Colors.redAccent, size: 20),
                         ),
                       ),
                     ],
@@ -496,7 +608,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     SizedBox(height: 8),
                     Text(
                       'Click to upload PDF, PNG, JPG (max 5MB)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -514,7 +629,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$title *', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        Text('$title *',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -595,17 +711,20 @@ class _CoachHireServiceState extends State<CoachHireService> {
               ),
               constraints: const BoxConstraints(minHeight: 50),
               child: selectedCities.isEmpty
-                  ? const Text('No cities selected', style: TextStyle(color: Colors.grey, fontSize: 16))
+                  ? const Text('No cities selected',
+                      style: TextStyle(color: Colors.grey, fontSize: 16))
                   : Wrap(
                       spacing: 8.0,
                       runSpacing: 4.0,
                       children: selectedCities
                           .map((city) => Chip(
-                                label: Text(city, style: const TextStyle(fontSize: 14)),
+                                label: Text(city,
+                                    style: const TextStyle(fontSize: 14)),
                                 deleteIcon: const Icon(Icons.close, size: 18),
                                 onDeleted: () => selectedCities.remove(city),
                                 backgroundColor: Colors.grey[200],
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
                               ))
                           .toList(),
                     ),
@@ -614,7 +733,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
     );
   }
 
-  Widget _buildDatePicker(BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
+  Widget _buildDatePicker(
+      BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -675,7 +795,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
@@ -702,12 +823,15 @@ class _CoachHireServiceState extends State<CoachHireService> {
 
   void _showSetPriceDialog(DateTime date) {
     final TextEditingController priceController = TextEditingController();
-    priceController.text = (calendarController.getPriceForDate(date)?.toString() ?? calendarController.defaultPrice.toString());
+    priceController.text =
+        (calendarController.getPriceForDate(date)?.toString() ??
+            calendarController.defaultPrice.toString());
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
+        title: Text(
+            'Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
         content: TextField(
           controller: priceController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -729,7 +853,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                 Navigator.pop(context);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid price (≥ 0)')),
+                  const SnackBar(
+                      content: Text('Please enter a valid price (≥ 0)')),
                 );
               }
             },
@@ -768,7 +893,9 @@ class _CoachHireServiceState extends State<CoachHireService> {
                   '£${price.toStringAsFixed(2)}/hr',
                   style: TextStyle(
                     fontSize: 7,
-                    color: isClickable ? (price > 0 ? Colors.red : Colors.red) : Colors.grey,
+                    color: isClickable
+                        ? (price > 0 ? Colors.red : Colors.red)
+                        : Colors.grey,
                   ),
                 ),
               ],
@@ -790,7 +917,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
         centerTitle: true,
         title: Obx(() => Text(
               'Add ${widget.SubCategory.value ?? ''} Service',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: colors.black),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: colors.black),
             )),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
@@ -840,15 +968,17 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: servicesProvided.keys.map((service) => ChoiceChip(
-                            label: Text(service),
-                            selected: servicesProvided[service]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                servicesProvided[service] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: servicesProvided.keys
+                          .map((service) => ChoiceChip(
+                                label: Text(service),
+                                selected: servicesProvided[service]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    servicesProvided[service] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   if (servicesProvided['Other']!) ...[
@@ -892,15 +1022,17 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: bookingTypes.keys.map((type) => ChoiceChip(
-                            label: Text(type),
-                            selected: bookingTypes[type]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                bookingTypes[type] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: bookingTypes.keys
+                          .map((type) => ChoiceChip(
+                                label: Text(type),
+                                selected: bookingTypes[type]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    bookingTypes[type] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -969,15 +1101,17 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: onboardFacilities.keys.map((facility) => ChoiceChip(
-                            label: Text(facility),
-                            selected: onboardFacilities[facility]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                onboardFacilities[facility] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: onboardFacilities.keys
+                          .map((facility) => ChoiceChip(
+                                label: Text(facility),
+                                selected: onboardFacilities[facility]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    onboardFacilities[facility] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -1022,7 +1156,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                   const SizedBox(height: 10),
                   const Text(
                     'Set your base rates for different time periods.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1193,7 +1330,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                   const SizedBox(height: 5),
                   const Text(
                     'Select the period during which your service will be available',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 20),
                   Obx(() => _buildDatePicker(context, "From", fromDate, true)),
@@ -1206,7 +1346,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     }
                     return TableCalendar(
                       onDaySelected: (selectedDay, focusedDay) {
-                        if (calendarController.visibleDates.any((d) => isSameDay(d, selectedDay))) {
+                        if (calendarController.visibleDates
+                            .any((d) => isSameDay(d, selectedDay))) {
                           _showSetPriceDialog(selectedDay);
                         }
                       },
@@ -1215,10 +1356,12 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       lastDay: DateTime.utc(2099, 12, 31),
                       calendarFormat: CalendarFormat.month,
                       availableGestures: AvailableGestures.none,
-                      headerStyle: const HeaderStyle(formatButtonVisible: false),
+                      headerStyle:
+                          const HeaderStyle(formatButtonVisible: false),
                       calendarBuilders: CalendarBuilders(
                         defaultBuilder: (context, day, focusedDay) {
-                          if (calendarController.visibleDates.any((d) => isSameDay(d, day))) {
+                          if (calendarController.visibleDates
+                              .any((d) => isSameDay(d, day))) {
                             return _buildCalendarCell(day, true);
                           }
                           return _buildCalendarCell(day, false);
@@ -1237,28 +1380,33 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     child: calendarController.specialPrices.length == 0
                         ? Center(
                             child: Text(
-                              'No special prices set yet',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ))
+                            'No special prices set yet',
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                          ))
                         : Obx(() => ListView.builder(
                               shrinkWrap: true,
-                              itemCount: calendarController.specialPrices.length,
+                              itemCount:
+                                  calendarController.specialPrices.length,
                               itemBuilder: (context, index) {
-                                final entry = calendarController.specialPrices[index];
+                                final entry =
+                                    calendarController.specialPrices[index];
                                 final date = entry['date'] as DateTime;
                                 final price = entry['price'] as double;
                                 return Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 16),
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        DateFormat('EEE, d MMM yyyy').format(date),
+                                        DateFormat('EEE, d MMM yyyy')
+                                            .format(date),
                                         style: const TextStyle(fontSize: 16),
                                       ),
                                       Row(
@@ -1267,13 +1415,17 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                             '£${price.toStringAsFixed(2)}/hr',
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: price > 0 ? Colors.black : Colors.red,
+                                              color: price > 0
+                                                  ? Colors.black
+                                                  : Colors.red,
                                             ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            icon: const Icon(Icons.delete,
+                                                color: Colors.red),
                                             onPressed: () {
-                                              calendarController.deleteSpecialPrice(date);
+                                              calendarController
+                                                  .deleteSpecialPrice(date);
                                             },
                                           ),
                                         ],
@@ -1371,7 +1523,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                 });
                               },
                             ),
-                            if (isSelected && extra == 'Wedding Décor (ribbons, flowers)')
+                            if (isSelected &&
+                                extra == 'Wedding Décor (ribbons, flowers)')
                               SizedBox(
                                 width: 80,
                                 child: Signup_textfilled(
@@ -1381,7 +1534,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                             if (isSelected && extra == 'Party Lighting System')
@@ -1394,7 +1550,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                             if (isSelected && extra == 'Champagne Packages')
@@ -1407,7 +1566,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                             if (isSelected && extra == 'Photography Packages')
@@ -1420,7 +1582,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                           ],
@@ -1462,7 +1627,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                             if (isSelected && service == 'Child Car Seats')
@@ -1475,7 +1643,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                             if (isSelected && service == 'Pet-Friendly Service')
@@ -1488,7 +1659,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                             if (isSelected && service == 'Disabled-Access Ramp')
@@ -1501,10 +1675,14 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
-                            if (isSelected && service == 'Senior-Friendly Assistance')
+                            if (isSelected &&
+                                service == 'Senior-Friendly Assistance')
                               SizedBox(
                                 width: 80,
                                 child: Signup_textfilled(
@@ -1514,10 +1692,14 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
-                            if (isSelected && service == 'Stroller / Buggy Storage')
+                            if (isSelected &&
+                                service == 'Stroller / Buggy Storage')
                               SizedBox(
                                 width: 80,
                                 child: Signup_textfilled(
@@ -1527,7 +1709,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                   textfilled_weight: 1,
                                   keytype: TextInputType.number,
                                   hinttext: "Price (£)",
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}$'))
+                                  ],
                                 ),
                               ),
                           ],
@@ -1545,15 +1730,17 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: securityCompliance.keys.map((compliance) => ChoiceChip(
-                            label: Text(compliance),
-                            selected: securityCompliance[compliance]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                securityCompliance[compliance] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: securityCompliance.keys
+                          .map((compliance) => ChoiceChip(
+                                label: Text(compliance),
+                                selected: securityCompliance[compliance]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    securityCompliance[compliance] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -1613,15 +1800,17 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: driverDetails.keys.map((detail) => ChoiceChip(
-                            label: Text(detail),
-                            selected: driverDetails[detail]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                driverDetails[detail] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: driverDetails.keys
+                          .map((detail) => ChoiceChip(
+                                label: Text(detail),
+                                selected: driverDetails[detail]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    driverDetails[detail] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -1647,11 +1836,12 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
+                  // Around line 1157 in your code, change:
                   SizedBox(
                     width: double.infinity,
                     child: CustomDropdown(
                       hintText: "Select a Cancellation Policy",
-                      items: ['Flexible', 'Moderate', 'Strict'],
+                      items: ['FLEXIBLE', 'MODERATE', 'STRICT'],
                       selectedValue: cancellationPolicy,
                       onChanged: (value) {
                         setState(() {
@@ -1660,6 +1850,7 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       },
                     ),
                   ),
+
                   const SizedBox(height: 20),
                   const Text(
                     'Licensing & Documents',
@@ -1761,7 +1952,9 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       if (psvOperatorLicenceEnabled) const Text("Deselect"),
                     ],
                   ),
-                  if (psvOperatorLicenceEnabled) _buildDocumentUploadSection("PSV Operator Licence", psvOperatorLicencePaths, true),
+                  if (psvOperatorLicenceEnabled)
+                    _buildDocumentUploadSection(
+                        "PSV Operator Licence", psvOperatorLicencePaths, true),
                   Row(
                     children: [
                       Radio<bool>(
@@ -1789,7 +1982,9 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       if (publicLiabilityEnabled) const Text("Deselect"),
                     ],
                   ),
-                  if (publicLiabilityEnabled) _buildDocumentUploadSection("Public Liability Insurance", publicLiabilityPaths, true),
+                  if (publicLiabilityEnabled)
+                    _buildDocumentUploadSection("Public Liability Insurance",
+                        publicLiabilityPaths, true),
                   Row(
                     children: [
                       Radio<bool>(
@@ -1817,7 +2012,9 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       if (driverLicenceEnabled) const Text("Deselect"),
                     ],
                   ),
-                  if (driverLicenceEnabled) _buildDocumentUploadSection("Driver Licences And DBS", driverLicencePaths, true),
+                  if (driverLicenceEnabled)
+                    _buildDocumentUploadSection(
+                        "Driver Licences And DBS", driverLicencePaths, true),
                   Row(
                     children: [
                       Radio<bool>(
@@ -1845,7 +2042,9 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       if (vehicleMotInsuranceEnabled) const Text("Deselect"),
                     ],
                   ),
-                  if (vehicleMotInsuranceEnabled) _buildDocumentUploadSection("Vehicle MOT And Insurance", vehicleMotInsurancePaths, true),
+                  if (vehicleMotInsuranceEnabled)
+                    _buildDocumentUploadSection("Vehicle MOT And Insurance",
+                        vehicleMotInsurancePaths, true),
                   const Text(
                     'Vehicle Images (Upload minimum 3 images)',
                     style: TextStyle(color: Colors.black87, fontSize: 16),
@@ -1857,7 +2056,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       child: Obx(() => Wrap(
                             spacing: 8.0,
                             runSpacing: 4.0,
-                            children: List.generate(vehicleImagesPaths.length, (index) {
+                            children: List.generate(vehicleImagesPaths.length,
+                                (index) {
                               return Stack(
                                 children: [
                                   Image.file(
@@ -1870,8 +2070,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                     top: 2,
                                     right: 2,
                                     child: GestureDetector(
-                                      onTap: () => imageController.removeImage(index),
-                                      child: const Icon(Icons.close, color: Colors.redAccent),
+                                      onTap: () =>
+                                          imageController.removeImage(index),
+                                      child: const Icon(Icons.close,
+                                          color: Colors.redAccent),
                                     ),
                                   ),
                                 ],
@@ -1921,10 +2123,14 @@ class _CoachHireServiceState extends State<CoachHireService> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey),
+                              Icon(Icons.cloud_upload_outlined,
+                                  size: 40, color: Colors.grey),
                               Text(
                                 "Click to upload PNG, JPG (max 5MB)",
-                                style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -1969,7 +2175,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       textfilled_height: 17,
                       textfilled_weight: 1,
                       keytype: TextInputType.text,
-                      hinttext: "What makes your coach hire service reliable or premium?",
+                      hinttext:
+                          "What makes your coach hire service reliable or premium?",
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -2003,13 +2210,18 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     child: ElevatedButton(
                       onPressed: () => Get.dialog(AddCouponDialog()),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                                (states) => Colors.green),
                       ),
-                      child: const Text("Add Coupon", style: TextStyle(color: Colors.white)),
+                      child: const Text("Add Coupon",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Obx(() => couponController.coupons.isEmpty ? const SizedBox.shrink() : CouponList()),
+                  Obx(() => couponController.coupons.isEmpty
+                      ? const SizedBox.shrink()
+                      : CouponList()),
                   const SizedBox(height: 20),
                   const Text(
                     'Declaration & Agreement',
@@ -2032,7 +2244,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                   SizedBox(
                     width: double.infinity,
                     child: CustomCheckbox(
-                      title: 'I have not shared any contact details (Email, Phone, Skype, Website, etc.)',
+                      title:
+                          'I have not shared any contact details (Email, Phone, Skype, Website, etc.)',
                       value: noContactDetails,
                       onChanged: (value) {
                         setState(() {
@@ -2081,7 +2294,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text('Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
+                  Text(
+                      'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
                   const SizedBox(height: 20),
                   Container(
                     width: w,
@@ -2093,7 +2307,9 @@ class _CoachHireServiceState extends State<CoachHireService> {
                               _submitForm();
                             },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                                (states) => Colors.green),
                       ),
                       child: _isSubmitting
                           ? const SizedBox(
@@ -2106,7 +2322,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                             )
                           : const Text(
                               "Save and Submit",
-                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),

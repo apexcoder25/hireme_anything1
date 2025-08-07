@@ -184,20 +184,29 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
   @override
   void initState() {
     super.initState();
+
     _loadVendorId();
+
+    // Add listener to hourlyRateController safely
     hourlyRateController.addListener(() {
-      calendarController
-          .setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
+      final price = double.tryParse(hourlyRateController.text) ?? 0.0;
+      calendarController.setDefaultPrice(price);
     });
-    // Ensure fromDate and toDate are not before firstDay (DateTime.now())
-    if (fromDate.value.isBefore(DateTime.now())) {
-      fromDate.value = DateTime.now();
-    }
-    if (toDate.value.isBefore(DateTime.now())) {
-      toDate.value = DateTime.now();
-    }
-    calendarController.fromDate.value = fromDate.value;
-    calendarController.toDate.value = toDate.value;
+
+    // Defer these initializations until after first widget build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final now = DateTime.now();
+
+      if (fromDate.value.isBefore(now)) {
+        fromDate.value = now;
+      }
+      if (toDate.value.isBefore(now)) {
+        toDate.value = now;
+      }
+
+      calendarController.fromDate.value = fromDate.value;
+      calendarController.toDate.value = toDate.value;
+    });
   }
 
   @override
@@ -616,7 +625,7 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
 
     final api = AddVendorServiceApi();
     try {
-      final isAdded = await api.addServiceVendor(data);
+      final isAdded = await api.addServiceVendor(data, 'chauffeur');
       if (isAdded) {
         Get.to(() => HomePageAddService());
       } else {
