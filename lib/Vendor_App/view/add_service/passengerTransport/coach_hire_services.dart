@@ -49,6 +49,7 @@ class _CoachHireServiceState extends State<CoachHireService> {
   // Section 1: Business Information
   TextEditingController serviceNameController = TextEditingController();
   TextEditingController basePostcodeController = TextEditingController();
+  TextEditingController locationRadiusController = TextEditingController();
   bool _isSubmitting = false;
 
   // Section 2: Services Provided
@@ -82,7 +83,6 @@ class _CoachHireServiceState extends State<CoachHireService> {
     'Wheelchair Accessible': false,
     'Luggage Space': false,
   };
-  TextEditingController notesController = TextEditingController();
   TextEditingController fleetSizeController = TextEditingController();
 
   // Section 5: Rates
@@ -238,13 +238,13 @@ class _CoachHireServiceState extends State<CoachHireService> {
   String mapCancellationPolicy(String? policy) {
     switch (policy) {
       case 'Flexible':
-        return 'FLEXIBLE'; 
+        return 'FLEXIBLE';
       case 'Moderate':
-        return 'MODERATE'; 
+        return 'MODERATE';
       case 'Strict':
         return 'STRICT';
       default:
-        return 'MODERATE'; 
+        return 'MODERATE';
     }
   }
 
@@ -252,11 +252,11 @@ class _CoachHireServiceState extends State<CoachHireService> {
   void dispose() {
     serviceNameController.dispose();
     basePostcodeController.dispose();
+    locationRadiusController.dispose();
     otherServiceController.dispose();
     makeModelController.dispose();
     yearController.dispose();
     capacityController.dispose();
-    notesController.dispose();
     fleetSizeController.dispose();
     hourlyRateController.dispose();
     halfDayRateController.dispose();
@@ -375,7 +375,7 @@ class _CoachHireServiceState extends State<CoachHireService> {
           serviceNameController.text.trim(), // Changed from service_name
       "service_status": serviceStatus, // Add this field
       "basePostcode": basePostcodeController.text.trim(),
-      "locationRadius": "200", // Add this required field
+      "locationRadius": locationRadiusController.text.trim(),
       "servicesProvided": servicesProvided,
       "booking_date_from":
           DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
@@ -388,10 +388,11 @@ class _CoachHireServiceState extends State<CoachHireService> {
 
       // Fix fleet info structure
       "fleetInfo": {
-        "makeAndModel":
-            makeModelController.text.trim(), // Changed from makeModel
+        "makeAndModel": makeModelController.text.trim(),
         "capacity": capacityController.text.trim(),
-        "firstRegistered": yearController.text.trim(), // Changed from year
+        "firstRegistered": yearController.text.trim(),
+        'seats': fleetSizeController.text.trim(),
+        'luggageCapacity': capacityController.text.trim(),
       },
 
       // Fix pricing structure
@@ -402,8 +403,7 @@ class _CoachHireServiceState extends State<CoachHireService> {
         "fullDayRate": double.tryParse(fullDayRateController.text.trim()) ?? 0,
         "additionalMileageFee":
             double.tryParse(additionalMileageFeeController.text.trim()) ?? 0,
-        "mileageLimit": mileageAllowanceController.text
-            .trim(), // Note: this should be string based on backend
+        "mileageLimit": mileageAllowanceController.text.trim(),
       },
 
       // Map your features to the expected structure
@@ -1008,8 +1008,25 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       textcont: basePostcodeController,
                       textfilled_height: 17,
                       textfilled_weight: 1,
-                      keytype: TextInputType.text,
+                      keytype: TextInputType.number,
                       hinttext: "Enter postcode",
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Location Radius (in miles) *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 10,
+                      textcont: locationRadiusController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.number,
+                      hinttext: "Enter Radius",
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -1114,26 +1131,10 @@ class _CoachHireServiceState extends State<CoachHireService> {
                           .toList(),
                     ),
                   ),
+
                   const SizedBox(height: 10),
                   const Text(
-                    'Notes',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 100,
-                      textcont: notesController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter notes",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Fleet Size',
+                    'Number of Seats',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
@@ -1145,7 +1146,7 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       textfilled_height: 17,
                       textfilled_weight: 1,
                       keytype: TextInputType.number,
-                      hinttext: "Enter fleet size",
+                      hinttext: "Enter number of Seats",
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -2083,61 +2084,195 @@ class _CoachHireServiceState extends State<CoachHireService> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ListTile(
-                                leading: const Icon(Icons.camera),
-                                title: const Text('Take a Photo'),
-                                onTap: () {
-                                  imageController.pickImages(true);
-                                  Navigator.pop(context);
+                  // Vehicle Images Upload Section
+                  Container(
+                    height: 120,
+                    child: vehicleImagesPaths.isEmpty
+                        ? GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      ListTile(
+                                        leading: const Icon(Icons.camera),
+                                        title: const Text('Take a Photo'),
+                                        onTap: () async {
+                                          await imageController
+                                              .pickImages(true);
+                                          if (imageController
+                                              .selectedImages.isNotEmpty) {
+                                            setState(() {
+                                              vehicleImagesPaths.addAll(
+                                                  imageController
+                                                      .selectedImages);
+                                            });
+                                            imageController.selectedImages
+                                                .clear();
+                                          }
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading:
+                                            const Icon(Icons.photo_library),
+                                        title:
+                                            const Text('Choose from Gallery'),
+                                        onTap: () async {
+                                          await imageController
+                                              .pickImages(false);
+                                          if (imageController
+                                              .selectedImages.isNotEmpty) {
+                                            setState(() {
+                                              vehicleImagesPaths.addAll(
+                                                  imageController
+                                                      .selectedImages);
+                                            });
+                                            imageController.selectedImages
+                                                .clear();
+                                          }
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  );
                                 },
+                              );
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              ListTile(
-                                leading: const Icon(Icons.photo_library),
-                                title: const Text('Choose from Gallery'),
-                                onTap: () {
-                                  imageController.pickImages(false);
-                                  Navigator.pop(context);
-                                },
+                              child: const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add_photo_alternate,
+                                      size: 40, color: Colors.grey),
+                                  Text('Add Vehicle Images',
+                                      style: TextStyle(color: Colors.grey)),
+                                ],
                               ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: DottedBorder(
-                      color: Colors.black,
-                      strokeWidth: 2,
-                      dashPattern: const [5, 5],
-                      child: Container(
-                        height: 150,
-                        width: double.infinity,
-                        child: const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.cloud_upload_outlined,
-                                  size: 40, color: Colors.grey),
-                              Text(
-                                "Click to upload PNG, JPG (max 5MB)",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w700),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
+                            ),
+                          )
+                        : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: vehicleImagesPaths.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == vehicleImagesPaths.length) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (context) {
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: <Widget>[
+                                            ListTile(
+                                              leading: const Icon(Icons.camera),
+                                              title: const Text('Take a Photo'),
+                                              onTap: () async {
+                                                await imageController
+                                                    .pickImages(true);
+                                                if (imageController
+                                                    .selectedImages
+                                                    .isNotEmpty) {
+                                                  setState(() {
+                                                    vehicleImagesPaths.addAll(
+                                                        imageController
+                                                            .selectedImages);
+                                                  });
+                                                  imageController.selectedImages
+                                                      .clear();
+                                                }
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ListTile(
+                                              leading: const Icon(
+                                                  Icons.photo_library),
+                                              title: const Text(
+                                                  'Choose from Gallery'),
+                                              onTap: () async {
+                                                await imageController
+                                                    .pickImages(false);
+                                                if (imageController
+                                                    .selectedImages
+                                                    .isNotEmpty) {
+                                                  setState(() {
+                                                    vehicleImagesPaths.addAll(
+                                                        imageController
+                                                            .selectedImages);
+                                                  });
+                                                  imageController.selectedImages
+                                                      .clear();
+                                                }
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 100,
+                                    margin: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.add,
+                                        size: 40, color: Colors.grey),
+                                  ),
+                                );
+                              }
+
+                              return Container(
+                                width: 100,
+                                margin: const EdgeInsets.all(4),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.file(
+                                        File(vehicleImagesPaths[index]),
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 2,
+                                      right: 2,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            vehicleImagesPaths
+                                                .removeAt(index); 
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                        ),
-                      ),
-                    ),
                   ),
                   const SizedBox(height: 20),
                   const Text(

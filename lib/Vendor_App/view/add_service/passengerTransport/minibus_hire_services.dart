@@ -65,6 +65,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
 
   // Section 2: Fleet / Vehicle Details
   TextEditingController basePostcodeController = TextEditingController();
+  TextEditingController locationRadiusController = TextEditingController();
   TextEditingController makeAndModelController = TextEditingController();
   TextEditingController yearController = TextEditingController();
   TextEditingController capacityController = TextEditingController();
@@ -182,6 +183,8 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
     serviceNameController.dispose();
     otherServiceCategoryController.dispose();
     basePostcodeController.dispose();
+    imageController.dispose();
+    locationRadiusController.dispose();
     makeAndModelController.dispose();
     yearController.dispose();
     capacityController.dispose();
@@ -421,7 +424,6 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
           publicLiabilityInsurancePaths.length +
           vehicleInsuranceAndMOTsPaths.length;
 
-      // Structure the data to match your expected payload format
       final data = {
         "categoryId": widget.CategoryId,
         "subcategoryId": widget.SubCategoryId,
@@ -442,27 +444,25 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
             .toList(),
         "offering_price": 0,
         "basePostcode": basePostcodeController.text.trim(),
-        "locationRadius": 25,
+        "locationRadius": int.parse(locationRadiusController.text.trim()),
         "areasCovered": areasCovered.toList(),
         "fleetInfo": {
           "makeAndModel": makeAndModelController.text.trim(),
           "capacity": capacityController.text.trim(),
-          "firstRegistered": yearController.text.trim().isNotEmpty
-              ? "${yearController.text.trim()}-01-01"
-              : DateFormat("yyyy-MM-dd").format(DateTime.now()),
+          "firstRegistered": "${yearController.text.trim()}-01-01",
           "wheelchairAccessible": wheelchairAccessible,
           "wheelchairAccessiblePrice": 0,
           "airConditioning": airConditioning,
           "luggageSpace": luggageSpace,
+          "fleetSize": availableMinibusesController.text.trim(),
+          "notes": notesController.text.trim(),
         },
         "miniBusRates": {
           "hourlyRate": hourlyRate,
           "halfDayRate": halfDayRate,
           "fullDayRate": fullDayRate,
           "additionalMileageFee": additionalMileageFee,
-          "mileageLimit": mileageAllowanceController.text.trim().isNotEmpty
-              ? mileageAllowanceController.text.trim()
-              : "0",
+          "mileageLimit": int.parse(mileageAllowanceController.text.trim()),
         },
         "service_image": getMinibusPhotos(),
         "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
@@ -577,18 +577,15 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
             backgroundColor: Colors.green,
             colorText: Colors.white);
 
-
         final ServiceController controller = Get.find<ServiceController>();
         controller.fetchServices();
       } else {
-        
         Get.snackbar('Error', 'Add Service Failed. Please try again.',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white);
       }
     } catch (e) {
-      
       print("API Error: $e");
       Get.snackbar('Error', 'Server error: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
@@ -1137,6 +1134,29 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Base Postcode is required';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Location Radius *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 10,
+                      textcont: locationRadiusController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.number,
+                      hinttext: "Enter Location Radius (in miles)",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return ' Location Radius is required';
                         }
                         return null;
                       },

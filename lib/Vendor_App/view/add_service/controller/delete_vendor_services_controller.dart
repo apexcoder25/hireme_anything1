@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 
 class DeleteVendorServiceApi {
   late final Dio _dio;
@@ -13,8 +14,6 @@ class DeleteVendorServiceApi {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3N2ZhZGY0MTM2NmU2ZjMzMDMwMDFkYSIsImlhdCI6MTc1NDE0MDUwNiwiZXhwIjoxNzU0NzQ1MzA2fQ.EgQEldM6P0hw_jbvOtaOWpdRl-4_NJ-x--8qfTj4X94'
       },
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
@@ -22,6 +21,39 @@ class DeleteVendorServiceApi {
     );
 
     _dio = Dio(options);
+
+    // Add token interceptor - gets token dynamically for each request
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          // Get fresh token from SessionVendorSideManager
+          final token = await SessionVendorSideManager().getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          
+          // print('DELETE REQUEST[${options.method}] => PATH: ${options.path}');
+          // print('REQUEST HEADERS: ${options.headers}');
+          // print('REQUEST DATA: ${options.data}');
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          print('DELETE RESPONSE[${response.statusCode}] => DATA: ${response.data}');
+          handler.next(response);
+        },
+        onError: (error, handler) async {
+          print('DELETE ERROR[${error.response?.statusCode}] => MESSAGE: ${error.message}');
+          print('DELETE ERROR DATA: ${error.response?.data}');
+          
+          // Clear session if token is invalid
+          if (error.response?.statusCode == 401) {
+            await SessionVendorSideManager().clearSession();
+          }
+          
+          handler.next(error);
+        },
+      ),
+    );
 
     _dio.interceptors.add(
       PrettyDioLogger(
@@ -35,26 +67,6 @@ class DeleteVendorServiceApi {
         enabled: kDebugMode,
       ),
     );
-
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        // print('DELETE REQUEST[${options.method}] => PATH: ${options.path}');
-        // print('REQUEST HEADERS: ${options.headers}');
-        // print('REQUEST DATA: ${options.data}');
-        handler.next(options);
-      },
-      onResponse: (response, handler) {
-        print(
-            'DELETE RESPONSE[${response.statusCode}] => DATA: ${response.data}');
-        handler.next(response);
-      },
-      onError: (error, handler) {
-        print(
-            'DELETE ERROR[${error.response?.statusCode}] => MESSAGE: ${error.message}');
-        print('DELETE ERROR DATA: ${error.response?.data}');
-        handler.next(error);
-      },
-    ));
   }
 
   Future<bool> deleteVendorService(String serviceId) async {
@@ -67,8 +79,6 @@ class DeleteVendorServiceApi {
         '/vendor/delete_vendore_service',
         data: payload,
       );
-
-      // print('Delete response status code: ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         Get.snackbar(
@@ -105,25 +115,24 @@ class DeleteVendorServiceApi {
       String errorMessage;
       switch (e.type) {
         case DioExceptionType.connectionTimeout:
-          errorMessage =
-              "Connection timeout - Please check your internet connection";
+          errorMessage = "Connection timeout - Please check your internet connection";
           break;
         case DioExceptionType.receiveTimeout:
           errorMessage = "Request timeout - Server took too long to respond";
           break;
         case DioExceptionType.badResponse:
           if (e.response?.statusCode == 401) {
+            // Clear session when authentication fails
+            await SessionVendorSideManager().clearSession();
             errorMessage = "Authentication failed - Please login again";
           } else if (e.response?.statusCode == 400) {
-            errorMessage =
-                e.response?.data?['message'] ?? "Invalid service ID or request";
+            errorMessage = e.response?.data?['message'] ?? "Invalid service ID or request";
           } else if (e.response?.statusCode == 404) {
             errorMessage = "Service not found or already deleted";
           } else if (e.response?.statusCode == 403) {
             errorMessage = "You don't have permission to delete this service";
           } else {
-            errorMessage =
-                "Server error (${e.response?.statusCode}): ${e.response?.statusMessage}";
+            errorMessage = "Server error (${e.response?.statusCode}): ${e.response?.statusMessage}";
           }
           break;
         case DioExceptionType.cancel:
@@ -165,8 +174,7 @@ class DeleteVendorServiceApi {
     }
   }
 
-  Future<bool> showDeleteConfirmation(
-      BuildContext context, String serviceName) async {
+  Future<bool> showDeleteConfirmation(BuildContext context, String serviceName) async {
     return await showDialog<bool>(
           context: context,
           barrierDismissible: false,

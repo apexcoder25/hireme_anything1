@@ -540,9 +540,8 @@ class _LimousineHireServiceState extends State<LimousineHireService> {
               })
           .toList(),
 
-      // FIXED: Use "open" as the valid enum value (based on your original payload)
       "service_status":
-          "open", // Changed from "closed" - using "open" as it was in your original working payload
+          serviceStatus, 
 
       "coupons": couponController.coupons
           .map((coupon) => {

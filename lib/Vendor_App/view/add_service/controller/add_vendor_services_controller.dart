@@ -3,12 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 
 class AddVendorServiceApi {
   late final Dio _dio;
 
   final Map<String, String> endpoints = {
-    'boat': '/vendor/add_boat_hire_service',
+    'boat': '/vendor/add_boat_service',
     'chauffeur': '/vendor/add_chauffeur_service',
     'coach': '/vendor/add_coach_service',
     'funeral': '/vendor/add-funeral-partner',
@@ -23,8 +24,6 @@ class AddVendorServiceApi {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization':
-            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3N2ZhZGY0MTM2NmU2ZjMzMDMwMDFkYSIsImlhdCI6MTc1NDE0MDUwNiwiZXhwIjoxNzU0NzQ1MzA2fQ.EgQEldM6P0hw_jbvOtaOWpdRl-4_NJ-x--8qfTj4X94'
       },
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
@@ -32,6 +31,38 @@ class AddVendorServiceApi {
     );
 
     _dio = Dio(options);
+
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+
+          final token = await SessionVendorSideManager().getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          
+          print('REQUEST[${options.method}] => PATH: ${options.path}');
+          print('REQUEST HEADERS: ${options.headers}');
+          print('REQUEST DATA: ${options.data}');
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          print('RESPONSE[${response.statusCode}] => DATA: ${response.data}');
+          handler.next(response);
+        },
+        onError: (error, handler) async {
+          print('ERROR[${error.response?.statusCode}] => MESSAGE: ${error.message}');
+          print('ERROR DATA: ${error.response?.data}');
+          
+          // Clear session if token is invalid
+          if (error.response?.statusCode == 401) {
+            await SessionVendorSideManager().clearSession();
+          }
+          
+          handler.next(error);
+        },
+      ),
+    );
 
     // Add PrettyDioLogger for logging
     _dio.interceptors.add(
@@ -46,36 +77,14 @@ class AddVendorServiceApi {
         enabled: kDebugMode,
       ),
     );
-
-    // Add custom interceptor for detailed logging
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
-        print('REQUEST[${options.method}] => PATH: ${options.path}');
-        print('REQUEST HEADERS: ${options.headers}');
-        print('REQUEST DATA: ${options.data}');
-        handler.next(options);
-      },
-      onResponse: (response, handler) {
-        print('RESPONSE[${response.statusCode}] => DATA: ${response.data}');
-        handler.next(response);
-      },
-      onError: (error, handler) {
-        print(
-            'ERROR[${error.response?.statusCode}] => MESSAGE: ${error.message}');
-        print('ERROR DATA: ${error.response?.data}');
-        handler.next(error);
-      },
-    ));
   }
 
   Future<bool> addServiceVendor(Map<String, dynamic> data, String serviceType) async {
     print("Starting API call...");
     print('data hai $data');
     try {
-      // print("Sending POST request to /vendor/add_chauffeur_service");
-
       String? endpoint = endpoints[serviceType];
-      print('enpoint hai  $endpoint');
+      print('endpoint hai $endpoint');
 
       final response = await _dio.post(
         endpoint!,
@@ -84,8 +93,6 @@ class AddVendorServiceApi {
       print('data ye hai $data');
 
       print('Response status code: ${response.statusCode}');
-      // print('Response data: ${response.data}');
-      // print('Response data: ${response}');
 
       if (response.statusCode == 201) {
         Get.snackbar(
@@ -100,8 +107,7 @@ class AddVendorServiceApi {
         );
         return true;
       } else {
-        String errorMessage =
-            "Failed to add vendor service: ${response.statusMessage}";
+        String errorMessage = "Failed to add vendor service: ${response.statusMessage}";
         if (response.data != null && response.data is Map) {
           errorMessage = response.data['message'] ?? errorMessage;
         }
@@ -118,30 +124,25 @@ class AddVendorServiceApi {
         return false;
       }
     } on DioException catch (e) {
-      // print('DioException occurred: ${e.type}');
-      // print('Error message: ${e.message}');
-      // print('Error response: ${e.response?.data}');
-
       String errorMessage;
       switch (e.type) {
         case DioExceptionType.connectionTimeout:
-          errorMessage =
-              "Connection timeout - Please check your internet connection";
+          errorMessage = "Connection timeout - Please check your internet connection";
           break;
         case DioExceptionType.receiveTimeout:
           errorMessage = "Request timeout - Server took too long to respond";
           break;
         case DioExceptionType.badResponse:
           if (e.response?.statusCode == 401) {
+            // Clear session when authentication fails
+            await SessionVendorSideManager().clearSession();
             errorMessage = "Authentication failed - Please login again";
           } else if (e.response?.statusCode == 400) {
-            errorMessage =
-                e.response?.data?['message'] ?? "Invalid request data";
+            errorMessage = e.response?.data?['message'] ?? "Invalid request data";
           } else if (e.response?.statusCode == 422) {
             errorMessage = "Validation failed - Please check your input data";
           } else {
-            errorMessage =
-                "Server error (${e.response?.statusCode}): ${e.response?.statusMessage}";
+            errorMessage = "Server error (${e.response?.statusCode}): ${e.response?.statusMessage}";
           }
           break;
         case DioExceptionType.cancel:

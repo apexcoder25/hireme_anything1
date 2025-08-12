@@ -49,6 +49,8 @@ class _HorseAndCarriageHireServiceState
 
   // Section 1: Business & Contact Information
   TextEditingController serviceNameController = TextEditingController();
+  TextEditingController basePostcodeController = TextEditingController();
+  TextEditingController locationRadiusController = TextEditingController();
 
   // Section 2: Horse and Carriage Services Offered
   Map<String, bool> carriageTypes = {
@@ -92,6 +94,7 @@ class _HorseAndCarriageHireServiceState
   String? serviceStatus;
   Rx<DateTime> fromDate = DateTime.now().obs;
   Rx<DateTime> toDate = DateTime.now().obs;
+  Rx<DateTime> firstRegisteredDate = DateTime.now().obs;
 
   // Section 6: Accessibility And Special Services
   Map<String, bool> accessibilitySpecial = {
@@ -129,6 +132,7 @@ class _HorseAndCarriageHireServiceState
   TextEditingController animalLicenceNumberController = TextEditingController();
   TextEditingController licensingAuthorityController = TextEditingController();
   TextEditingController licenceExpiryDateController = TextEditingController();
+  TextEditingController makeAndModelController = TextEditingController();
   RxList<String> licencePaths = <String>[].obs;
   RxList<String> insuranceCertificatePaths = <String>[].obs;
   RxList<String> horseCertificatesPaths = <String>[].obs;
@@ -195,6 +199,10 @@ class _HorseAndCarriageHireServiceState
   @override
   void dispose() {
     serviceNameController.dispose();
+    basePostcodeController.dispose();
+    locationRadiusController.dispose();
+    imageController.dispose();
+    makeAndModelController.dispose();
     otherCarriageController.dispose();
     fleetSizeController.dispose();
     maintenanceFrequencyController.dispose();
@@ -290,15 +298,15 @@ class _HorseAndCarriageHireServiceState
 
       // Required field - add listing title
       "listingTitle":
-          serviceNameController.text.trim(), // or use a dedicated controller
+          serviceNameController.text.trim(), 
 
       // Required vehicleDetails object
       "vehicleDetails": {
-        "makeAndModel":
-            "Horse and Carriage", 
-        "firstRegistered": "2025-08-07", 
-        "basePostcode": "PO1 2LA", 
-        "locationRadius": "50"
+        "makeAndModel": makeAndModelController.text.trim(),
+        "firstRegistered":
+            DateFormat("yyyy-MM-dd").format(firstRegisteredDate.value),
+        "basePostcode": basePostcodeController.text.trim(),
+        "locationRadius": locationRadiusController.text.trim(),
       },
 
       "carriageTypes": carriageTypes,
@@ -914,6 +922,40 @@ class _HorseAndCarriageHireServiceState
                       hinttext: "Enter Service Name",
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Base Postcode *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: basePostcodeController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.text,
+                      hinttext: "Enter Base Postcode",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Location Radius (in mile)*',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: locationRadiusController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.number,
+                      hinttext: "Enter Location Radius",
+                    ),
+                  ),
                   const SizedBox(height: 20),
 
                   // SECTION 2: Horse and Carriage Services Offered
@@ -967,10 +1009,27 @@ class _HorseAndCarriageHireServiceState
                     ),
                   ],
                   const SizedBox(height: 10),
+                  const Text('Make and Model *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: makeAndModelController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.text,
+                      hinttext: "Enter Make and Model",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   const Text(
                     'Number of Carriages in Fleet',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
+
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
@@ -982,6 +1041,47 @@ class _HorseAndCarriageHireServiceState
                       keytype: TextInputType.number,
                       hinttext: "Enter number of carriages",
                     ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text('First Registered Date *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Obx(() => GestureDetector(
+                          onTap: () async {
+                            final DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: firstRegisteredDate.value,
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                            );
+                            if (pickedDate != null) {
+                              firstRegisteredDate.value = pickedDate;
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(firstRegisteredDate.value),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                const Icon(Icons.calendar_today,
+                                    color: Colors.grey),
+                              ],
+                            ),
+                          ),
+                        )),
                   ),
                   const SizedBox(height: 20),
 

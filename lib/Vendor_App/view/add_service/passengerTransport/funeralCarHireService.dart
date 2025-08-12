@@ -48,6 +48,8 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
 
   // Section 1: Business & Contact Information
   TextEditingController serviceNameController = TextEditingController();
+  TextEditingController basePostcodeController = TextEditingController();
+  TextEditingController locationRadiusController = TextEditingController();
 
   // Section 2: Funeral Transport Services Offered
   Map<String, bool> vehicleTypes = {
@@ -196,6 +198,10 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
   @override
   void dispose() {
     serviceNameController.dispose();
+    basePostcodeController.dispose();
+    locationRadiusController.dispose();
+    imageController.dispose();
+    couponController.dispose();
     otherVehicleController.dispose();
     fleetSizeController.dispose();
     vehicleTypeController.dispose();
@@ -291,8 +297,8 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
         "service_name": serviceNameController.text.trim(),
 
         // Base location info
-        "basePostcode": "PO1 2LA",
-        "locationRadius": 25,
+        "basePostcode": basePostcodeController.text.trim(),
+        "locationRadius": locationRadiusController,
         "emergencyContactNumber": "",
 
         // Vehicle types - convert boolean map to array of selected strings
@@ -966,6 +972,40 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                       textfilled_weight: 1,
                       keytype: TextInputType.text,
                       hinttext: "Enter Service Name",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Base Postcode *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: serviceNameController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.text,
+                      hinttext: "Enter Postcode",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Location Radius (in miles) *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: serviceNameController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.number,
+                      hinttext: "Enter Radius (eg. 200 miles)",
                     ),
                   ),
                   const SizedBox(height: 20),

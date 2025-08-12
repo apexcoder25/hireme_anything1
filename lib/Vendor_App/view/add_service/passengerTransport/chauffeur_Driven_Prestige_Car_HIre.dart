@@ -54,6 +54,7 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
   String? chauffeurType;
   TextEditingController otherChauffeurTypeController = TextEditingController();
   TextEditingController baseLocationController = TextEditingController();
+  TextEditingController locationRadiusController = TextEditingController();
   bool _isSubmitting = false;
 
   // Section 2: Occasions Catered For
@@ -91,6 +92,7 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
   // Section 5: Coverage & Availability
   RxList<String> areasCovered = <String>[].obs;
   String? serviceStatus;
+  bool? availabilityStatus;
   Rx<DateTime> fromDate = DateTime.now().obs;
   Rx<DateTime> toDate = DateTime.now().obs;
 
@@ -448,18 +450,18 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
 
       // Location and coverage
       "baseLocationPostcode": baseLocationController.text.trim(),
-      "locationRadius": "202", // String format as per API
+      "locationRadius": locationRadiusController.text.trim(),
       "areasCovered": areasCovered.toList(),
 
       // Service status
-      "service_status": "open",
+      "service_status": serviceStatus,
       "service_approve_status": "0",
 
       // Fleet information (match API structure exactly)
       "fleetInfo": {
         "capacity": "",
-        "make": "",
-        "model": "",
+        "make": makeModelController.text.trim(),
+        "model": makeModelController.text.trim(),
         "year": yearController.text.trim(),
         "wheelchairAccessible":
             accessibilitySpecial['wheelchairAccess'] ?? false,
@@ -498,9 +500,7 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
       },
 
       // Availability details
-      "availabilityDetails": {
-        "available24x7": false // Add controller if you have this field
-      },
+      "availabilityDetails": {"available24x7": availabilityStatus},
 
       // Booking dates
       "booking_date_from": calendarController.fromDate.value != null
@@ -582,15 +582,14 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
       "cancellation_policy_type": cancellationPolicy ?? "MODERATE",
 
       // Additional fields from API format
-      "kilometer_price": "", // Add controller if you have this field
-      "city_name": [], // Add if you have city selection
-      "certifications": [], // Add if you have certifications
-      "operators": [], // Add if you have operators
+      "kilometer_price": "",
+      "city_name": [],
+      "certifications": [],
+      "operators": [],
 
       // Form errors (if any)
       "formErrors": {"booking_date_to": ""},
 
-      // Auto-generated listing data (API might generate this, but include for completeness)
       "listing_data": {
         "title": "${serviceNameController.text.trim()} Chauffeur Service",
         "description":
@@ -609,8 +608,7 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
           "${yearController.text.trim()} model",
           serviceType
         ].where((f) => f!.isNotEmpty).toList(),
-        "areasCovered":
-            areasCovered.take(3).toList(), // First 3 areas for summary
+        "areasCovered": areasCovered.take(3).toList(),
         "summary": {
           "day_rate": dayRate.toString(),
           "hourly_rate": hourlyRate.toString(),
@@ -1194,6 +1192,29 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                const Text(
+                  'Location Radius *',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: Signup_textfilled(
+                    length: 10,
+                    textcont: locationRadiusController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter location radius in miles",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Location radius is required';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
 
                 // Section 2: Occasions Catered For
                 const Text(
@@ -1629,6 +1650,33 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     onChanged: (value) {
                       setState(() {
                         serviceStatus = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Availability *',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomDropdown(
+                    hintText: "Select Availability",
+                    items: ['24x7', 'not 24x7'],
+                    selectedValue: availabilityStatus == null
+                        ? null
+                        : (availabilityStatus! ? '24x7' : 'not 24x7'),
+                    onChanged: (value) {
+                      setState(() {
+                        if (value == '24x7') {
+                          availabilityStatus = true;
+                        } else if (value == 'not 24x7') {
+                          availabilityStatus = false;
+                        } else {
+                          availabilityStatus = null;
+                        }
                       });
                     },
                   ),

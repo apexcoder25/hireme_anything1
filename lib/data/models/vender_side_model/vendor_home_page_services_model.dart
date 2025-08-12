@@ -569,9 +569,27 @@ class BoatRates {
 
   factory BoatRates.fromJson(Map<String, dynamic> json) {
     return BoatRates(
-      hourlyRate: json["hourlyRate"],
-      halfDayRate: json["halfDayRate"],
-      fullDayRate: json["fullDayRate"],
+      hourlyRate: json["hourlyRate"] == null
+          ? null
+          : json["hourlyRate"] is int
+              ? json["hourlyRate"]
+              : json["hourlyRate"] is double
+                  ? (json["hourlyRate"] as double).toInt()
+                  : null,
+      halfDayRate: json["halfDayRate"] == null
+          ? null
+          : json["halfDayRate"] is int
+              ? json["halfDayRate"]
+              : json["halfDayRate"] is double
+                  ? (json["halfDayRate"] as double).toInt()
+                  : null,
+      fullDayRate: json["fullDayRate"] == null
+          ? null
+          : json["fullDayRate"] is int
+              ? json["fullDayRate"]
+              : json["fullDayRate"] is double
+                  ? (json["fullDayRate"] as double).toInt()
+                  : null,
       overnightCharterRate: json["overnightCharterRate"],
       packageDealsDescription: json["packageDealsDescription"],
     );
@@ -1356,12 +1374,12 @@ class MiniBusRates {
                   ? (json["mileageAllowance"] as double).toInt()
                   : null,
       additionalMileageFee: json["additionalMileageFee"] == null
-    ? null
-    : json["additionalMileageFee"] is int
-        ? json["additionalMileageFee"]
-        : json["additionalMileageFee"] is double
-            ? (json["additionalMileageFee"] as double).toInt()
-            : null,
+          ? null
+          : json["additionalMileageFee"] is int
+              ? json["additionalMileageFee"]
+              : json["additionalMileageFee"] is double
+                  ? (json["additionalMileageFee"] as double).toInt()
+                  : null,
     );
   }
 
