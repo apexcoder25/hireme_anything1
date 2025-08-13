@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/cutom_widgets/signup_textfilled.dart';
-import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
+import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 // Import the MediaType class
 import 'package:intl_phone_field/intl_phone_field.dart';

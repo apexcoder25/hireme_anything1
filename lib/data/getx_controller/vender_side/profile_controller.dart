@@ -17,22 +17,45 @@ class ProfileController extends GetxController {
     _initializeProfile();
   }
 
-  Future<void> _initializeProfile() async {
-    await _loadToken();
- 
+  @override
+  void onClose() { 
+    super.onClose();
   }
 
-  Future<void> _loadToken() async {
-    token.value = await SessionVendorSideManager().getToken() ?? "";
-    print("Loaded Token: ${token.value}");
-    if (token.value.isEmpty) {
-      Get.snackbar("Error", "No authentication token found");
+  Future<void> _initializeProfile() async {
+    try {
+      await _loadToken();
+      if (token.value.isNotEmpty) {
+        await fetchProfile(); 
+      } else {
+        isLoading(false); 
+      }
+    } catch (e) {
+      isLoading(false);
+      Get.snackbar("Error", "Failed to initialize profile");
     }
   }
 
-  void fetchProfile() async {
+  Future<void> _loadToken() async {
+    try {
+      token.value = await SessionVendorSideManager().getToken() ?? "";
+      print("Loaded Tokenn ${token.value}");
+
+      if (token.value.isEmpty) {
+        print("No authentication token found");
+        Get.snackbar("Error", "No authentication token found");
+        throw Exception("No authentication token found");
+      }
+    } catch (e) {
+      print("Error loading token: $e");
+      token.value = "";
+      rethrow; 
+    }
+  }
+
+  Future<void> fetchProfile() async {
     if (token.value.isEmpty) {
-      print("Token is empty, cannot fetch profile!");
+
       Get.snackbar("Error", "Authentication token is missing");
       isLoading(false);
       return;
@@ -40,42 +63,65 @@ class ProfileController extends GetxController {
 
     try {
       isLoading(true);
+      // print("token value??? ${token.value}");
+
       apiService.setRequestHeaders({"Authorization": "Bearer ${token.value}"});
-      
+
       final response = await apiService.getApi("profile");
+      print("profile responnse show $response");
 
-      print("Fetch Profile Response: $response");
-
-      if (response != null && response["_id"] != null) {
-        profile.value = ProfileModel.fromJson(response);
-        print("Profile fetched successfully: ${profile.value!.toJson()}");
+      if (response != null) {
+        if (response["_id"] != null) {
+          profile.value = ProfileModel.fromJson(response);
+          print("Profile fetched successfully: ${profile.value!.toJson()}");
+        } else if (response["error"] != null) {
+          print("API Error: ${response["error"]}");
+          Get.snackbar(
+              "Error", response["message"] ?? "Failed to fetch profile");
+        } else {
+          print("No profile data found in API response");
+          Get.snackbar("Error", "No profile data found");
+        }
       } else {
-        print("No profile data found in API response");
-        Get.snackbar("Error", "No profile data found");
+        Get.snackbar(
+            "Error", "Failed to fetch profile: No response from server");
       }
     } catch (e) {
       print("Error fetching profile: $e");
-      Get.snackbar("Error", "Failed to fetch profile: $e");
+      Get.snackbar("Error", "Failed to fetch profile: ${e.toString()}");
     } finally {
       isLoading(false);
     }
   }
 
-  void updateProfile(ProfileModel updatedProfile, List<Map<String, String>> legalDocuments, List<String> vehicleImages) async {
+  Future<void> updateProfile(
+      ProfileModel updatedProfile,
+      List<Map<String, String>> legalDocuments,
+      List<String> vehicleImages) async {
     if (token.value.isEmpty) {
       print("Token is empty, cannot update profile!");
       Get.snackbar("Error", "Authentication token is missing");
       return;
     }
 
+    // Validate required data
+    if (updatedProfile.id == null || updatedProfile.id!.isEmpty) {
+      
+      Get.snackbar("Error", "Profile ID is required for update");
+      return;
+    }
+
     try {
       isLoading(true);
+
+      // Prepare payload
       var payload = updatedProfile.toJson();
       payload['legal_documents'] = legalDocuments;
       payload['vehicle_image'] = vehicleImages;
 
       print("Update Profile Payload: $payload");
 
+      // Set headers
       apiService.setRequestHeaders({"Authorization": "Bearer ${token.value}"});
 
       final response = await apiService.putApi(
@@ -85,20 +131,33 @@ class ProfileController extends GetxController {
 
       print("Update Profile Response: $response");
 
-      if (response != null && response["vendor"] != null && response["vendor"]["_id"] != null) {
-        profile.value = ProfileModel.fromJson(response["vendor"]);
-        print("Profile updated successfully: ${profile.value!.toJson()}");
-        Get.snackbar("Success", "Profile updated successfully");
-        Get.back();
+      if (response != null) {
+        if (response["vendor"] != null && response["vendor"]["_id"] != null) {
+          profile.value = ProfileModel.fromJson(response["vendor"]);
+          Get.snackbar("Success", "Profile updated successfully");
+          Get.back();
+        } else if (response["error"] != null) {
+          Get.snackbar(
+              "Error", response["message"] ?? "Failed to update profile");
+        } else {
+          Get.snackbar("Error", "Failed to update profile: Invalid response");
+        }
       } else {
-        print("Profile update failed: Invalid response");
-        Get.snackbar("Error", "Failed to update profile: Invalid response");
+        Get.snackbar(
+            "Error", "Failed to update profile: No response from server");
       }
     } catch (e) {
-      print("Error updating profile: $e");
-      Get.snackbar("Error", "Failed to update profile: $e");
+      Get.snackbar("Error", "Failed to update profile: ${e.toString()}");
     } finally {
       isLoading(false);
     }
   }
+
+  Future<void> refreshProfile() async {
+    await fetchProfile();
+  }
+
+  bool get hasProfile => profile.value != null;
+
+  ProfileModel? get currentProfile => profile.value;
 }

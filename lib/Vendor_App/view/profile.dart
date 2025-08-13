@@ -5,7 +5,7 @@ import 'package:hire_any_thing/Vendor_App/view/login.dart';
 import 'package:hire_any_thing/Vendor_App/view/signup%20form/Screenb.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/data/api_service/api_service_vender_side.dart';
+import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 import 'package:hire_any_thing/splash.dart';
 import 'package:http/http.dart' as http;

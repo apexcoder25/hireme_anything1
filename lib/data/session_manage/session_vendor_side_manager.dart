@@ -36,6 +36,11 @@ Future<String?> getVendorId() async {
     return await prefs.getString("city_name").toString() ?? "";
   }
 
+  Future<void> clearSession() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); 
+  }
+
 }
 
 

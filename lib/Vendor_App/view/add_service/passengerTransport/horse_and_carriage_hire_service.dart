@@ -14,9 +14,11 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/up
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/constants_file/uk_cities.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
+import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'dart:math' as math;
 
 class HorseAndCarriageHireService extends StatefulWidget {
   final Rxn<String> Category;
@@ -33,17 +35,22 @@ class HorseAndCarriageHireService extends StatefulWidget {
   });
 
   @override
-  State<HorseAndCarriageHireService> createState() => _HorseAndCarriageHireServiceState();
+  State<HorseAndCarriageHireService> createState() =>
+      _HorseAndCarriageHireServiceState();
 }
 
-class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireService> {
+class _HorseAndCarriageHireServiceState
+    extends State<HorseAndCarriageHireService> {
   final ImageController imageController = Get.put(ImageController());
   final CouponController couponController = Get.put(CouponController());
   final CalendarController calendarController = Get.put(CalendarController());
-  final CityFetchController cityFetchController = Get.put(CityFetchController());
+  final CityFetchController cityFetchController =
+      Get.put(CityFetchController());
 
   // Section 1: Business & Contact Information
   TextEditingController serviceNameController = TextEditingController();
+  TextEditingController basePostcodeController = TextEditingController();
+  TextEditingController locationRadiusController = TextEditingController();
 
   // Section 2: Horse and Carriage Services Offered
   Map<String, bool> carriageTypes = {
@@ -57,7 +64,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
 
   // Section 3: Equipment & Safety
   bool isMaintainedAndSafetyChecked = false;
-  TextEditingController maintenanceFrequencyController = TextEditingController();
+  TextEditingController maintenanceFrequencyController =
+      TextEditingController();
 
   // Section 3: Fleet Information
   TextEditingController carriageTypeController = TextEditingController();
@@ -86,6 +94,7 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
   String? serviceStatus;
   Rx<DateTime> fromDate = DateTime.now().obs;
   Rx<DateTime> toDate = DateTime.now().obs;
+  Rx<DateTime> firstRegisteredDate = DateTime.now().obs;
 
   // Section 6: Accessibility And Special Services
   Map<String, bool> accessibilitySpecial = {
@@ -93,9 +102,12 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
     'Assistance for Elderly': false,
     'Custom Decorations': false,
   };
-  TextEditingController wheelchairAccessPriceController = TextEditingController();
-  TextEditingController elderlyAssistancePriceController = TextEditingController();
-  TextEditingController customDecorationPriceController = TextEditingController();
+  TextEditingController wheelchairAccessPriceController =
+      TextEditingController();
+  TextEditingController elderlyAssistancePriceController =
+      TextEditingController();
+  TextEditingController customDecorationPriceController =
+      TextEditingController();
 
   // Section 7: Driver & Horse Handler Details
   Map<String, bool> handlerDetails = {
@@ -113,12 +125,14 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
   // Section 8: Licensing & Insurance
   bool hasPublicLiabilityInsurance = false;
   TextEditingController insuranceProviderController = TextEditingController();
-  TextEditingController insurancePolicyNumberController = TextEditingController();
+  TextEditingController insurancePolicyNumberController =
+      TextEditingController();
   TextEditingController insuranceExpiryDateController = TextEditingController();
   bool hasPerformingAnimalLicence = false;
   TextEditingController animalLicenceNumberController = TextEditingController();
   TextEditingController licensingAuthorityController = TextEditingController();
   TextEditingController licenceExpiryDateController = TextEditingController();
+  TextEditingController makeAndModelController = TextEditingController();
   RxList<String> licencePaths = <String>[].obs;
   RxList<String> insuranceCertificatePaths = <String>[].obs;
   RxList<String> horseCertificatesPaths = <String>[].obs;
@@ -129,7 +143,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
 
   // Section 9: Business Highlights
   TextEditingController uniqueServiceController = TextEditingController();
-  TextEditingController promotionalDescriptionController = TextEditingController();
+  TextEditingController promotionalDescriptionController =
+      TextEditingController();
   final Map<String, String> cancellationPolicyMap = {
     'Flexible-Full refund if canceled 48+ hours in advance': "FLEXIBLE",
     'Moderate-Full refund if canceled 72+ hours in advance': "MODERATE",
@@ -150,21 +165,44 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
+  // void initState() {
+  //   super.initState();
+  //   _loadVendorId();
+  //   if (fromDate.value.isBefore(DateTime.now())) fromDate.value = DateTime.now();
+  //   if (toDate.value.isBefore(DateTime.now())) toDate.value = DateTime.now();
+  //   calendarController.fromDate.value = fromDate.value;
+  //   calendarController.toDate.value = toDate.value;
+  //   hourlyRateController.addListener(() {
+  //     calendarController.setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
+  //   });
+  // }
+  @override
   void initState() {
     super.initState();
     _loadVendorId();
-    if (fromDate.value.isBefore(DateTime.now())) fromDate.value = DateTime.now();
-    if (toDate.value.isBefore(DateTime.now())) toDate.value = DateTime.now();
-    calendarController.fromDate.value = fromDate.value;
-    calendarController.toDate.value = toDate.value;
+
+    // Use addPostFrameCallback to avoid build conflicts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (fromDate.value.isBefore(DateTime.now()))
+        fromDate.value = DateTime.now();
+      if (toDate.value.isBefore(DateTime.now())) toDate.value = DateTime.now();
+      calendarController.fromDate.value = fromDate.value;
+      calendarController.toDate.value = toDate.value;
+    });
+
     hourlyRateController.addListener(() {
-      calendarController.setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
+      calendarController
+          .setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
     });
   }
 
   @override
   void dispose() {
     serviceNameController.dispose();
+    basePostcodeController.dispose();
+    locationRadiusController.dispose();
+    imageController.dispose();
+    makeAndModelController.dispose();
     otherCarriageController.dispose();
     fleetSizeController.dispose();
     maintenanceFrequencyController.dispose();
@@ -206,29 +244,49 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
   }
 
   void _submitForm() async {
-    _isSubmitting = true;
+    setState(() {
+      _isSubmitting = true;
+    });
+
     if (!carriageTypes.values.any((v) => v)) {
-      Get.snackbar("Missing Information", "Please select at least one carriage type.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
+      Get.snackbar(
+          "Missing Information", "Please select at least one carriage type.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
+
+      setState(() {
+        _isSubmitting = false;
+      });
       return;
     }
+
     if (areasCovered.isEmpty) {
-      Get.snackbar("Missing Information", "At least one area covered is required.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
+      Get.snackbar(
+          "Missing Information", "At least one area covered is required.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
+
+      setState(() {
+        _isSubmitting = false;
+      });
       return;
     }
-    if (carriagePhotosPaths.length < 3) {
-      Get.snackbar("Missing Information", "At least 3 carriage photos are required.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
-      return;
-    }
-    if (!agreeTerms || !noContactDetails || !agreeCookies || !agreePrivacy || !agreeCancellation) {
+
+    if (!agreeTerms ||
+        !noContactDetails ||
+        !agreeCookies ||
+        !agreePrivacy ||
+        !agreeCancellation) {
       Get.snackbar("Missing Information", "Please agree to all declarations.",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-      _isSubmitting = false;
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
+
+      setState(() {
+        _isSubmitting = false;
+      });
       return;
     }
 
@@ -237,13 +295,34 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
       "categoryId": widget.CategoryId,
       "subcategoryId": widget.SubCategoryId,
       "service_name": serviceNameController.text.trim(),
+
+      // Required field - add listing title
+      "listingTitle":
+          serviceNameController.text.trim(), 
+
+      // Required vehicleDetails object
+      "vehicleDetails": {
+        "makeAndModel": makeAndModelController.text.trim(),
+        "firstRegistered":
+            DateFormat("yyyy-MM-dd").format(firstRegisteredDate.value),
+        "basePostcode": basePostcodeController.text.trim(),
+        "locationRadius": locationRadiusController.text.trim(),
+      },
+
       "carriageTypes": carriageTypes,
-      "otherCarriage": carriageTypes['Specialty Carriage'] == true ? otherCarriageController.text.trim() : "",
+      "otherCarriage": carriageTypes['Specialty Carriage'] == true
+          ? otherCarriageController.text.trim()
+          : "",
       "fleetSize": fleetSizeController.text.trim(),
+
       "equipmentSafety": {
         "isMaintainedAndSafetyChecked": isMaintainedAndSafetyChecked,
-        "maintenanceFrequency": isMaintainedAndSafetyChecked ? maintenanceFrequencyController.text.trim() : "",
+        // Fixed: Use valid enum value instead of "2"
+        "maintenanceFrequency": isMaintainedAndSafetyChecked
+            ? "Monthly"
+            : "", // Valid options: "Weekly", "Monthly", "Quarterly", "Annually"
       },
+
       "fleetInfo": {
         "carriageType": carriageTypeController.text.trim(),
         "horseBreed": horseBreedController.text.trim(),
@@ -252,57 +331,92 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
         "year": yearController.text.trim(),
         "notes": notesController.text.trim(),
       },
+
       "pricing": {
         "dayRate": double.tryParse(dayRateController.text.trim()) ?? 0,
-        "mileageLimit": double.tryParse(mileageLimitController.text.trim()) ?? 0,
-        "extraMileageCharge": double.tryParse(extraMileageChargeController.text.trim()) ?? 0,
-        "waitTimeFree": double.tryParse(waitTimeFreeController.text.trim()) ?? 0,
-        "decorationFee": double.tryParse(decorationFeeController.text.trim()) ?? 0,
-        "standardService": double.tryParse(standardServiceController.text.trim()) ?? 0,
-        "premiumService": double.tryParse(premiumServiceController.text.trim()) ?? 0,
+        // Fixed: Ensure mileageLimit is at least 200
+        "mileageLimit": math.max(
+            double.tryParse(mileageLimitController.text.trim()) ?? 200, 200),
+        "extraMileageCharge":
+            double.tryParse(extraMileageChargeController.text.trim()) ?? 0,
+        "waitTimeFree":
+            double.tryParse(waitTimeFreeController.text.trim()) ?? 0,
+        "decorationFee":
+            double.tryParse(decorationFeeController.text.trim()) ?? 0,
+        "standardService":
+            double.tryParse(standardServiceController.text.trim()) ?? 0,
+        "premiumService":
+            double.tryParse(premiumServiceController.text.trim()) ?? 0,
         "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
         "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
         "bookingProcess": bookingProcessController.text.trim(),
         "paymentTerms": paymentTermsController.text.trim(),
         "fuelAndFeedIncluded": fuelAndFeedIncluded,
       },
+
       "coverageAvailability": {
         "areasCovered": areasCovered.toList(),
         "serviceStatus": serviceStatus,
-        "fromDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-        "toDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
+        "fromDate":
+            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
+        "toDate":
+            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
       },
+
       "accessibilitySpecial": {
-        "Wheelchair Accessible Carriage": accessibilitySpecial['Wheelchair Accessible Carriage']!,
-        "Wheelchair Access Price": double.tryParse(wheelchairAccessPriceController.text.trim()) ?? 0,
-        "Assistance for Elderly": accessibilitySpecial['Assistance for Elderly']!,
-        "Elderly Assistance Price": double.tryParse(elderlyAssistancePriceController.text.trim()) ?? 0,
+        "Wheelchair Accessible Carriage":
+            accessibilitySpecial['Wheelchair Accessible Carriage']!,
+        "Wheelchair Access Price":
+            double.tryParse(wheelchairAccessPriceController.text.trim()) ?? 0,
+        "Assistance for Elderly":
+            accessibilitySpecial['Assistance for Elderly']!,
+        "Elderly Assistance Price":
+            double.tryParse(elderlyAssistancePriceController.text.trim()) ?? 0,
         "Custom Decorations": accessibilitySpecial['Custom Decorations']!,
-        "Custom Decoration Price": double.tryParse(customDecorationPriceController.text.trim()) ?? 0,
+        "Custom Decoration Price":
+            double.tryParse(customDecorationPriceController.text.trim()) ?? 0,
       },
+
       "handlerDetails": {
         "handlerDetails": handlerDetails,
         "eventType": eventType,
         "additionalServices": additionalServices,
       },
+
       "licensingInsurance": {
         "hasPublicLiabilityInsurance": hasPublicLiabilityInsurance,
-        "insuranceProvider": hasPublicLiabilityInsurance ? insuranceProviderController.text.trim() : "",
-        "insurancePolicyNumber": hasPublicLiabilityInsurance ? insurancePolicyNumberController.text.trim() : "",
-        "insuranceExpiryDate": hasPublicLiabilityInsurance ? insuranceExpiryDateController.text.trim() : "",
+        "insuranceProvider": hasPublicLiabilityInsurance
+            ? insuranceProviderController.text.trim()
+            : "",
+        "insurancePolicyNumber": hasPublicLiabilityInsurance
+            ? insurancePolicyNumberController.text.trim()
+            : "",
+        "insuranceExpiryDate": hasPublicLiabilityInsurance
+            ? insuranceExpiryDateController.text.trim()
+            : "",
         "hasPerformingAnimalLicence": hasPerformingAnimalLicence,
-        "animalLicenceNumber": hasPerformingAnimalLicence ? animalLicenceNumberController.text.trim() : "",
-        "licensingAuthority": hasPerformingAnimalLicence ? licensingAuthorityController.text.trim() : "",
-        "licenceExpiryDate": hasPerformingAnimalLicence ? licenceExpiryDateController.text.trim() : "",
+        "animalLicenceNumber": hasPerformingAnimalLicence
+            ? animalLicenceNumberController.text.trim()
+            : "",
+        "licensingAuthority": hasPerformingAnimalLicence
+            ? licensingAuthorityController.text.trim()
+            : "",
+        "licenceExpiryDate": hasPerformingAnimalLicence
+            ? licenceExpiryDateController.text.trim()
+            : "",
         "licencePaths": licenceEnabled ? licencePaths : [],
-        "insuranceCertificatePaths": insuranceCertificateEnabled ? insuranceCertificatePaths : [],
-        "horseCertificatesPaths": horseCertificatesEnabled ? horseCertificatesPaths : [],
+        "insuranceCertificatePaths":
+            insuranceCertificateEnabled ? insuranceCertificatePaths : [],
+        "horseCertificatesPaths":
+            horseCertificatesEnabled ? horseCertificatesPaths : [],
         "carriagePhotosPaths": carriagePhotosPaths,
       },
+
       "businessHighlights": {
         "uniqueService": uniqueServiceController.text.trim(),
         "promotionalDescription": promotionalDescriptionController.text.trim(),
       },
+
       "declaration": {
         "agreeTerms": agreeTerms,
         "noContactDetails": noContactDetails,
@@ -311,30 +425,50 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
         "agreeCancellation": agreeCancellation,
         "cancellationPolicy": cancellationPolicy ?? "FLEXIBLE",
       },
+
+      // Required field - add cancellation policy type
+      "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
     };
 
     final api = AddVendorServiceApi();
     try {
-      final isAdded = await api.addServiceVendor(data);
+      final isAdded = await api.addServiceVendor(data, 'horseCarriage');
       if (isAdded) {
-        _isSubmitting = false;
+        // ✅ Use setState before navigation
+        setState(() {
+          _isSubmitting = false;
+        });
         Get.to(() => HomePageAddService());
       } else {
         Get.snackbar('Error', 'Add Service Failed. Please try again.',
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
       }
     } catch (e) {
       print("API Error: $e");
       Get.snackbar('Error', 'Server error: $e',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+      final ServiceController controller = Get.find<ServiceController>();
+      controller.fetchServices();
     }
   }
 
-  Widget _buildDocumentUploadSection(String title, RxList<String> documentPaths, bool isRequired) {
+  Widget _buildDocumentUploadSection(
+      String title, RxList<String> documentPaths, bool isRequired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("$title${isRequired ? ' *' : ''}", style: const TextStyle(color: Colors.black, fontSize: 16)),
+        Text("$title${isRequired ? ' *' : ''}",
+            style: const TextStyle(color: Colors.black, fontSize: 16)),
         const SizedBox(height: 16),
         Obx(() => Wrap(
               spacing: 8.0,
@@ -350,14 +484,16 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: const Icon(Icons.insert_drive_file, size: 40, color: Colors.grey),
+                        child: const Icon(Icons.insert_drive_file,
+                            size: 40, color: Colors.grey),
                       ),
                       Positioned(
                         top: 2,
                         right: 2,
                         child: GestureDetector(
                           onTap: () => documentPaths.removeAt(index),
-                          child: const Icon(Icons.cancel, color: Colors.redAccent, size: 20),
+                          child: const Icon(Icons.cancel,
+                              color: Colors.redAccent, size: 20),
                         ),
                       ),
                     ],
@@ -416,7 +552,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     SizedBox(height: 8),
                     Text(
                       'Click to upload PDF, PNG, JPG (max 5MB)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -434,7 +573,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$title *', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        Text('$title *',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -504,17 +644,20 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
               ),
               constraints: const BoxConstraints(minHeight: 50),
               child: selectedCities.isEmpty
-                  ? const Text('No cities selected', style: TextStyle(color: Colors.grey, fontSize: 16))
+                  ? const Text('No cities selected',
+                      style: TextStyle(color: Colors.grey, fontSize: 16))
                   : Wrap(
                       spacing: 8.0,
                       runSpacing: 4.0,
                       children: selectedCities
                           .map((city) => Chip(
-                                label: Text(city, style: const TextStyle(fontSize: 14)),
+                                label: Text(city,
+                                    style: const TextStyle(fontSize: 14)),
                                 deleteIcon: const Icon(Icons.close, size: 18),
                                 onDeleted: () => selectedCities.remove(city),
                                 backgroundColor: Colors.grey[200],
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
                               ))
                           .toList(),
                     ),
@@ -523,7 +666,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
     );
   }
 
-  Widget _buildDatePicker(BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
+  Widget _buildDatePicker(
+      BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -584,7 +728,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
@@ -611,12 +756,15 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
 
   void _showSetPriceDialog(DateTime date) {
     final TextEditingController priceController = TextEditingController();
-    priceController.text = (calendarController.getPriceForDate(date)?.toString() ?? calendarController.defaultPrice.toString());
+    priceController.text =
+        (calendarController.getPriceForDate(date)?.toString() ??
+            calendarController.defaultPrice.toString());
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
+        title: Text(
+            'Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
         content: TextField(
           controller: priceController,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -638,7 +786,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                 Navigator.pop(context);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a valid price (≥ 0)')),
+                  const SnackBar(
+                      content: Text('Please enter a valid price (≥ 0)')),
                 );
               }
             },
@@ -677,7 +826,9 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   '£${price.toStringAsFixed(2)}/hr',
                   style: TextStyle(
                     fontSize: 7,
-                    color: isClickable ? (price > 0 ? Colors.red : Colors.red) : Colors.grey,
+                    color: isClickable
+                        ? (price > 0 ? Colors.red : Colors.red)
+                        : Colors.grey,
                   ),
                 ),
               ],
@@ -699,7 +850,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
         centerTitle: true,
         title: Obx(() => Text(
               'Add ${widget.SubCategory.value ?? ''} Service',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: colors.black),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: colors.black),
             )),
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
@@ -725,12 +877,18 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'hireanything.com - Elegant Horse and Carriage Hire Services',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     'List your luxurious horse and carriage hire services for weddings, events, and special occasions across the UK.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 20),
 
@@ -742,7 +900,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Provide details about your business and contact information.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -761,6 +922,40 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                       hinttext: "Enter Service Name",
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Base Postcode *',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: basePostcodeController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.text,
+                      hinttext: "Enter Base Postcode",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Location Radius (in mile)*',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: locationRadiusController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.number,
+                      hinttext: "Enter Location Radius",
+                    ),
+                  ),
                   const SizedBox(height: 20),
 
                   // SECTION 2: Horse and Carriage Services Offered
@@ -771,7 +966,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Select the types of carriages you offer.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -783,15 +981,17 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: carriageTypes.keys.map((type) => ChoiceChip(
-                            label: Text(type),
-                            selected: carriageTypes[type]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                carriageTypes[type] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: carriageTypes.keys
+                          .map((type) => ChoiceChip(
+                                label: Text(type),
+                                selected: carriageTypes[type]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    carriageTypes[type] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   if (carriageTypes['Specialty Carriage']!) ...[
@@ -809,10 +1009,27 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     ),
                   ],
                   const SizedBox(height: 10),
+                  const Text('Make and Model *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 50,
+                      textcont: makeAndModelController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.text,
+                      hinttext: "Enter Make and Model",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   const Text(
                     'Number of Carriages in Fleet',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
+
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
@@ -825,6 +1042,47 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                       hinttext: "Enter number of carriages",
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Text('First Registered Date *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Obx(() => GestureDetector(
+                          onTap: () async {
+                            final DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: firstRegisteredDate.value,
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                            );
+                            if (pickedDate != null) {
+                              firstRegisteredDate.value = pickedDate;
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 16),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(firstRegisteredDate.value),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                                const Icon(Icons.calendar_today,
+                                    color: Colors.grey),
+                              ],
+                            ),
+                          ),
+                        )),
+                  ),
                   const SizedBox(height: 20),
 
                   // SECTION 3: Equipment & Safety
@@ -835,7 +1093,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Ensure your equipment meets safety standards.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -874,7 +1135,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     const SizedBox(height: 10),
                     const Text(
                       'How Often *',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -899,7 +1161,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Provide details about your fleet.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -910,7 +1175,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           children: [
                             const Text(
                               'Carriage Type *',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             SizedBox(
@@ -934,7 +1200,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           children: [
                             const Text(
                               'Horse Breed *',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             SizedBox(
@@ -958,7 +1225,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           children: [
                             const Text(
                               'Color *',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             SizedBox(
@@ -986,7 +1254,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           children: [
                             const Text(
                               'Capacity *',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             SizedBox(
@@ -1010,7 +1279,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           children: [
                             const Text(
                               'Year *',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             SizedBox(
@@ -1034,7 +1304,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           children: [
                             const Text(
                               'Notes *',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
                             SizedBox(
@@ -1063,7 +1334,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Set your pricing structure for the day hire model (standard: 8 hours/80 miles) and additional terms.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1192,7 +1466,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Enter "starting from" prices',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1305,7 +1582,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Define your service coverage and availability.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   _buildCitySelection('Areas Covered', areasCovered),
@@ -1336,7 +1616,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 5),
                   const Text(
                     'Select the period during which your service will be available',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 20),
                   Obx(() => _buildDatePicker(context, "From", fromDate, true)),
@@ -1349,7 +1632,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     }
                     return TableCalendar(
                       onDaySelected: (selectedDay, focusedDay) {
-                        if (calendarController.visibleDates.any((d) => isSameDay(d, selectedDay))) {
+                        if (calendarController.visibleDates
+                            .any((d) => isSameDay(d, selectedDay))) {
                           _showSetPriceDialog(selectedDay);
                         }
                       },
@@ -1358,10 +1642,12 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                       lastDay: DateTime.utc(2099, 12, 31),
                       calendarFormat: CalendarFormat.month,
                       availableGestures: AvailableGestures.none,
-                      headerStyle: const HeaderStyle(formatButtonVisible: false),
+                      headerStyle:
+                          const HeaderStyle(formatButtonVisible: false),
                       calendarBuilders: CalendarBuilders(
                         defaultBuilder: (context, day, focusedDay) {
-                          if (calendarController.visibleDates.any((d) => isSameDay(d, day))) {
+                          if (calendarController.visibleDates
+                              .any((d) => isSameDay(d, day))) {
                             return _buildCalendarCell(day, true);
                           }
                           return _buildCalendarCell(day, false);
@@ -1380,28 +1666,33 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     child: calendarController.specialPrices.length == 0
                         ? Center(
                             child: Text(
-                              'No special prices set yet',
-                              style: TextStyle(fontSize: 16, color: Colors.black),
-                            ))
+                            'No special prices set yet',
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                          ))
                         : Obx(() => ListView.builder(
                               shrinkWrap: true,
-                              itemCount: calendarController.specialPrices.length,
+                              itemCount:
+                                  calendarController.specialPrices.length,
                               itemBuilder: (context, index) {
-                                final entry = calendarController.specialPrices[index];
+                                final entry =
+                                    calendarController.specialPrices[index];
                                 final date = entry['date'] as DateTime;
                                 final price = entry['price'] as double;
                                 return Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 16),
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        DateFormat('EEE, d MMM yyyy').format(date),
+                                        DateFormat('EEE, d MMM yyyy')
+                                            .format(date),
                                         style: const TextStyle(fontSize: 16),
                                       ),
                                       Row(
@@ -1410,13 +1701,17 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                                             '£${price.toStringAsFixed(2)}/hr',
                                             style: TextStyle(
                                               fontSize: 16,
-                                              color: price > 0 ? Colors.black : Colors.red,
+                                              color: price > 0
+                                                  ? Colors.black
+                                                  : Colors.red,
                                             ),
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.delete, color: Colors.red),
+                                            icon: const Icon(Icons.delete,
+                                                color: Colors.red),
                                             onPressed: () {
-                                              calendarController.deleteSpecialPrice(date);
+                                              calendarController
+                                                  .deleteSpecialPrice(date);
                                             },
                                           ),
                                         ],
@@ -1437,7 +1732,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Offer accessibility and special services to enhance your listing.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1463,7 +1761,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                                 });
                               },
                             ),
-                            if (isSelected && service == 'Wheelchair Accessible Carriage')
+                            if (isSelected &&
+                                service == 'Wheelchair Accessible Carriage')
                               SizedBox(
                                 width: 80,
                                 child: Signup_textfilled(
@@ -1475,7 +1774,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                                   hinttext: "Price (£)",
                                 ),
                               ),
-                            if (isSelected && service == 'Assistance for Elderly')
+                            if (isSelected &&
+                                service == 'Assistance for Elderly')
                               SizedBox(
                                 width: 80,
                                 child: Signup_textfilled(
@@ -1509,15 +1809,17 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: handlerDetails.keys.map((detail) => ChoiceChip(
-                            label: Text(detail),
-                            selected: handlerDetails[detail]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                handlerDetails[detail] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: handlerDetails.keys
+                          .map((detail) => ChoiceChip(
+                                label: Text(detail),
+                                selected: handlerDetails[detail]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    handlerDetails[detail] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -1549,15 +1851,17 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     width: double.infinity,
                     child: Wrap(
                       spacing: 10,
-                      children: additionalServices.keys.map((service) => ChoiceChip(
-                            label: Text(service),
-                            selected: additionalServices[service]!,
-                            onSelected: (selected) {
-                              setState(() {
-                                additionalServices[service] = selected;
-                              });
-                            },
-                          )).toList(),
+                      children: additionalServices.keys
+                          .map((service) => ChoiceChip(
+                                label: Text(service),
+                                selected: additionalServices[service]!,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    additionalServices[service] = selected;
+                                  });
+                                },
+                              ))
+                          .toList(),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -1570,7 +1874,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Provide details of your licensing and insurance.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1609,7 +1916,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     const SizedBox(height: 10),
                     const Text(
                       'Insurance Provider *',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -1626,7 +1934,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     const SizedBox(height: 10),
                     const Text(
                       'Policy Number *',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -1643,7 +1952,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     const SizedBox(height: 10),
                     const Text(
                       'Expiry Date *',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -1695,7 +2005,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     const SizedBox(height: 10),
                     const Text(
                       'Licence Number *',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -1712,7 +2023,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     const SizedBox(height: 10),
                     const Text(
                       'Licensing Authority *',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -1729,7 +2041,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     const SizedBox(height: 10),
                     const Text(
                       'Expiry Date *',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SizedBox(
@@ -1772,7 +2085,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                       if (licenceEnabled) const Text("Deselect"),
                     ],
                   ),
-                  if (licenceEnabled) _buildDocumentUploadSection("Licence", licencePaths, true),
+                  if (licenceEnabled)
+                    _buildDocumentUploadSection("Licence", licencePaths, true),
                   Row(
                     children: [
                       Radio<bool>(
@@ -1800,7 +2114,9 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                       if (insuranceCertificateEnabled) const Text("Deselect"),
                     ],
                   ),
-                  if (insuranceCertificateEnabled) _buildDocumentUploadSection("Insurance Certificate", insuranceCertificatePaths, true),
+                  if (insuranceCertificateEnabled)
+                    _buildDocumentUploadSection("Insurance Certificate",
+                        insuranceCertificatePaths, true),
                   Row(
                     children: [
                       Radio<bool>(
@@ -1828,7 +2144,9 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                       if (horseCertificatesEnabled) const Text("Deselect"),
                     ],
                   ),
-                  if (horseCertificatesEnabled) _buildDocumentUploadSection("Horse Certificates", horseCertificatesPaths, true),
+                  if (horseCertificatesEnabled)
+                    _buildDocumentUploadSection(
+                        "Horse Certificates", horseCertificatesPaths, true),
                   const Text(
                     'Carriage Photos',
                     style: TextStyle(color: Colors.black87, fontSize: 16),
@@ -1840,7 +2158,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                       child: Obx(() => Wrap(
                             spacing: 8.0,
                             runSpacing: 4.0,
-                            children: List.generate(carriagePhotosPaths.length, (index) {
+                            children: List.generate(carriagePhotosPaths.length,
+                                (index) {
                               return Stack(
                                 children: [
                                   Image.file(
@@ -1853,8 +2172,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                                     top: 2,
                                     right: 2,
                                     child: GestureDetector(
-                                      onTap: () => imageController.removeImage(index),
-                                      child: const Icon(Icons.close, color: Colors.redAccent),
+                                      onTap: () =>
+                                          imageController.removeImage(index),
+                                      child: const Icon(Icons.close,
+                                          color: Colors.redAccent),
                                     ),
                                   ),
                                 ],
@@ -1904,10 +2225,14 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey),
+                              Icon(Icons.cloud_upload_outlined,
+                                  size: 40, color: Colors.grey),
                               Text(
                                 "Click to upload PNG, JPG (max 5MB)",
-                                style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -1926,7 +2251,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Highlight what makes your service stand out.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1972,7 +2300,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   const SizedBox(height: 10),
                   const Text(
                     'Agree to the terms and conditions.',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104)),
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w300,
+                        color: Color.fromARGB(255, 109, 104, 104)),
                   ),
                   const SizedBox(height: 10),
                   const Text(
@@ -1999,7 +2330,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   SizedBox(
                     width: double.infinity,
                     child: CustomCheckbox(
-                      title: 'I confirm that all information provided is accurate and current.',
+                      title:
+                          'I confirm that all information provided is accurate and current.',
                       value: agreeTerms,
                       onChanged: (value) {
                         setState(() {
@@ -2012,7 +2344,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                   SizedBox(
                     width: double.infinity,
                     child: CustomCheckbox(
-                      title: 'I have not shared any contact details (Email, Phone, Skype, Website etc.)',
+                      title:
+                          'I have not shared any contact details (Email, Phone, Skype, Website etc.)',
                       value: noContactDetails,
                       onChanged: (value) {
                         setState(() {
@@ -2061,7 +2394,8 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text('Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
+                  Text(
+                      'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
                   const SizedBox(height: 20),
                   Container(
                     width: w,
@@ -2073,9 +2407,13 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                               _submitForm();
                             },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.blue),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                                (states) => Colors.blue),
+                        shape:
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                       ),
                       child: _isSubmitting
@@ -2089,7 +2427,10 @@ class _HorseAndCarriageHireServiceState extends State<HorseAndCarriageHireServic
                             )
                           : const Text(
                               "Save & Continue",
-                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),

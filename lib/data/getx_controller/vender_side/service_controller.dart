@@ -34,7 +34,8 @@ class ServiceController extends GetxController {
     authToken.value = token ?? "";
     if (authToken.value.isNotEmpty) {
       print("Auth Token: ${authToken.value}");
-      _apiService.setRequestHeaders({'Authorization': 'Bearer ${authToken.value}'});
+      _apiService
+          .setRequestHeaders({'Authorization': 'Bearer ${authToken.value}'});
       fetchServices();
     }
   }
@@ -51,17 +52,29 @@ class ServiceController extends GetxController {
       if (response is Map<String, dynamic> && response['success'] == true) {
         var data = ServicesModel.fromJson(response);
         print("API Response: ${jsonEncode(response)}"); // Debugging
-        print("Services fetched: ${data.data?.services.length}"); // Debug service count
+        print(
+            "Services fetched: ${data.data?.services.length}"); // Debug service count
 
         // Update service list with all services from the response
         serviceList.assignAll(data.data!.services);
 
-        print("Updated serviceList: ${serviceList.length}"); // Debug updated list
+        for (int i = 0; i < serviceList.length; i++) {
+          final service = serviceList[i];
+          print("Serviceav $i:");
+          print("  - Serviceav Name: ${service.serviceName2 ?? 'N/A'}");
+      
+          // Add other fields based on your Service model
+          print("  serviceav - Full object: ${service.toString()}");
+        } // Debug updated list
+
+        print(
+            "Updated serviceList: ${serviceList.length}"); // Debug updated list
       } else {
         print("Failed to fetch services. Response: $response");
       }
     } on ApiException catch (e) {
-      print("Error fetching services: ${e.message}, StackTrace: ${StackTrace.current}");
+      print(
+          "Error fetching services: ${e.message}, StackTrace: ${StackTrace.current}");
     } catch (e, stackTrace) {
       print("Unexpected error fetching services: $e, StackTrace: $stackTrace");
     } finally {
