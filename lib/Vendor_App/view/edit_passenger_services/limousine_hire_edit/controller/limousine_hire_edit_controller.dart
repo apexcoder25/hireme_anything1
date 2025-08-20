@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -6,8 +5,10 @@ import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/data/exceptions/api_exception.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
+import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
 import 'package:hire_any_thing/data/models/vender_side_model/vendor_home_page_services_model.dart';
 import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
@@ -229,6 +230,7 @@ class LimoHireEditController extends GetxController {
           eventsCustomisation.forEach((key, value) => value.value = service.features?.eventsAndCustomization.contains(key) ?? false);
           accessibilitySpecialServices.forEach((key, value) => value.value = service.features?.accessibilityServices.contains(key) ?? false);
           safetyCompliance.forEach((key, value) => value.value = service.features?.safetyAndCompliance.contains(key) ?? false);
+          
           for (var entry in (service.featurePricing?.eventsAndCustomization?.toJson().entries ?? <MapEntry<String, dynamic>>[])) {
             eventsCustomisationPrices[entry.key]?.text = entry.value.toString();
           }
@@ -239,6 +241,12 @@ class LimoHireEditController extends GetxController {
           // Section 4: Coverage & Availability
           areasCovered.assignAll(service.areasCovered ?? []);
           serviceStatus.value = service.serviceStatus ?? '';
+          
+          print("=== EXISTING SERVICE STATUS ===");
+          print("Raw service status from API: '${service.serviceStatus}'");
+          print("Service status type: ${service.serviceStatus.runtimeType}");
+          print("================================");
+          
           fromDate.value = service.bookingDateFrom ?? DateTime.now();
           toDate.value = service.bookingDateTo ?? DateTime.now().add(const Duration(days: 210));
           calendarController.updateDateRange(fromDate.value, toDate.value);
@@ -253,14 +261,6 @@ class LimoHireEditController extends GetxController {
           airportTransferController.text = service.airportTransferRate?.toString() ?? '';
           fuelIncluded.value = service.fuelIncluded ?? false;
 
-          // Section 6: Documents Required
-          // motCertificatePaths.assignAll([service.uploadedDocuments?.vehicleMoTs ?? '']);
-          // driversLicencePaths.assignAll([service.uploadedDocuments?.driverLicencesAndDbs ?? '']);
-          // publicLiabilityInsurancePaths.assignAll([service.uploadedDocuments?.insuranceCertificate ?? '']);
-          // operatorLicencePaths.assignAll([service.uploadedDocuments?.operatorLicence ?? '']);
-          // insuranceCertificatePaths.assignAll([service.uploadedDocuments?.insuranceCertificate ?? '']);
-          // vscRegistrationPaths.assignAll([service.uploadedDocuments?.vehicleMoTs ?? '']);
-
           // Section 7: Photos & Media
           limousinePhotosPaths.assignAll(service.images);
           promoVideoUrlController.text = service.marketing?.description ?? '';
@@ -273,7 +273,10 @@ class LimoHireEditController extends GetxController {
           agreeCancellation.value = true;
 
           couponController.coupons.assignAll(service.coupons.map((c) => c.toJson()).toList());
-          calendarController.specialPrices.assignAll((service.specialPriceDays ?? []).map((e) => {'date': DateTime.parse(e['date']), 'price': e['price'] as double}).toList());
+          calendarController.specialPrices.assignAll((service.specialPriceDays ?? []).map((e) => {
+            'date': DateTime.parse(e['date']),
+            'price': e['price'] as double
+          }).toList());
         } else {
           print("No service found with ID: $serviceId");
         }
@@ -294,45 +297,47 @@ class LimoHireEditController extends GetxController {
       imageController.selectedImages.clear();
       imageController.uploadedUrls.clear();
 
-      // Collect all document and image paths
-      final allPaths = <String>[];
-      if (motCertificatePaths.isNotEmpty) allPaths.add(motCertificatePaths.first);
-      if (driversLicencePaths.isNotEmpty) allPaths.add(driversLicencePaths.first);
-      if (publicLiabilityInsurancePaths.isNotEmpty) allPaths.add(publicLiabilityInsurancePaths.first);
-      if (operatorLicencePaths.isNotEmpty) allPaths.add(operatorLicencePaths.first);
-      if (insuranceCertificatePaths.isNotEmpty) allPaths.add(insuranceCertificatePaths.first);
-      if (vscRegistrationPaths.isNotEmpty) allPaths.add(vscRegistrationPaths.first);
-      allPaths.addAll(limousinePhotosPaths);
+      final localPaths = <String>[];
 
-      // Filter out existing URLs (http/https) and only upload local file paths
-      final localPaths = allPaths.where((path) => !path.startsWith('http')).toList();
+      if (motCertificatePaths.isNotEmpty && !motCertificatePaths.first.startsWith('http')) {
+        localPaths.add(motCertificatePaths.first);
+      }
+      if (driversLicencePaths.isNotEmpty && !driversLicencePaths.first.startsWith('http')) {
+        localPaths.add(driversLicencePaths.first);
+      }
+      if (publicLiabilityInsurancePaths.isNotEmpty && !publicLiabilityInsurancePaths.first.startsWith('http')) {
+        localPaths.add(publicLiabilityInsurancePaths.first);
+      }
+      if (operatorLicencePaths.isNotEmpty && !operatorLicencePaths.first.startsWith('http')) {
+        localPaths.add(operatorLicencePaths.first);
+      }
+      if (insuranceCertificatePaths.isNotEmpty && !insuranceCertificatePaths.first.startsWith('http')) {
+        localPaths.add(insuranceCertificatePaths.first);
+      }
+      if (vscRegistrationPaths.isNotEmpty && !vscRegistrationPaths.first.startsWith('http')) {
+        localPaths.add(vscRegistrationPaths.first);
+      }
 
-      // Upload only new local images
+      localPaths.addAll(limousinePhotosPaths.where((path) => !path.startsWith('http')));
+
+      print("Local paths to upload: ${localPaths.length}");
+
       for (var path in localPaths) {
+        print("Uploading: $path");
         await imageController.uploadToCloudinary(path);
       }
 
-      // Combine existing URLs with newly uploaded URLs
-      final existingUrls = allPaths.where((path) => path.startsWith('http')).toList();
-      imageController.uploadedUrls.addAll(existingUrls);
-      imageController.uploadedUrls.addAll(localPaths.map((path) => imageController.uploadedUrls[localPaths.indexOf(path)]));
-
-      int requiredDocs = 0;
-      if (motCertificatePaths.isNotEmpty && !motCertificatePaths.first.startsWith('http')) requiredDocs++;
-      if (driversLicencePaths.isNotEmpty && !driversLicencePaths.first.startsWith('http')) requiredDocs++;
-      if (publicLiabilityInsurancePaths.isNotEmpty && !publicLiabilityInsurancePaths.first.startsWith('http')) requiredDocs++;
-      if (operatorLicencePaths.isNotEmpty && !operatorLicencePaths.first.startsWith('http')) requiredDocs++;
-      if (insuranceCertificatePaths.isNotEmpty && !insuranceCertificatePaths.first.startsWith('http')) requiredDocs++;
-      if (vscRegistrationPaths.isNotEmpty && !vscRegistrationPaths.first.startsWith('http')) requiredDocs++;
-      int additionalPhotos = limousinePhotosPaths.where((path) => !path.startsWith('http')).length;
-
-      if (imageController.uploadedUrls.length != (requiredDocs + additionalPhotos + existingUrls.length)) {
-        Get.snackbar("Upload Error", "One or more documents failed to upload.", snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-        return false;
-      }
+      print("Successfully uploaded ${imageController.uploadedUrls.length} files");
       return true;
     } catch (e) {
-      Get.snackbar("Upload Error", "Failed to upload documents: $e", snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+      print('Upload error: $e');
+      Get.snackbar(
+        "Upload Error", 
+        "Failed to upload documents: $e",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white
+      );
       return false;
     }
   }
@@ -340,18 +345,21 @@ class LimoHireEditController extends GetxController {
   Future<void> submitForm() async {
     isSubmitting.value = true;
     try {
+      List<String> finalImages = [];
+      finalImages.addAll(limousinePhotosPaths.where((path) => path.startsWith('http')));
+      finalImages.addAll(imageController.uploadedUrls);
+      
+      print("=== DEBUG INFO ===");
+      print("Service ID: $serviceId");
+      print("Vendor ID: ${vendorId.value}");
+      print("Token exists: ${token.value.isNotEmpty}");
+      print("Final Images count: ${finalImages.length}");
+      print("Areas covered: ${areasCovered.toList()}");
+      print("Service status: '${serviceStatus.value}'");
+      print("==================");
+      
       final data = {
-        "_id": serviceId,
-        "vendorId": vendorId.value,
-        "categoryId": {
-          "_id": "676ac544234968d45b494992",
-          "category_name": "Passenger Transport",
-        },
-        "subcategoryId": {
-          "_id": "676acddf234968d45b4949d3",
-          "subcategory_name": "Limousine Hire",
-        },
-        "serviceName": serviceNameController.text.trim(),
+        "serviceName": serviceNameController.text.trim().isNotEmpty ? serviceNameController.text.trim() : "Limousine Service",
         "occasionsCovered": serviceCategories.entries.where((e) => e.value.value).map((e) => e.key).toList(),
         "otherOccasions": serviceCategories['Other']!.value ? otherServiceCategoryController.text.trim() : "",
         "fleet_details": [
@@ -359,12 +367,11 @@ class LimoHireEditController extends GetxController {
             "vehicleId": vehicleIdController.text.trim(),
             "make_Model": makeAndModelController.text.trim(),
             "type": typeController.text.trim(),
-            "year": int.tryParse(yearOfManufactureController.text.trim()) ?? 0,
+            "year": int.tryParse(yearOfManufactureController.text.trim()) ?? DateTime.now().year,
             "color": colourController.text.trim(),
-            "capacity": int.tryParse(passengerCapacityController.text.trim()) ?? 0,
+            "capacity": int.tryParse(passengerCapacityController.text.trim()) ?? 4,
             "vehicleDescription": vehicleDescriptionController.text.trim(),
             "bootSpace": bootsAndSpaceController.text.trim(),
-            "key_Features": "",
           }
         ],
         "features": {
@@ -376,15 +383,16 @@ class LimoHireEditController extends GetxController {
         "featurePricing": {
           "eventsAndCustomization": {
             for (var entry in eventsCustomisationPrices.entries)
-              if (eventsCustomisation[entry.key]!.value) entry.key: double.tryParse(entry.value.text.trim()) ?? 0.0,
+              if (eventsCustomisation[entry.key]!.value && entry.value.text.trim().isNotEmpty) 
+                entry.key: double.tryParse(entry.value.text.trim()) ?? 0.0,
           },
           "accessibilityServices": {
             for (var entry in accessibilitySpecialServicesPrices.entries)
-              if (accessibilitySpecialServices[entry.key]!.value) entry.key: double.tryParse(entry.value.text.trim()) ?? 0.0,
+              if (accessibilitySpecialServices[entry.key]!.value && entry.value.text.trim().isNotEmpty) 
+                entry.key: double.tryParse(entry.value.text.trim()) ?? 0.0,
           },
         },
         "areasCovered": areasCovered.toList(),
-        "service_status": serviceStatus.value,
         "bookingDateFrom": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
         "bookingDateTo": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
         "fullDayRate": double.tryParse(dayRateController.text.trim()) ?? 0.0,
@@ -393,42 +401,98 @@ class LimoHireEditController extends GetxController {
         "weddingPackageRate": double.tryParse(weddingPackageController.text.trim()) ?? 0.0,
         "airportTransferRate": double.tryParse(airportTransferController.text.trim()) ?? 0.0,
         "fuelIncluded": fuelIncluded.value,
-        "mileageCapLimit": double.tryParse(mileageLimitController.text.trim()) ?? 0.0,
+        "mileageCapLimit": int.tryParse(mileageLimitController.text.trim()) ?? 100,
         "mileageCapExcessCharge": double.tryParse(extraMileageChargeController.text.trim()) ?? 0.0,
-        "images": imageController.uploadedUrls.toList(),
-        "documentation": {},
-        "coupons": couponController.coupons.map((coupon) => {
+        "images": finalImages,
+        if (couponController.coupons.isNotEmpty) "coupons": couponController.coupons.map((coupon) => {
           "coupon_code": coupon['coupon_code'] ?? "",
-          "discount_type": coupon['discount_type'] ?? "",
+          "discount_type": coupon['discount_type'] ?? "percentage",
           "discount_value": coupon['discount_value'] ?? 0,
-          "usage_limit": coupon['usage_limit'] ?? 0,
+          "usage_limit": coupon['usage_limit'] ?? 1,
           "current_usage_count": coupon['current_usage_count'] ?? 0,
-          "expiry_date": coupon['expiry_date'] != null && coupon['expiry_date'].toString().isNotEmpty ? DateFormat('yyyy-MM-dd').format(DateTime.parse(coupon['expiry_date'].toString())) : "",
+          "expiry_date": coupon['expiry_date'] != null && coupon['expiry_date'].toString().isNotEmpty 
+              ? DateFormat('yyyy-MM-dd').format(DateTime.parse(coupon['expiry_date'].toString())) 
+              : DateFormat('yyyy-MM-dd').format(DateTime.now().add(const Duration(days: 30))),
           "is_global": coupon['is_global'] ?? false,
         }).toList(),
-        "specialPriceDays": calendarController.specialPrices.map((e) => {
+        if (calendarController.specialPrices.isNotEmpty) "specialPriceDays": calendarController.specialPrices.map((e) => {
           "date": DateFormat('yyyy-MM-dd').format(e['date'] as DateTime),
           "price": e['price'] as double,
         }).toList(),
       };
 
+      print("Request payload: ${jsonEncode(data)}");
+
       final response = await apiService.putApi(
-        'https://stag-api.hireanything.com/vendor/limousine-partner/$serviceId',
+        'limousine-partner/$serviceId',
         data,
         headers: {'Authorization': 'Bearer ${token.value}'},
       );
-print(response.statusCode);
-      if (response.statusCode == 200) {
-        Get.snackbar('Success', 'Service updated successfully.', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
-        Get.back();
+
+      print("Response type: ${response.runtimeType}");
+      print("Response data: $response");
+
+      // UPDATED: Handle success with dashboard refresh
+      if (response != null && response is Map<String, dynamic>) {
+        if (response.containsKey('_id') && response['_id'] == serviceId) {
+          // Show success message
+          Get.snackbar(
+            'Success', 
+            'Service updated successfully.', 
+            snackPosition: SnackPosition.BOTTOM, 
+            backgroundColor: Colors.green, 
+            colorText: Colors.white,
+            duration: const Duration(seconds: 2),
+          );
+          
+          // Refresh the dashboard services
+          try {
+            final serviceController = Get.find<ServiceController>();
+            serviceController.fetchServices();
+            print("Dashboard services refreshed successfully");
+          } catch (e) {
+            print("ServiceController not found or error refreshing: $e");
+           
+          }
+          
+          // Pop the screen
+          Get.offAll(HomePageAddService());
+          
+        } else {
+          Get.snackbar(
+            'Error', 
+            'Unexpected response format from server.', 
+            snackPosition: SnackPosition.BOTTOM, 
+            backgroundColor: Colors.redAccent, 
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+        }
       } else {
-        Get.snackbar('Error', 'Failed to update service: Status ${response.statusCode}', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+        Get.snackbar(
+          'Error', 
+          'Invalid response from server.', 
+          snackPosition: SnackPosition.BOTTOM, 
+          backgroundColor: Colors.redAccent, 
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
       }
-    } catch (e) {
-       Get.snackbar('Success', 'Service updated successfully.', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
-        Get.back();
-     
-      // Get.snackbar('Error', 'Failed to update service: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
+    } catch (e, stackTrace) {
+      print('=== ERROR DETAILS ===');
+      print('Error type: ${e.runtimeType}');
+      print('Error message: $e');
+      print('Stack trace: $stackTrace');
+      print('====================');
+      
+      Get.snackbar(
+        'Error', 
+        'Failed to update service: $e', 
+        snackPosition: SnackPosition.BOTTOM, 
+        backgroundColor: Colors.redAccent, 
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
     } finally {
       isSubmitting.value = false;
     }

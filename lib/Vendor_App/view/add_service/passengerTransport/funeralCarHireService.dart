@@ -66,8 +66,8 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
   // Section 3: Fleet Information
   TextEditingController vehicleTypeController = TextEditingController();
   TextEditingController makeModelController = TextEditingController();
-  TextEditingController colorController = TextEditingController();
-  TextEditingController capacityController = TextEditingController();
+  TextEditingController luggageCapacityController = TextEditingController();
+  TextEditingController numberOfSeatController = TextEditingController();
   TextEditingController yearController = TextEditingController();
   TextEditingController notesController = TextEditingController();
 
@@ -75,8 +75,6 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
   TextEditingController dayRateController = TextEditingController();
   TextEditingController mileageLimitController = TextEditingController();
   TextEditingController extraMileageChargeController = TextEditingController();
-  TextEditingController waitTimeFreeController = TextEditingController();
-  TextEditingController floralDecorationFeeController = TextEditingController();
   TextEditingController standardFuneralServiceController =
       TextEditingController();
   TextEditingController vipFuneralServiceController = TextEditingController();
@@ -206,15 +204,13 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
     fleetSizeController.dispose();
     vehicleTypeController.dispose();
     makeModelController.dispose();
-    colorController.dispose();
-    capacityController.dispose();
+    luggageCapacityController.dispose();
+    numberOfSeatController.dispose();
     yearController.dispose();
     notesController.dispose();
     dayRateController.dispose();
     mileageLimitController.dispose();
     extraMileageChargeController.dispose();
-    waitTimeFreeController.dispose();
-    floralDecorationFeeController.dispose();
     standardFuneralServiceController.dispose();
     vipFuneralServiceController.dispose();
     hourlyRateController.dispose();
@@ -298,7 +294,7 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
 
         // Base location info
         "basePostcode": basePostcodeController.text.trim(),
-        "locationRadius": locationRadiusController,
+        "locationRadius": locationRadiusController.text.trim(),
         "emergencyContactNumber": "",
 
         // Vehicle types - convert boolean map to array of selected strings
@@ -353,6 +349,10 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
           "year": yearController.text.trim().isEmpty
               ? ""
               : yearController.text.trim(),
+          "seats": numberOfSeatController.text.trim().isEmpty
+              ? "4" 
+              : numberOfSeatController.text.trim(),
+          "luggageCapacity": 5, 
         },
 
         // Accessibility services - convert boolean map to array of objects
@@ -984,7 +984,7 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                     width: double.infinity,
                     child: Signup_textfilled(
                       length: 50,
-                      textcont: serviceNameController,
+                      textcont: basePostcodeController,
                       textfilled_height: 17,
                       textfilled_weight: 1,
                       keytype: TextInputType.text,
@@ -1001,7 +1001,7 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                     width: double.infinity,
                     child: Signup_textfilled(
                       length: 50,
-                      textcont: serviceNameController,
+                      textcont: locationRadiusController,
                       textfilled_height: 17,
                       textfilled_weight: 1,
                       keytype: TextInputType.number,
@@ -1134,7 +1134,7 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Color *',
+                              'Luggage *',
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold),
                             ),
@@ -1143,11 +1143,11 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                               width: double.infinity,
                               child: Signup_textfilled(
                                 length: 50,
-                                textcont: colorController,
+                                textcont: luggageCapacityController,
                                 textfilled_height: 17,
                                 textfilled_weight: 1,
                                 keytype: TextInputType.text,
-                                hinttext: "Color",
+                                hinttext: "Luggage Capacity",
                               ),
                             ),
                           ],
@@ -1163,7 +1163,7 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Capacity *',
+                              'Seats *',
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold),
                             ),
@@ -1172,11 +1172,11 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                               width: double.infinity,
                               child: Signup_textfilled(
                                 length: 10,
-                                textcont: capacityController,
+                                textcont: numberOfSeatController,
                                 textfilled_height: 17,
                                 textfilled_weight: 1,
                                 keytype: TextInputType.number,
-                                hinttext: "Capacity",
+                                hinttext: "Number Of Seats",
                               ),
                             ),
                           ],
@@ -1301,40 +1301,7 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                       hinttext: "Enter extra mileage charge",
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Wait Time Free (£/hour) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: waitTimeFreeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter wait time free",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Floral Decoration Service Fee *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: floralDecorationFeeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter floral decoration fee",
-                    ),
-                  ),
+                 
                   const SizedBox(height: 10),
                   const Text(
                     'Standard Funeral Service *',

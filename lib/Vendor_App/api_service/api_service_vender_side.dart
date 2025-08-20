@@ -27,16 +27,38 @@ final SessionVendorSideManager sessionVendorSideManager =
     SessionVendorSideManager();
 
 class ApiServiceVenderSide {
+  // Base URL for the API
+  static const String _baseUrl = 'https://stag-api.hireanything.com';
+  
+  // API Endpoints
+  static const String _checkEmailEndpoint = '/user/check-email';
+  static const String _sendOtpEmailEndpoint = '/vendor/send-otp/';
+  static const String _verifyOtpEmailEndpoint = '/vendor/verify-otp';
+  static const String _sendOtpPhoneEndpoint = '/api/send-otp';
+  static const String _verifyOtpPhoneEndpoint = '/api/verify-otp';
+  static const String _vendorRegisterEndpoint = '/vendor/partner';
+  static const String _vendorLoginEndpoint = '/vendor/partnerlogin';
+  static const String _userRegisterEndpoint = '/user/register';
+  static const String _addServiceVendorEndpoint = '/vendor/add_vendor_service';
+
   // Find Moter Claim Request Submit Form In DataBase Exit Or Not
   final StreamController<List<dynamic>> _serviceListController =
       StreamController<List<dynamic>>();
 
   Stream<List<dynamic>> get serviceListStream => _serviceListController.stream;
 
+  // Helper method to build full URL
+  String _buildUrl(String endpoint, {String? pathParam}) {
+    if (pathParam != null) {
+      return '$_baseUrl$endpoint/$pathParam';
+    }
+    return '$_baseUrl$endpoint';
+  }
+
   Future<bool> checkEmail(String email) async {
     try {
       var response = await http.get(
-          Uri.parse('https://api.hireanything.com/user/check-email/$email'));
+          Uri.parse(_buildUrl(_checkEmailEndpoint, pathParam: email)));
 
       var jsondata = jsonDecode(response.body);
       print(jsondata);
@@ -68,7 +90,7 @@ class ApiServiceVenderSide {
   Future<bool> sendOtpEmail(String email) async {
     try {
       var response = await http.post(
-        Uri.parse('https://api.hireanything.com/vendor/send-otp/'),
+        Uri.parse(_buildUrl(_sendOtpEmailEndpoint)),
         body: {"email": email},
       );
 
@@ -109,7 +131,7 @@ class ApiServiceVenderSide {
   Future<bool> verifyOtpEmail(String email, String otp) async {
     try {
       var response = await http.post(
-        Uri.parse('https://api.hireanything.com/vendor/verify-otp'),
+        Uri.parse(_buildUrl(_verifyOtpEmailEndpoint)),
         body: {"email": email, "otp": otp},
       );
 
@@ -148,7 +170,7 @@ class ApiServiceVenderSide {
       String phone, String countryCode, String otp) async {
     try {
       var response = await http.post(
-        Uri.parse('https://api.hireanything.com/api/verify-otp'),
+        Uri.parse(_buildUrl(_verifyOtpPhoneEndpoint)),
         body: {
           "phoneNumber": phone,
           "countryCode": countryCode,
@@ -186,35 +208,50 @@ class ApiServiceVenderSide {
     }
     return false;
   }
-Future<bool> sendOtpPhone(String phone, String countryCode) async {
-  try {
-    var response = await http.post(
-      Uri.parse('https://api.hireanything.com/api/send-otp'),
-      headers: {
-        "Content-Type": "application/json", // Add Content-Type header
-      },
-      body: jsonEncode({"phoneNumber": phone, "countryCode": countryCode}), // JSON-encode the body
-    );
 
-    print("Send OTP Response Status: ${response.statusCode}");
-    print("Send OTP Response Body: ${response.body}");
-
-    if (response.statusCode == 200) {
-      Get.snackbar(
-        "Success",
-        "OTP is sent successfully.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color.fromARGB(255, 5, 129, 69),
-        colorText: Colors.white,
-        borderRadius: 8.0,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 4),
+  Future<bool> sendOtpPhone(String phone, String countryCode) async {
+    try {
+      var response = await http.post(
+        Uri.parse(_buildUrl(_sendOtpPhoneEndpoint)),
+        headers: {
+          "Content-Type": "application/json", // Add Content-Type header
+        },
+        body: jsonEncode({"phoneNumber": phone, "countryCode": countryCode}), // JSON-encode the body
       );
-      return true;
-    } else {
+
+      print("Send OTP Response Status: ${response.statusCode}");
+      print("Send OTP Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        Get.snackbar(
+          "Success",
+          "OTP is sent successfully.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color.fromARGB(255, 5, 129, 69),
+          colorText: Colors.white,
+          borderRadius: 8.0,
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 4),
+        );
+        return true;
+      } else {
+        Get.snackbar(
+          "Error",
+          "Failed to send OTP. Status: ${response.statusCode}",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+          borderRadius: 8.0,
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 4),
+        );
+        return false;
+      }
+    } catch (e) {
+      print("Error sending OTP: $e");
       Get.snackbar(
         "Error",
-        "Failed to send OTP. Status: ${response.statusCode}",
+        "Some Error Occurred: $e",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -224,33 +261,18 @@ Future<bool> sendOtpPhone(String phone, String countryCode) async {
       );
       return false;
     }
-  } catch (e) {
-    print("Error sending OTP: $e");
-    Get.snackbar(
-      "Error",
-      "Some Error Occurred: $e",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-      borderRadius: 8.0,
-      margin: const EdgeInsets.all(16),
-      duration: const Duration(seconds: 4),
-    );
-    return false;
   }
-}
   
   Future<bool> vendorRegisterUser(Map<String, dynamic> data) async {
     try {
       var response = await http.post(
-        Uri.parse('https://api.hireanything.com/vendor/partnersignup'),
+        Uri.parse(_buildUrl(_vendorRegisterEndpoint)),
         body: data,
       );
-      print(response.body);
-      print(response.statusCode);
+      print('response.body=>${response.body}');
+      print( 'response.statusCode=>${response.statusCode}');
 
       if (response.statusCode == 201) {
-       
         Get.snackbar(
           "Success", 
           "User Registered Successfully.", 
@@ -278,97 +300,96 @@ Future<bool> sendOtpPhone(String phone, String countryCode) async {
             const Duration(seconds: 3), // How long the snackbar will be visible
       );
     }
+    // finally{
+    //   print("Vendor Register User API called");
+    // }
     return false;
-  }Future<bool> vendorLogin(Map<String, dynamic> data) async {
-  try {
-    // https://api.hireanything.com/vendor/partnerlogin
-    
+  }
 
-    var response = await http.post(
-      Uri.parse('https://stag-api.hireanything.com/vendor/partnerlogin'),
-      body: data,
-    );
-
-    print(response.body);
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body); // Parse JSON response
-
-      final token = responseData["token"];
-      final vendorId = responseData["partner"]?["id"]; // Access id under partner key
-
-      // Print the token and vendor id
-      print("Token: $token");
-      print("Vendor ID: $vendorId");
-
-      if (token != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("token", token); // Store token in SharedPreferences
-      }
-
-      if (vendorId != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("vendorId", vendorId); // Store vendorId in SharedPreferences
-        print(vendorId); // Store vendorId in SharedPreferences
-      }
-
-      // Show Success Message
-      Get.snackbar(
-        "Success", 
-        "Partner Login Successfully.", 
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Color.fromARGB(255, 5, 129, 69), 
-        colorText: Colors.white, 
-        borderRadius: 8.0, 
-        margin: const EdgeInsets.all(16), 
-        duration: const Duration(seconds: 3),
+  Future<bool> vendorLogin(Map<String, dynamic> data) async {
+    try {
+      print("ta dlmpped??");
+      var response = await http.post(
+        Uri.parse(_buildUrl(_vendorLoginEndpoint)),
+        body: data,
       );
 
-      return true;
-    }
-    else if (response.statusCode == 401) {
-      final responseData = jsonDecode(response.body); // Parse JSON response
-      final message = responseData["message"];
-      
-      Get.snackbar(
-      "Error",
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-      borderRadius: 8.0,
-      margin: const EdgeInsets.all(16),
-      duration: const Duration(seconds: 3),
-    ); // Access message key
+      print(response.body);
+      print("response.statusCode=>${response.statusCode}");
 
-   
-    
-      
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body); // Parse JSON response
+
+        final token = responseData["token"];
+        final vendorId = responseData["partner"]?["id"]; // Access id under partner key
+
+        // Print the token and vendor id
+        print("Token: $token");
+        print("Vendor ID: $vendorId");
+
+        if (token != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("token", token); // Store token in SharedPreferences
+        }
+
+        if (vendorId != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("vendorId", vendorId); // Store vendorId in SharedPreferences
+          print(vendorId); // Store vendorId in SharedPreferences
+        }
+
+        // Show Success Message
+        Get.snackbar(
+          "Success", 
+          "Partner Login Successfully.", 
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Color.fromARGB(255, 5, 129, 69), 
+          colorText: Colors.white, 
+          borderRadius: 8.0, 
+          margin: const EdgeInsets.all(16), 
+          duration: const Duration(seconds: 3),
+        );
+
+        return true;
+      }
+      else if (response.statusCode == 401) {
+        final responseData = jsonDecode(response.body); // Parse JSON response
+        final message = responseData["message"];
+        
+        Get.snackbar(
+        "Error",
+        message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        borderRadius: 8.0,
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+      ); // Access message key
+      }
+      else{
+        
+      }
+    } catch (e) {
+      print(e);
+      Get.snackbar(
+        "Error",
+        "Some Error Occurred!",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        borderRadius: 8.0,
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+      );
     }
-    else{
-      
-    }
-  } catch (e) {
-    print(e);
-    Get.snackbar(
-      "Error",
-      "Some Error Occurred!",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-      borderRadius: 8.0,
-      margin: const EdgeInsets.all(16),
-      duration: const Duration(seconds: 3),
-    );
+    return false;
   }
-  return false;
-}
 
   Future<bool> registerUser(Map<String, dynamic> data) async {
     try {
       var response = await http.post(
-        Uri.parse('https://api.hireanything.com/user/register'),
+        Uri.parse(_buildUrl(_userRegisterEndpoint)),
         body: data,
       );
       print(response.body);
@@ -405,50 +426,47 @@ Future<bool> sendOtpPhone(String phone, String countryCode) async {
     return false;
   }
 
-
   Future<bool> addServiceVendor(Map<String, dynamic> data) async {
-  try {
-    var response = await http.post(
-      Uri.parse('https://api.hireanything.com/vendor/add_vendor_service'),
-      headers: {
-        "Content-Type": "application/json", // Specify JSON format
-      },
-      body: jsonEncode(data),
-       // Encode to JSON string
-    );
-    
+    try {
+      var response = await http.post(
+        Uri.parse(_buildUrl(_addServiceVendorEndpoint)),
+        headers: {
+          "Content-Type": "application/json", // Specify JSON format
+        },
+        body: jsonEncode(data), // Encode to JSON string
+      );
+      
+      print(response.body);
+      print(response.statusCode);
 
-    print(response.body);
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
+        Get.snackbar(
+          "Success",
+          "Vendor service added successfully",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Color.fromARGB(255, 5, 129, 69),
+          colorText: Colors.white,
+          borderRadius: 8.0,
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
+        );
+        return true;
+      }
+    } catch (e) {
+      print("API Error: $e");
       Get.snackbar(
-        "Success",
-        "Vendor service added successfully",
+        "Error",
+        "Some Error Occurred!",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Color.fromARGB(255, 5, 129, 69),
+        backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         borderRadius: 8.0,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 3),
       );
-      return true;
     }
-  } catch (e) {
-    print("API Error: $e");
-    Get.snackbar(
-      "Error",
-      "Some Error Occurred!",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-      borderRadius: 8.0,
-      margin: const EdgeInsets.all(16),
-      duration: const Duration(seconds: 3),
-    );
+    return false;
   }
-  return false;
-}
 
   Future<void> signupPageFirst(List<String>? imageList,
       Map<String, dynamic>? requestedData, BuildContext context) async {
@@ -891,6 +909,6 @@ Future<bool> sendOtpPhone(String phone, String countryCode) async {
   }
 
   void dispose() {
-    _serviceListController.close(); // Close the stream controller when done
+    _serviceListController.close(); 
   }
 }

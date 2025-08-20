@@ -107,9 +107,7 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
 
                             if (isRegistered) {
                               Get.offAllNamed(VendorRoutesName.homeVendorView);
-                            } else {
-                              
-                            }
+                            } else {}
                           } else {
                             Get.snackbar(
                               "Error",
