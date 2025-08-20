@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/controller/delete_vendor_services_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/boat_hire_edit/boat_hire_edit.dart';
+import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/funeral_car_edit/funeral_car_edit_screen.dart';
 import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/horse_and_carriage_edit/horse_and_carriage_service_screen.dart';
 import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/limousine_hire_edit/limousine_hire_edit_screen.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/drawer.dart';
@@ -70,7 +71,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         }
         print("serviceList length in UI: ${controller.serviceList.length}");
         if (controller.serviceList.isEmpty) {
-          return Center(
+          return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -113,10 +114,10 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         ...services.map((service) => _buildServiceCard(service)).toList(),
       ],
     );
@@ -143,18 +144,18 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
             BoxShadow(
               color: Colors.grey.shade300,
               blurRadius: 6,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header image with gradient overlay for better text visibility
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(15)),
                   child: service.serviceType == "funeral"
                       ? Image.network(
                           service.uploadedDocuments?.fleetPhotos.isNotEmpty ==
@@ -172,7 +173,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                               height: 200,
                               width: double.infinity,
                               color: Colors.grey.shade300,
-                              child: Center(
+                              child: const Center(
                                   child: Icon(Icons.error, color: Colors.red)),
                             );
                           },
@@ -202,7 +203,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(15)),
+                          const BorderRadius.vertical(top: Radius.circular(15)),
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -212,7 +213,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                           Colors.black.withOpacity(0.3),
                           Colors.black.withOpacity(0.7),
                         ],
-                        stops: [0.0, 0.5, 0.8, 1.0],
+                        stops: const [0.0, 0.5, 0.8, 1.0],
                       ),
                     ),
                   ),
@@ -255,7 +256,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                         ),
                         child: Text(
                           service.subcategoryId?.subcategoryName ?? 'Category',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
@@ -267,7 +268,6 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                 ),
               ],
             ),
-
             Padding(
               padding: const EdgeInsets.all(15),
               child: Column(
@@ -315,7 +315,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                                   service.serviceApproveStatus == false
                               ? "Pending"
                               : "Approved",
-                          style: TextStyle(fontSize: 12, color: Colors.white),
+                          style: const TextStyle(fontSize: 12, color: Colors.white),
                         ),
                         backgroundColor: service.serviceApproveStatus == "0" ||
                                 service.serviceApproveStatus == false
@@ -324,14 +324,14 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
                   // Location
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined,
+                      const Icon(Icons.location_on_outlined,
                           size: 16, color: Colors.grey),
-                      SizedBox(width: 5),
+                      const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           () {
@@ -356,22 +356,22 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                     ],
                   ),
 
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
 
                   // Vehicle Specifications
                   VehicleSpecificationsWidget(service: service),
 
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
 
                   // Pricing Options
                   PricingOptionsWidget(service: service),
 
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
 
                   // Service Features
                   ServiceFeaturesWidget(service: service),
 
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
 
                   // Edit/Delete buttons
                   Row(
@@ -394,9 +394,14 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                             Get.to(() =>
                                 LimoHireEditScreen(serviceId: service.id!));
                           }
+                          if (service.serviceType == "funeral" &&
+                              service.id != null) {
+                            Get.to(() => FuneralCarHireEditScreen(
+                                serviceId: service.id!));
+                          }
                         },
-                        icon: Icon(Icons.edit, size: 16),
-                        label: Text("Edit"),
+                        icon: const Icon(Icons.edit, size: 16),
+                        label: const Text("Edit"),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.blue,
                           backgroundColor: Colors.blue.shade50,
@@ -434,8 +439,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                             }
                           }
                         },
-                        icon: Icon(Icons.delete, size: 16),
-                        label: Text("Delete"),
+                        icon: const Icon(Icons.delete, size: 16),
+                        label: const Text("Delete"),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.red,
                           backgroundColor: Colors.red.shade50,

@@ -251,6 +251,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
   @override
   void dispose() {
     serviceNameController.dispose();
+    imageController.dispose();
+    couponController.dispose();    
     basePostcodeController.dispose();
     locationRadiusController.dispose();
     otherServiceController.dispose();

@@ -23,7 +23,8 @@ class LimoHireEditScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final controller = Get.put(LimoHireEditController(serviceId: serviceId), tag: serviceId);
+    final controller =
+        Get.put(LimoHireEditController(serviceId: serviceId), tag: serviceId);
 
     return Scaffold(
       backgroundColor: colors.scaffold_background_color,
@@ -52,9 +53,13 @@ class LimoHireEditScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // SECTION 1: Service Category
-                      const Text('SECTION 1: Service Category', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 1: Service Category',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      const Text('Service Name *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Service Name *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 50,
@@ -63,18 +68,25 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.text,
                         hinttext: "Enter your service name",
-                        validator: (value) => value?.isEmpty ?? true ? 'Service Name is required' : null,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Service Name is required'
+                            : null,
                       ),
                       const SizedBox(height: 20),
-                      const Text('Select all that apply *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Select all that apply *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => Wrap(
                             spacing: 10,
-                            children: controller.serviceCategories.entries.map((entry) => ChoiceChip(
-                                  label: Text(entry.key),
-                                  selected: entry.value.value,
-                                  onSelected: (selected) => entry.value.value = selected,
-                                )).toList(),
+                            children: controller.serviceCategories.entries
+                                .map((entry) => ChoiceChip(
+                                      label: Text(entry.key),
+                                      selected: entry.value.value,
+                                      onSelected: (selected) =>
+                                          entry.value.value = selected,
+                                    ))
+                                .toList(),
                           )),
                       Obx(() => controller.serviceCategories['Other']!.value
                           ? Column(
@@ -82,12 +94,18 @@ class LimoHireEditScreen extends StatelessWidget {
                                 const SizedBox(height: 10),
                                 Signup_textfilled(
                                   length: 100,
-                                  textcont: controller.otherServiceCategoryController,
+                                  textcont:
+                                      controller.otherServiceCategoryController,
                                   textfilled_height: 17,
                                   textfilled_weight: 1,
                                   keytype: TextInputType.text,
                                   hinttext: "Specify other service categories",
-                                  validator: (value) => controller.serviceCategories['Other']!.value && (value?.isEmpty ?? true) ? 'Please specify other service categories' : null,
+                                  validator: (value) => controller
+                                              .serviceCategories['Other']!
+                                              .value &&
+                                          (value?.isEmpty ?? true)
+                                      ? 'Please specify other service categories'
+                                      : null,
                                 ),
                               ],
                             )
@@ -95,11 +113,19 @@ class LimoHireEditScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // SECTION 2: Fleet / Vehicle Details
-                      const Text('SECTION 2: Fleet / Vehicle Details', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 2: Fleet / Vehicle Details',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      const Text('(Complete one block per limousine model)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104))),
+                      const Text('(Complete one block per limousine model)',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Color.fromARGB(255, 109, 104, 104))),
                       const SizedBox(height: 10),
-                      const Text('Vehicle ID *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Vehicle ID *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 20,
@@ -108,10 +134,14 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.text,
                         hinttext: "Enter vehicle ID",
-                        validator: (value) => value?.isEmpty ?? true ? 'Vehicle ID is required' : null,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Vehicle ID is required'
+                            : null,
                       ),
                       const SizedBox(height: 10),
-                      const Text('Make & Model *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Make & Model *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 50,
@@ -120,10 +150,14 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.text,
                         hinttext: "Enter make and model",
-                        validator: (value) => value?.isEmpty ?? true ? 'Make & Model is required' : null,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Make & Model is required'
+                            : null,
                       ),
                       const SizedBox(height: 10),
-                      const Text('Type *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Type *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 50,
@@ -132,10 +166,13 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.text,
                         hinttext: "e.g., Stretch, SUV, H2",
-                        validator: (value) => value?.isEmpty ?? true ? 'Type is required' : null,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Type is required' : null,
                       ),
                       const SizedBox(height: 10),
-                      const Text('Year of Manufacture', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Year of Manufacture',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 4,
@@ -146,7 +183,9 @@ class LimoHireEditScreen extends StatelessWidget {
                         hinttext: "Enter year",
                       ),
                       const SizedBox(height: 10),
-                      const Text('Color', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Color',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 20,
@@ -157,7 +196,9 @@ class LimoHireEditScreen extends StatelessWidget {
                         hinttext: "Enter color",
                       ),
                       const SizedBox(height: 10),
-                      const Text('Passenger Capacity *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Passenger Capacity *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 3,
@@ -166,10 +207,14 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Number of passengers",
-                        validator: (value) => value?.isEmpty ?? true ? 'Passenger Capacity is required' : null,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Passenger Capacity is required'
+                            : null,
                       ),
                       const SizedBox(height: 10),
-                      const Text('Vehicle Description for Listing *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Vehicle Description for Listing *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 200,
@@ -178,10 +223,14 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.text,
                         hinttext: "Describe the vehicle",
-                        validator: (value) => value?.isEmpty ?? true ? 'Vehicle Description is required' : null,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Vehicle Description is required'
+                            : null,
                       ),
                       const SizedBox(height: 10),
-                      const Text('Boot Space', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Boot Space',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 50,
@@ -194,114 +243,165 @@ class LimoHireEditScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // SECTION 3: Features, Benefits & Extras
-                      const Text('SECTION 3: Features, Benefits & Extras', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 3: Features, Benefits & Extras',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      const Text('Comfort & Luxury', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      Obx(() => Wrap(
-                            spacing: 10,
-                            children: controller.comfortLuxury.entries.map((entry) => ChoiceChip(
-                                  label: Text(entry.key),
-                                  selected: entry.value.value,
-                                  onSelected: (selected) => entry.value.value = selected,
-                                )).toList(),
-                          )),
-                      const SizedBox(height: 20),
-                      const Text('Events & Customisation (With Pricing)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Comfort & Luxury',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => Wrap(
                             spacing: 10,
-                            children: controller.eventsCustomisation.entries.map((entry) => Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ChoiceChip(
+                            children: controller.comfortLuxury.entries
+                                .map((entry) => ChoiceChip(
                                       label: Text(entry.key),
                                       selected: entry.value.value,
-                                      onSelected: (selected) => entry.value.value = selected,
-                                    ),
-                                    if (entry.value.value) ...[
-                                      const SizedBox(width: 10),
-                                      SizedBox(
-                                        width: 80,
-                                        child: Signup_textfilled(
-                                          length: 10,
-                                          textcont: controller.eventsCustomisationPrices[entry.key]!,
-                                          textfilled_height: 17,
-                                          textfilled_weight: 1,
-                                          keytype: TextInputType.number,
-                                          hinttext: "Price (£)",
-                                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                )).toList(),
+                                      onSelected: (selected) =>
+                                          entry.value.value = selected,
+                                    ))
+                                .toList(),
                           )),
                       const SizedBox(height: 20),
-                      const Text('Accessibility & Special Services (With Pricing)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Events & Customisation (With Pricing)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => Wrap(
                             spacing: 10,
-                            children: controller.accessibilitySpecialServices.entries.map((entry) => Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ChoiceChip(
+                            children: controller.eventsCustomisation.entries
+                                .map((entry) => Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ChoiceChip(
+                                          label: Text(entry.key),
+                                          selected: entry.value.value,
+                                          onSelected: (selected) =>
+                                              entry.value.value = selected,
+                                        ),
+                                        if (entry.value.value) ...[
+                                          const SizedBox(width: 10),
+                                          SizedBox(
+                                            width: 80,
+                                            child: Signup_textfilled(
+                                              length: 10,
+                                              textcont: controller
+                                                      .eventsCustomisationPrices[
+                                                  entry.key]!,
+                                              textfilled_height: 17,
+                                              textfilled_weight: 1,
+                                              keytype: TextInputType.number,
+                                              hinttext: "Price (£)",
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(
+                                                        r'^\d*\.?\d{0,2}$'))
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ))
+                                .toList(),
+                          )),
+                      const SizedBox(height: 20),
+                      const Text(
+                          'Accessibility & Special Services (With Pricing)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      Obx(() => Wrap(
+                            spacing: 10,
+                            children:
+                                controller.accessibilitySpecialServices.entries
+                                    .map((entry) => Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            ChoiceChip(
+                                              label: Text(entry.key),
+                                              selected: entry.value.value,
+                                              onSelected: (selected) =>
+                                                  entry.value.value = selected,
+                                            ),
+                                            if (entry.value.value) ...[
+                                              const SizedBox(width: 10),
+                                              SizedBox(
+                                                width: 80,
+                                                child: Signup_textfilled(
+                                                  length: 10,
+                                                  textcont: controller
+                                                          .accessibilitySpecialServicesPrices[
+                                                      entry.key]!,
+                                                  textfilled_height: 17,
+                                                  textfilled_weight: 1,
+                                                  keytype: TextInputType.number,
+                                                  hinttext: "Price (£)",
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter
+                                                        .allow(RegExp(
+                                                            r'^\d*\.?\d{0,2}$'))
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ))
+                                    .toList(),
+                          )),
+                      const SizedBox(height: 20),
+                      const Text('Safety & Compliance',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 10),
+                      Obx(() => Wrap(
+                            spacing: 10,
+                            children: controller.safetyCompliance.entries
+                                .map((entry) => ChoiceChip(
                                       label: Text(entry.key),
                                       selected: entry.value.value,
-                                      onSelected: (selected) => entry.value.value = selected,
-                                    ),
-                                    if (entry.value.value) ...[
-                                      const SizedBox(width: 10),
-                                      SizedBox(
-                                        width: 80,
-                                        child: Signup_textfilled(
-                                          length: 10,
-                                          textcont: controller.accessibilitySpecialServicesPrices[entry.key]!,
-                                          textfilled_height: 17,
-                                          textfilled_weight: 1,
-                                          keytype: TextInputType.number,
-                                          hinttext: "Price (£)",
-                                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                )).toList(),
-                          )),
-                      const SizedBox(height: 20),
-                      const Text('Safety & Compliance', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      Obx(() => Wrap(
-                            spacing: 10,
-                            children: controller.safetyCompliance.entries.map((entry) => ChoiceChip(
-                                  label: Text(entry.key),
-                                  selected: entry.value.value,
-                                  onSelected: (selected) => entry.value.value = selected,
-                                )).toList(),
+                                      onSelected: (selected) =>
+                                          entry.value.value = selected,
+                                    ))
+                                .toList(),
                           )),
                       const SizedBox(height: 20),
 
                       // SECTION 4: Coverage & Availability
-                      const Text('SECTION 4: Coverage & Availability', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 4: Coverage & Availability',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      _buildCitySelection(context, controller, 'Areas Covered', controller.areasCovered),
+                      _buildCitySelection(context, controller, 'Areas Covered',
+                          controller.areasCovered),
                       const SizedBox(height: 20),
-                      const Text('Service Status *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Service Status *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => CustomDropdown(
                             hintText: "Select Service Status",
                             items: ['Open', 'Close'],
                             selectedValue: controller.serviceStatus.value,
-                            onChanged: (value) => controller.serviceStatus.value = value ?? '',
+                            onChanged: (value) =>
+                                controller.serviceStatus.value = value ?? '',
                           )),
                       const SizedBox(height: 20),
 
                       // SECTION 5: Pricing Structure
-                      const Text('SECTION 5: Pricing Structure', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 5: Pricing Structure',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      const Text('Each partner must offer a day hire rate (standard: 10 hours/100 miles)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104))),
+                      const Text(
+                          'Each partner must offer a day hire rate (standard: 10 hours/100 miles)',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Color.fromARGB(255, 109, 104, 104))),
                       const SizedBox(height: 10),
-                      const Text('Day Rate (10 hrs / 100 miles) (£)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Day Rate (10 hrs / 100 miles) (£)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 10,
@@ -310,10 +410,15 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Enter day rate",
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d{0,2}$'))
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      const Text('Mileage Limit *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Mileage Limit *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 5,
@@ -322,10 +427,14 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Current value: 100 miles",
-                        validator: (value) => value?.isEmpty ?? true ? 'Mileage Limit is required' : null,
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Mileage Limit is required'
+                            : null,
                       ),
                       const SizedBox(height: 10),
-                      const Text('Extra Mileage Charge (£/mile)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Extra Mileage Charge (£/mile)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 10,
@@ -334,10 +443,15 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Enter extra mileage charge",
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d{0,2}$'))
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      const Text('Hourly Rate (£)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Hourly Rate (£)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 10,
@@ -346,10 +460,15 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Enter hourly rate",
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d{0,2}$'))
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      const Text('Half-Day Rate (£) (5 Hours)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Half-Day Rate (£) (5 Hours)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 10,
@@ -358,10 +477,15 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Enter half-day rate",
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d{0,2}$'))
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      const Text('Wedding Package (£)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Wedding Package (£)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 10,
@@ -370,10 +494,15 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Enter wedding package rate",
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d{0,2}$'))
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      const Text('Airport Transfer (£)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Airport Transfer (£)',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 10,
@@ -382,67 +511,136 @@ class LimoHireEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.number,
                         hinttext: "Enter airport transfer rate",
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$'))],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d*\.?\d{0,2}$'))
+                        ],
                       ),
                       const SizedBox(height: 10),
-                      const Text('Fuel Included?', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Fuel Included?',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => Row(
                             children: [
-                              Expanded(child: CustomCheckbox(title: 'Yes', value: controller.fuelIncluded.value, onChanged: (value) => controller.fuelIncluded.value = value!)),
+                              Expanded(
+                                  child: CustomCheckbox(
+                                      title: 'Yes',
+                                      value: controller.fuelIncluded.value,
+                                      onChanged: (value) => controller
+                                          .fuelIncluded.value = value!)),
                               const SizedBox(width: 20),
-                              Expanded(child: CustomCheckbox(title: 'No', value: !controller.fuelIncluded.value, onChanged: (value) => controller.fuelIncluded.value = !value!)),
+                              Expanded(
+                                  child: CustomCheckbox(
+                                      title: 'No',
+                                      value: !controller.fuelIncluded.value,
+                                      onChanged: (value) => controller
+                                          .fuelIncluded.value = !value!)),
                             ],
                           )),
                       const SizedBox(height: 20),
 
                       // SECTION 6: Documents Required
-                      const Text('SECTION 6: Documents Required', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 6: Documents Required',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      const Text('Upload scanned copies or clear photos (Optional)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104))),
+                      const Text(
+                          'Upload scanned copies or clear photos (Optional)',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Color.fromARGB(255, 109, 104, 104))),
                       const SizedBox(height: 10),
-                      _buildDocumentUploadSection(context, controller, "MOT Certificate (if vehicle > 3 years old)", controller.motCertificatePaths, false),
-                      _buildDocumentUploadSection(context, controller, "Driver's Licence (if chauffeur provided)", controller.driversLicencePaths, false),
-                      _buildDocumentUploadSection(context, controller, "Public Liability Insurance", controller.publicLiabilityInsurancePaths, false),
-                      _buildDocumentUploadSection(context, controller, "Operator's Licence (if required)", controller.operatorLicencePaths, false),
-                      _buildDocumentUploadSection(context, controller, "Insurance Certificate (Hire & Reward)", controller.insuranceCertificatePaths, false),
-                      _buildDocumentUploadSection(context, controller, "VSC / Registration Document", controller.vscRegistrationPaths, false),
+                      _buildDocumentUploadSection(
+                          context,
+                          controller,
+                          "MOT Certificate (if vehicle > 3 years old)",
+                          controller.motCertificatePaths,
+                          false),
+                      _buildDocumentUploadSection(
+                          context,
+                          controller,
+                          "Driver's Licence (if chauffeur provided)",
+                          controller.driversLicencePaths,
+                          false),
+                      _buildDocumentUploadSection(
+                          context,
+                          controller,
+                          "Public Liability Insurance",
+                          controller.publicLiabilityInsurancePaths,
+                          false),
+                      _buildDocumentUploadSection(
+                          context,
+                          controller,
+                          "Operator's Licence (if required)",
+                          controller.operatorLicencePaths,
+                          false),
+                      _buildDocumentUploadSection(
+                          context,
+                          controller,
+                          "Insurance Certificate (Hire & Reward)",
+                          controller.insuranceCertificatePaths,
+                          false),
+                      _buildDocumentUploadSection(
+                          context,
+                          controller,
+                          "VSC / Registration Document",
+                          controller.vscRegistrationPaths,
+                          false),
                       const SizedBox(height: 20),
 
                       // SECTION 7: Photos & Media
-                      const Text('SECTION 7: Photos & Media', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 7: Photos & Media',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      const Text('Upload ≥2 high-quality images (exterior front/back, interior, seating, feature shots)', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104))),
+                      const Text(
+                          'Upload ≥2 high-quality images (exterior front/back, interior, seating, feature shots)',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Color.fromARGB(255, 109, 104, 104))),
                       const SizedBox(height: 10),
-                      const Text('Upload Photos of Your Limousines *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('Upload Photos of Your Limousines *',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => Wrap(
                             spacing: 8.0,
                             runSpacing: 4.0,
-                            children: controller.limousinePhotosPaths.map((path) => Stack(
-                                  children: [
-                                    Image.network(
-                                      path,
-                                      fit: BoxFit.cover,
-                                      height: 60,
-                                      width: 60,
-                                      errorBuilder: (context, error, stackTrace) => Container(
-                                        width: 60,
-                                        height: 60,
-                                        color: Colors.grey[200],
-                                        child: const Icon(Icons.error, color: Colors.red),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 2,
-                                      right: 2,
-                                      child: GestureDetector(
-                                        onTap: () => controller.limousinePhotosPaths.remove(path),
-                                        child: const Icon(Icons.close, color: Colors.redAccent),
-                                      ),
-                                    ),
-                                  ],
-                                )).toList(),
+                            children: controller.limousinePhotosPaths
+                                .map((path) => Stack(
+                                      children: [
+                                        Image.network(
+                                          path,
+                                          fit: BoxFit.cover,
+                                          height: 60,
+                                          width: 60,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Container(
+                                            width: 60,
+                                            height: 60,
+                                            color: Colors.grey[200],
+                                            child: const Icon(Icons.error,
+                                                color: Colors.red),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 2,
+                                          right: 2,
+                                          child: GestureDetector(
+                                            onTap: () => controller
+                                                .limousinePhotosPaths
+                                                .remove(path),
+                                            child: const Icon(Icons.close,
+                                                color: Colors.redAccent),
+                                          ),
+                                        ),
+                                      ],
+                                    ))
+                                .toList(),
                           )),
                       const SizedBox(height: 20),
                       GestureDetector(
@@ -454,10 +652,15 @@ class LimoHireEditScreen extends StatelessWidget {
                                 leading: const Icon(Icons.camera_alt),
                                 title: const Text('Take a Photo'),
                                 onTap: () async {
-                                  await controller.imageController.pickImages(true);
-                                  if (controller.imageController.selectedImages.isNotEmpty) {
-                                    controller.limousinePhotosPaths.add(controller.imageController.selectedImages.last);
-                                    controller.imageController.selectedImages.removeLast();
+                                  await controller.imageController
+                                      .pickImages(true);
+                                  if (controller.imageController.selectedImages
+                                      .isNotEmpty) {
+                                    controller.limousinePhotosPaths.add(
+                                        controller.imageController
+                                            .selectedImages.last);
+                                    controller.imageController.selectedImages
+                                        .removeLast();
                                   }
                                   Get.back();
                                 },
@@ -466,10 +669,15 @@ class LimoHireEditScreen extends StatelessWidget {
                                 leading: const Icon(Icons.photo_library),
                                 title: const Text('Choose from Gallery'),
                                 onTap: () async {
-                                  await controller.imageController.pickImages(false);
-                                  if (controller.imageController.selectedImages.isNotEmpty) {
-                                    controller.limousinePhotosPaths.add(controller.imageController.selectedImages.last);
-                                    controller.imageController.selectedImages.removeLast();
+                                  await controller.imageController
+                                      .pickImages(false);
+                                  if (controller.imageController.selectedImages
+                                      .isNotEmpty) {
+                                    controller.limousinePhotosPaths.add(
+                                        controller.imageController
+                                            .selectedImages.last);
+                                    controller.imageController.selectedImages
+                                        .removeLast();
                                   }
                                   Get.back();
                                 },
@@ -488,11 +696,15 @@ class LimoHireEditScreen extends StatelessWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.cloud_upload, color: Colors.grey, size: 30),
+                                  Icon(Icons.cloud_upload,
+                                      color: Colors.grey, size: 30),
                                   SizedBox(height: 8),
                                   Text(
                                     'Click to upload PNG, JPG or JPEG',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w700),
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
@@ -502,7 +714,9 @@ class LimoHireEditScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      const Text('(Optional) Promo Video or YouTube link:', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      const Text('(Optional) Promo Video or YouTube link:',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Signup_textfilled(
                         length: 200,
@@ -515,62 +729,106 @@ class LimoHireEditScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // SECTION 8: Service Availability Period
-                      const Text('SECTION 8: Service Availability Period', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 8: Service Availability Period',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      const Text('Select the period during which your service will be available.', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: Color.fromARGB(255, 109, 104, 104))),
+                      const Text(
+                          'Select the period during which your service will be available.',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w300,
+                              color: Color.fromARGB(255, 109, 104, 104))),
                       const SizedBox(height: 20),
                       Row(
                         children: [
-                          Expanded(child: _buildDatePicker(context, controller, 'Start', controller.fromDate, true)),
+                          Expanded(
+                              child: _buildDatePicker(context, controller,
+                                  'Start', controller.fromDate, true)),
                           const SizedBox(width: 10),
-                          Expanded(child: _buildDatePicker(context, controller, 'End', controller.toDate, false)),
+                          Expanded(
+                              child: _buildDatePicker(context, controller,
+                                  'End', controller.toDate, false)),
                         ],
                       ),
                       const SizedBox(height: 20),
                       TableCalendar(
                         onDaySelected: (selectedDay, focusedDay) {
-                          if (controller.calendarController.visibleDates.any((d) => isSameDay(d, selectedDay))) {
+                          if (controller.calendarController.visibleDates
+                              .any((d) => isSameDay(d, selectedDay))) {
                             controller.showSetPriceDialog(selectedDay);
                           }
                         },
-                        focusedDay: controller.fromDate.value.isBefore(DateTime.now()) ? DateTime.now() : controller.fromDate.value,
+                        focusedDay:
+                            controller.fromDate.value.isBefore(DateTime.now())
+                                ? DateTime.now()
+                                : controller.fromDate.value,
                         firstDay: DateTime.now(),
                         lastDay: DateTime.utc(2099, 12, 31),
                         calendarFormat: CalendarFormat.month,
                         availableGestures: AvailableGestures.none,
-                        headerStyle: const HeaderStyle(formatButtonVisible: false),
+                        headerStyle:
+                            const HeaderStyle(formatButtonVisible: false),
                         calendarBuilders: CalendarBuilders(
-                          defaultBuilder: (context, day, focusedDay) => _buildCalendarCell(day, controller),
+                          defaultBuilder: (context, day, focusedDay) =>
+                              _buildCalendarCell(day, controller),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text('Special Prices Summary', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const Text('Special Prices Summary',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => SizedBox(
                             height: 150,
-                            child: controller.calendarController.specialPrices.isEmpty
-                                ? const Center(child: Text('No special prices set yet', style: TextStyle(fontSize: 16, color: Colors.black)))
+                            child: controller
+                                    .calendarController.specialPrices.isEmpty
+                                ? const Center(
+                                    child: Text('No special prices set yet',
+                                        style: TextStyle(
+                                            fontSize: 16, color: Colors.black)))
                                 : ListView.builder(
                                     shrinkWrap: true,
-                                    itemCount: controller.calendarController.specialPrices.length,
+                                    itemCount: controller.calendarController
+                                        .specialPrices.length,
                                     itemBuilder: (context, index) {
-                                      final entry = controller.calendarController.specialPrices[index];
+                                      final entry = controller
+                                          .calendarController
+                                          .specialPrices[index];
                                       final date = entry['date'] as DateTime;
                                       final price = entry['price'] as double;
                                       return Container(
-                                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 4, horizontal: 16),
                                         padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
+                                        decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius:
+                                                BorderRadius.circular(8)),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(DateFormat('EEE, d MMM yyyy').format(date), style: const TextStyle(fontSize: 16)),
+                                            Text(
+                                                DateFormat('EEE, d MMM yyyy')
+                                                    .format(date),
+                                                style: const TextStyle(
+                                                    fontSize: 16)),
                                             Row(
                                               children: [
-                                                Text('£${price.toStringAsFixed(2)}/hr', style: TextStyle(fontSize: 16, color: price > 0 ? Colors.black : Colors.red)),
+                                                Text(
+                                                    '£${price.toStringAsFixed(2)}/hr',
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: price > 0
+                                                            ? Colors.black
+                                                            : Colors.red)),
                                                 IconButton(
-                                                  icon: const Icon(Icons.delete, color: Colors.red),
-                                                  onPressed: () => controller.calendarController.deleteSpecialPrice(date),
+                                                  icon: const Icon(Icons.delete,
+                                                      color: Colors.red),
+                                                  onPressed: () => controller
+                                                      .calendarController
+                                                      .deleteSpecialPrice(date),
                                                 ),
                                               ],
                                             ),
@@ -583,55 +841,73 @@ class LimoHireEditScreen extends StatelessWidget {
                       const SizedBox(height: 20),
 
                       // SECTION 9: Coupons / Discounts
-                      const Text('SECTION 9: Coupons / Discounts', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 9: Coupons / Discounts',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       SizedBox(
                         width: w * 0.45,
                         height: 50,
                         child: ElevatedButton(
                           onPressed: () => Get.dialog(AddCouponDialog()),
-                          style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green)),
-                          child: const Text("Add Coupon", style: TextStyle(color: Colors.white)),
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.resolveWith<Color>(
+                                      (states) => Colors.green)),
+                          child: const Text("Add Coupon",
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Obx(() => controller.couponController.coupons.isEmpty ? const SizedBox.shrink() : CouponList()),
+                      Obx(() => controller.couponController.coupons.isEmpty
+                          ? const SizedBox.shrink()
+                          : CouponList()),
                       const SizedBox(height: 20),
 
                       // SECTION 10: Declaration & Agreement
-                      const Text('SECTION 10: Declaration & Agreement', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('SECTION 10: Declaration & Agreement',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
                       Obx(() => CustomCheckbox(
-                            title: 'I confirm that all information provided is accurate and current. *',
+                            title:
+                                'I confirm that all information provided is accurate and current. *',
                             value: controller.agreeTerms.value,
-                            onChanged: (value) => controller.agreeTerms.value = value!,
+                            onChanged: (value) =>
+                                controller.agreeTerms.value = value!,
                           )),
                       const SizedBox(height: 20),
                       Obx(() => CustomCheckbox(
-                            title: 'I have not shared any contact details (Email, Phone, Skype, Website, etc.). *',
+                            title:
+                                'I have not shared any contact details (Email, Phone, Skype, Website, etc.). *',
                             value: controller.noContactDetails.value,
-                            onChanged: (value) => controller.noContactDetails.value = value!,
+                            onChanged: (value) =>
+                                controller.noContactDetails.value = value!,
                           )),
                       const SizedBox(height: 20),
                       Obx(() => CustomCheckbox(
                             title: 'I agree to the Cookies Policy. *',
                             value: controller.agreeCookies.value,
-                            onChanged: (value) => controller.agreeCookies.value = value!,
+                            onChanged: (value) =>
+                                controller.agreeCookies.value = value!,
                           )),
                       const SizedBox(height: 20),
                       Obx(() => CustomCheckbox(
                             title: 'I agree to the Privacy Policy. *',
                             value: controller.agreePrivacy.value,
-                            onChanged: (value) => controller.agreePrivacy.value = value!,
+                            onChanged: (value) =>
+                                controller.agreePrivacy.value = value!,
                           )),
                       const SizedBox(height: 20),
                       Obx(() => CustomCheckbox(
                             title: 'I agree to the Cancellation Fee Policy. *',
                             value: controller.agreeCancellation.value,
-                            onChanged: (value) => controller.agreeCancellation.value = value!,
+                            onChanged: (value) =>
+                                controller.agreeCancellation.value = value!,
                           )),
                       const SizedBox(height: 20),
-                      Text('Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
+                      Text(
+                          'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
                       const SizedBox(height: 20),
 
                       // Submit Button
@@ -642,54 +918,156 @@ class LimoHireEditScreen extends StatelessWidget {
                               onPressed: controller.isSubmitting.value
                                   ? null
                                   : () async {
-                                      if (formKey.currentState!.validate()) {
-                                        if (!controller.serviceCategories.values.any((v) => v.value)) {
-                                          Get.snackbar("Missing Information", "Please select at least one service category.",
-                                              snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-                                          return;
-                                        }
-                                        if (controller.areasCovered.isEmpty) {
-                                          Get.snackbar("Missing Information", "At least one area covered is required.",
-                                              snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-                                          return;
-                                        }
-                                        final dayRate = double.tryParse(controller.dayRateController.text.trim()) ?? 0;
-                                        final hourlyRate = double.tryParse(controller.hourlyRateController.text.trim()) ?? 0;
-                                        final halfDayRate = double.tryParse(controller.halfDayRateController.text.trim()) ?? 0;
-                                        final weddingPackage = double.tryParse(controller.weddingPackageController.text.trim()) ?? 0;
-                                        final airportTransfer = double.tryParse(controller.airportTransferController.text.trim()) ?? 0;
-                                        if (dayRate == 0 && hourlyRate == 0 && halfDayRate == 0 && weddingPackage == 0 && airportTransfer == 0) {
-                                          Get.snackbar("Missing Information", "At least one rate must be provided.",
-                                              snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-                                          return;
-                                        }
-                                        if (controller.limousinePhotosPaths.length < 2) {
-                                          Get.snackbar("Missing Information", "At least 2 limousine photos are required.",
-                                              snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-                                          return;
-                                        }
-                                        if (!controller.agreeTerms.value || !controller.noContactDetails.value || !controller.agreeCookies.value || !controller.agreePrivacy.value || !controller.agreeCancellation.value) {
-                                          Get.snackbar("Missing Information", "Please agree to all declarations.",
-                                              snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.redAccent, colorText: Colors.white);
-                                          return;
-                                        }
-
-                                        controller.isSubmitting.value = true;
-                                        final documentsUploaded = await controller.uploadDocuments();
-                                        if (!documentsUploaded) {
-                                          controller.isSubmitting.value = false;
-                                          return;
-                                        }
-
-                                        await controller.submitForm();
+                                      // Form validation
+                                      if (!formKey.currentState!.validate()) {
+                                        Get.snackbar("Validation Error",
+                                            "Please fill all required fields correctly.",
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.redAccent,
+                                            colorText: Colors.white);
+                                        return;
                                       }
+
+                                      // Service categories validation
+                                      if (!controller.serviceCategories.values
+                                          .any((v) => v.value)) {
+                                        Get.snackbar("Missing Information",
+                                            "Please select at least one service category.",
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.redAccent,
+                                            colorText: Colors.white);
+                                        return;
+                                      }
+
+                                      // Areas covered validation
+                                      if (controller.areasCovered.isEmpty) {
+                                        Get.snackbar("Missing Information",
+                                            "At least one area covered is required.",
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.redAccent,
+                                            colorText: Colors.white);
+                                        return;
+                                      }
+
+                                      // Pricing validation
+                                      final dayRate = double.tryParse(controller
+                                              .dayRateController.text
+                                              .trim()) ??
+                                          0;
+                                      final hourlyRate = double.tryParse(
+                                              controller
+                                                  .hourlyRateController.text
+                                                  .trim()) ??
+                                          0;
+                                      final halfDayRate = double.tryParse(
+                                              controller
+                                                  .halfDayRateController.text
+                                                  .trim()) ??
+                                          0;
+                                      final weddingPackage = double.tryParse(
+                                              controller
+                                                  .weddingPackageController.text
+                                                  .trim()) ??
+                                          0;
+                                      final airportTransfer = double.tryParse(
+                                              controller
+                                                  .airportTransferController
+                                                  .text
+                                                  .trim()) ??
+                                          0;
+
+                                      if (dayRate == 0 &&
+                                          hourlyRate == 0 &&
+                                          halfDayRate == 0 &&
+                                          weddingPackage == 0 &&
+                                          airportTransfer == 0) {
+                                        Get.snackbar("Missing Information",
+                                            "At least one rate must be provided.",
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.redAccent,
+                                            colorText: Colors.white);
+                                        return;
+                                      }
+
+                                      // Photos validation
+                                      if (controller
+                                              .limousinePhotosPaths.length <
+                                          2) {
+                                        Get.snackbar("Missing Information",
+                                            "At least 2 limousine photos are required.",
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.redAccent,
+                                            colorText: Colors.white);
+                                        return;
+                                      }
+
+                                      // Declarations validation
+                                      if (!controller.agreeTerms.value ||
+                                          !controller.noContactDetails.value ||
+                                          !controller.agreeCookies.value ||
+                                          !controller.agreePrivacy.value ||
+                                          !controller.agreeCancellation.value) {
+                                        Get.snackbar("Missing Information",
+                                            "Please agree to all declarations.",
+                                            snackPosition: SnackPosition.BOTTOM,
+                                            backgroundColor: Colors.redAccent,
+                                            colorText: Colors.white);
+                                        return;
+                                      }
+
+                                      // Check if there are new documents to upload
+                                      bool hasNewDocuments = controller
+                                              .motCertificatePaths
+                                              .any((path) =>
+                                                  !path.startsWith('http')) ||
+                                          controller.driversLicencePaths.any(
+                                              (path) =>
+                                                  !path.startsWith('http')) ||
+                                          controller
+                                              .publicLiabilityInsurancePaths
+                                              .any((path) =>
+                                                  !path.startsWith('http')) ||
+                                          controller.operatorLicencePaths.any(
+                                              (path) => !path.startsWith('http')) ||
+                                          controller.insuranceCertificatePaths.any((path) => !path.startsWith('http')) ||
+                                          controller.vscRegistrationPaths.any((path) => !path.startsWith('http')) ||
+                                          controller.limousinePhotosPaths.any((path) => !path.startsWith('http'));
+
+                                      // Upload documents only if there are new ones
+                                      if (hasNewDocuments) {
+                                        final documentsUploaded =
+                                            await controller.uploadDocuments();
+                                        if (!documentsUploaded) {
+                                          return;
+                                        }
+                                      }
+
+                                      // Submit the form (this should handle isSubmitting internally)
+                                      await controller.submitForm();
                                     },
-                              style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green)),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith<Color>(
+                                  (states) => controller.isSubmitting.value
+                                      ? Colors.grey
+                                      : Colors.green,
+                                ),
+                              ),
                               child: controller.isSubmitting.value
-                                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                                  : const Text("Update", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2.5))
+                                  : const Text("Update",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
                             ),
                           )),
+
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -699,11 +1077,16 @@ class LimoHireEditScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCitySelection(BuildContext context, LimoHireEditController controller, String title, RxList<String> selectedCities) {
+  Widget _buildCitySelection(
+      BuildContext context,
+      LimoHireEditController controller,
+      String title,
+      RxList<String> selectedCities) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$title *', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        Text('$title *',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -714,7 +1097,10 @@ class LimoHireEditScreen extends StatelessWidget {
                   selectedCities.addAll(Cities.ukCities);
                 },
                 child: const Text('SELECT ALL'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow[700], foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 12)),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.yellow[700],
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 12)),
               ),
             ),
             const SizedBox(width: 10),
@@ -724,7 +1110,10 @@ class LimoHireEditScreen extends StatelessWidget {
                   selectedCities.clear();
                 },
                 child: const Text('DESELECT ALL'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[300], foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 12)),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[300],
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 12)),
               ),
             ),
           ],
@@ -732,30 +1121,36 @@ class LimoHireEditScreen extends StatelessWidget {
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8), color: Colors.white),
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
               hint: const Text('Search by post code or city name...'),
               value: null,
-              items: Cities.ukCities.map((String city) => DropdownMenuItem<String>(
-                    value: city,
-                    child: Row(
-                      children: [
-                        Obx(() => Checkbox(
-                              value: selectedCities.contains(city),
-                              onChanged: (bool? value) {
-                                if (value == true && !selectedCities.contains(city)) {
-                                  selectedCities.add(city);
-                                } else if (value == false) {
-                                  selectedCities.remove(city);
-                                }
-                              },
-                            )),
-                        Expanded(child: Text(city)),
-                      ],
-                    ),
-                  )).toList(),
+              items: Cities.ukCities
+                  .map((String city) => DropdownMenuItem<String>(
+                        value: city,
+                        child: Row(
+                          children: [
+                            Obx(() => Checkbox(
+                                  value: selectedCities.contains(city),
+                                  onChanged: (bool? value) {
+                                    if (value == true &&
+                                        !selectedCities.contains(city)) {
+                                      selectedCities.add(city);
+                                    } else if (value == false) {
+                                      selectedCities.remove(city);
+                                    }
+                                  },
+                                )),
+                            Expanded(child: Text(city)),
+                          ],
+                        ),
+                      ))
+                  .toList(),
               onChanged: (String? newValue) {
                 if (newValue != null && !selectedCities.contains(newValue)) {
                   selectedCities.add(newValue);
@@ -768,20 +1163,25 @@ class LimoHireEditScreen extends StatelessWidget {
         Obx(() => Container(
               width: double.infinity,
               padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8)),
               constraints: const BoxConstraints(minHeight: 50),
               child: selectedCities.isEmpty
-                  ? const Text('No cities selected', style: TextStyle(color: Colors.grey, fontSize: 16))
+                  ? const Text('No cities selected',
+                      style: TextStyle(color: Colors.grey, fontSize: 16))
                   : Wrap(
                       spacing: 8.0,
                       runSpacing: 4.0,
                       children: selectedCities
                           .map((city) => Chip(
-                                label: Text(city, style: const TextStyle(fontSize: 14)),
+                                label: Text(city,
+                                    style: const TextStyle(fontSize: 14)),
                                 deleteIcon: const Icon(Icons.close, size: 18),
                                 onDeleted: () => selectedCities.remove(city),
                                 backgroundColor: Colors.grey[200],
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
                               ))
                           .toList(),
                     ),
@@ -790,11 +1190,17 @@ class LimoHireEditScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDatePicker(BuildContext context, LimoHireEditController controller, String label, Rx<DateTime> date, bool isFromDate) {
+  Widget _buildDatePicker(
+      BuildContext context,
+      LimoHireEditController controller,
+      String label,
+      Rx<DateTime> date,
+      bool isFromDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$label Date and Time', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        Text('$label Date and Time',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         GestureDetector(
           onTap: () async {
@@ -832,21 +1238,27 @@ class LimoHireEditScreen extends StatelessWidget {
                 date.value = newDateTime;
                 if (isFromDate) {
                   controller.calendarController.fromDate.value = date.value;
-                  controller.calendarController.updateDateRange(controller.fromDate.value, controller.toDate.value);
+                  controller.calendarController.updateDateRange(
+                      controller.fromDate.value, controller.toDate.value);
                 } else {
                   controller.calendarController.toDate.value = date.value;
-                  controller.calendarController.updateDateRange(controller.fromDate.value, controller.toDate.value);
+                  controller.calendarController.updateDateRange(
+                      controller.fromDate.value, controller.toDate.value);
                 }
               }
             }
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Obx(() => Text(DateFormat('dd/MM/yyyy HH:mm').format(date.value), style: const TextStyle(fontSize: 16))),
+                Obx(() => Text(
+                    DateFormat('dd/MM/yyyy HH:mm').format(date.value),
+                    style: const TextStyle(fontSize: 16))),
                 const Icon(Icons.calendar_today, color: Colors.grey),
               ],
             ),
@@ -857,38 +1269,48 @@ class LimoHireEditScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDocumentUploadSection(BuildContext context, LimoHireEditController controller, String title, RxList<String> documentPaths, bool isRequired) {
+  Widget _buildDocumentUploadSection(
+      BuildContext context,
+      LimoHireEditController controller,
+      String title,
+      RxList<String> documentPaths,
+      bool isRequired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("$title${isRequired ? ' *' : ''}", style: const TextStyle(color: Colors.black, fontSize: 16)),
+        Text("$title${isRequired ? ' *' : ''}",
+            style: const TextStyle(color: Colors.black, fontSize: 16)),
         const SizedBox(height: 16),
         Obx(() => Wrap(
               spacing: 8.0,
-              children: documentPaths.map((path) => Stack(
-                    children: [
-                      Image.network(
-                        path,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          width: 60,
-                          height: 60,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.error, color: Colors.red),
-                        ),
-                      ),
-                      Positioned(
-                        top: 2,
-                        right: 2,
-                        child: GestureDetector(
-                          onTap: () => documentPaths.remove(path),
-                          child: const Icon(Icons.close, color: Colors.redAccent, size: 20),
-                        ),
-                      ),
-                    ],
-                  )).toList(),
+              children: documentPaths
+                  .map((path) => Stack(
+                        children: [
+                          Image.network(
+                            path,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              width: 60,
+                              height: 60,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.error, color: Colors.red),
+                            ),
+                          ),
+                          Positioned(
+                            top: 2,
+                            right: 2,
+                            child: GestureDetector(
+                              onTap: () => documentPaths.remove(path),
+                              child: const Icon(Icons.close,
+                                  color: Colors.redAccent, size: 20),
+                            ),
+                          ),
+                        ],
+                      ))
+                  .toList(),
             )),
         const SizedBox(height: 10),
         GestureDetector(
@@ -902,7 +1324,8 @@ class LimoHireEditScreen extends StatelessWidget {
                   onTap: () async {
                     await controller.imageController.pickImages(true);
                     if (controller.imageController.selectedImages.isNotEmpty) {
-                      documentPaths.add(controller.imageController.selectedImages.last);
+                      documentPaths
+                          .add(controller.imageController.selectedImages.last);
                       controller.imageController.selectedImages.removeLast();
                     }
                     Get.back();
@@ -914,7 +1337,8 @@ class LimoHireEditScreen extends StatelessWidget {
                   onTap: () async {
                     await controller.imageController.pickImages(false);
                     if (controller.imageController.selectedImages.isNotEmpty) {
-                      documentPaths.add(controller.imageController.selectedImages.last);
+                      documentPaths
+                          .add(controller.imageController.selectedImages.last);
                       controller.imageController.selectedImages.removeLast();
                     }
                     Get.back();
@@ -936,7 +1360,12 @@ class LimoHireEditScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.cloud_upload, color: Colors.grey, size: 30),
                     SizedBox(height: 8),
-                    Text('Click to upload PDF, PNG, JPG (max 5MB)', style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700), textAlign: TextAlign.center),
+                    Text('Click to upload PDF, PNG, JPG (max 5MB)',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w700),
+                        textAlign: TextAlign.center),
                   ],
                 ),
               ),
@@ -949,7 +1378,8 @@ class LimoHireEditScreen extends StatelessWidget {
   }
 
   Widget _buildCalendarCell(DateTime day, LimoHireEditController controller) {
-    final isClickable = controller.calendarController.visibleDates.any((d) => isSameDay(d, day));
+    final isClickable = controller.calendarController.visibleDates
+        .any((d) => isSameDay(d, day));
     return Container(
       margin: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
@@ -972,12 +1402,15 @@ class LimoHireEditScreen extends StatelessWidget {
                 ),
               ),
               Obx(() {
-                final price = controller.calendarController.getPriceForDate(day);
+                final price =
+                    controller.calendarController.getPriceForDate(day);
                 return Text(
                   '£${price.toStringAsFixed(2)}/hr',
                   style: TextStyle(
                     fontSize: 7,
-                    color: isClickable ? (price > 0 ? Colors.black : Colors.red) : Colors.grey,
+                    color: isClickable
+                        ? (price > 0 ? Colors.black : Colors.red)
+                        : Colors.grey,
                   ),
                 );
               }),

@@ -55,7 +55,6 @@ class _BoatHireServiceState extends State<BoatHireService> {
   bool _isSubmitting = false;
   double perMileRate = 0.0;
 
-
   // Section 2: Boat Hire Service Details
   Map<String, bool> boatTypes = {
     'canalBoat': false,
@@ -215,6 +214,9 @@ class _BoatHireServiceState extends State<BoatHireService> {
   @override
   void dispose() {
     serviceNameController.dispose();
+    imageController.dispose();
+    couponController.dispose();
+    calenderController.dispose();
     fleetSizeController.dispose();
     boatNameController.dispose();
     boatTypeController.dispose();
@@ -334,449 +336,487 @@ class _BoatHireServiceState extends State<BoatHireService> {
     }
   }
 
-  void _submitForm() async {
-    if (!_boatHireFormKey.currentState!.validate()) {
-      Get.snackbar(
-          "Validation Error", "Please fill all required fields correctly.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    // Client-side validation
-    if (!boatTypes.values.any((v) => v)) {
-      Get.snackbar(
-          "Missing Information", "Please select at least one boat type.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (!typicalUseCases.values.any((v) => v)) {
-      Get.snackbar(
-          "Missing Information", "Please select at least one use case.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (departurePoints.value.isEmpty) {
-      Get.snackbar("Missing Information", "Departure point is required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (navigableRoutes.isEmpty) {
-      Get.snackbar(
-          "Missing Information", "At least one navigable route is required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (advanceBooking == null) {
-      Get.snackbar(
-          "Missing Information", "Advance booking requirement is required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (!yearRound && !seasonal) {
-      Get.snackbar("Missing Information",
-          "Please select availability (Year-round or Seasonal).",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (seasonal && (seasonStart == null || seasonEnd == null)) {
-      Get.snackbar("Missing Information",
-          "Season start and end months are required for seasonal availability.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (!bookingOptions.values.any((v) => v)) {
-      Get.snackbar(
-          "Missing Information", "Please select at least one booking option.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    final hourlyRate = double.tryParse(hourlyRateController.text.trim()) ?? 0;
-    final halfDayRate = double.tryParse(halfDayRateController.text.trim()) ?? 0;
-    final fullDayRate = double.tryParse(fullDayRateController.text.trim()) ?? 0;
-    final overnightRate =
-        double.tryParse(overnightCharterRateController.text.trim()) ?? 0;
-    if (hourlyRate == 0 &&
-        halfDayRate == 0 &&
-        fullDayRate == 0 &&
-        overnightRate == 0) {
-      Get.snackbar(
-          "Missing Information", "At least one boat rate must be provided.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (packageDealsController.text.trim().isEmpty) {
-      Get.snackbar(
-          "Missing Information", "Package deals description is required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (hireOption == null) {
-      Get.snackbar("Missing Information", "Hire option is required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (cancellationPolicy == null || cancellationPolicy!.isEmpty) {
-      Get.snackbar("Missing Information", "Cancellation policy is required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (boatMasterLicencePaths.isEmpty ||
-        skipperCredentialsPaths.isEmpty ||
-        boatSafetyCertificatePaths.isEmpty ||
-        vesselInsuranceDocPaths.isEmpty ||
-        publicLiabilityInsuranceDocPaths.isEmpty ||
-        localAuthorityLicencePaths.isEmpty) {
-      Get.snackbar("Missing Information", "All document uploads are required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-    if (!isAccurateInfo ||
-        !noContactDetailsShared ||
-        !agreeCookiesPolicy ||
-        !agreePrivacyPolicy ||
-        !agreeCancellationPolicy) {
-      Get.snackbar("Missing Information", "Please agree to all declarations.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    // Upload documents
-    setState(() {
-      _isSubmitting = true;
-    });
-    final documentsUploaded = await _uploadDocuments();
-    if (!documentsUploaded) {
-      setState(() {
-        _isSubmitting = false;
-      });
-      return;
-    }
-
-    final data = {
-      "vendorId": vendorId,
-      "categoryId": widget.CategoryId,
-      "subcategoryId": widget.SubCategoryId,
-      "service_name": serviceNameController.text.trim(),
-      "service_status": "1",
-
-      "boatTypes": {
-        "canalBoat": boatTypes['canalBoat'],
-        "narrowboat": boatTypes['narrowboat'],
-        "dayCruiser": boatTypes['dayCruiser'],
-        "luxuryYacht": boatTypes['luxuryYacht'],
-        "sailboat": boatTypes['sailboat'],
-        "fishingBoat": boatTypes['fishingBoat'],
-        "houseboat": boatTypes['houseboat'],
-        "partyBoat": boatTypes['partyBoat'],
-        "rib": boatTypes['rib'],
-        "selfDrive": boatTypes['selfDrive'],
-        "skipperedStaffed": boatTypes['skipperedStaffed'],
-        "other": boatTypes['other'],
-        "otherSpecified": boatTypes['other'] == true
-            ? otherBoatTypeController.text.trim()
-            : ""
-      },
-
-      "typicalUseCases": {
-        "privateHire": typicalUseCases['privateHire'],
-        "familyTrips": typicalUseCases['familyTrips'],
-        "corporateEvents": typicalUseCases['corporateEvents'],
-        "henStagParties": typicalUseCases['henStagParties'],
-        "birthdayParties": typicalUseCases['birthdayParties'],
-        "weddingsProposals": typicalUseCases['weddingsProposals'],
-        "fishingTrips": typicalUseCases['fishingTrips'],
-        "sightseeingTours": typicalUseCases['sightseeingTours'],
-        "overnightStays": typicalUseCases['overnightStays'],
-        "other": typicalUseCases['other'],
-        "otherSpecified": typicalUseCases['other'] == true
-            ? otherUseCaseController.text.trim()
-            : ""
-      },
-
-      "fleetSize": fleetSizeController.text.trim(),
-      "fleetInfo": {
-        "boatName": boatNameController.text.trim(),
-        "type": boatTypeController.text.trim(),
-        "onboardFeatures": onboardFeaturesController.text.trim(),
-        "capacity": capacityController.text.trim(),
-        "year": yearController.text.trim(),
-        "notes": notesController.text.trim()
-      },
-
-      "boatType": otherBoatTypeController.text.trim().isNotEmpty
-          ? otherBoatTypeController.text.trim()
-          : boatTypeController.text.trim(),
-      "makeAndModel": makeModelController.text.trim(),
-      "firstRegistered": firstRegistrationDate.value.toIso8601String(),
-      "luggageCapacity":
-          int.tryParse(luggageCapacityController.text.trim()) ?? 0,
-      "seats": int.tryParse(numberOfSeatsController.text.trim()) ?? 0,
-      "departurePoints": departurePoints.value,
-      "navigableRoutes":
-          navigableRoutes.where((route) => route.isNotEmpty).toList(),
-
-      // FIXED: Updated to match API requirements
-      "boatRates": {
-        "hourlyRate": hourlyRate,
-        "halfDayHire": halfDayRate, // Changed from halfDayRate
-        "tenHourDayHire": fullDayRate, // Changed from fullDayRate
-        "perMileRate": perMileRate ?? 0.0, // Added required field
-      },
-
-      "advanceBooking": advanceBooking,
-      "availability": {
-        "yearRound": yearRound,
-        "seasonal": seasonal,
-        "seasonStart": seasonStart ?? "",
-        "seasonEnd": seasonEnd ?? ""
-      },
-
-      "bookingOptions": {
-        "hourly": bookingOptions['hourly'],
-        "halfDay": bookingOptions['halfDay'],
-        "fullDay": bookingOptions['fullDay'],
-        "multiDay": bookingOptions['multiDay'],
-        "overnightStay": bookingOptions['overnightStay']
-      },
-
-      "cateringEntertainment": {
-        "offered": cateringEntertainmentOffered,
-        "description": cateringEntertainmentOffered == true
-            ? cateringDescriptionController.text.trim()
-            : ""
-      },
-
-      "licensing": {
-        "publicLiabilityInsuranceProvider":
-            publicLiabilityInsuranceProviderController.text.trim(),
-        "vesselInsuranceProvider":
-            vesselInsuranceProviderController.text.trim(),
-        "insuranceProvider": insuranceProviderController.text.trim(),
-        "policyNumber": policyNumberController.text.trim(),
-        "expiryDate": policyExpiryDateController.text.trim().isNotEmpty
-            ? DateFormat('yyyy-MM-dd').format(DateFormat('dd-MM-yyyy')
-                .parse(policyExpiryDateController.text.trim()))
-            : ""
-      },
-
-      "licenseRequired": licenseRequired,
-
-      // FIXED: Safe document handling to prevent RangeError
-      "documents": {
-        "boatMasterLicence": {
-          "isAttached": boatMasterLicencePaths.isNotEmpty,
-          "image": (boatMasterLicencePaths.isNotEmpty &&
-                  imageController.uploadedUrls.isNotEmpty &&
-                  imageController.uploadedUrls.length > 0)
-              ? imageController.uploadedUrls[0]
-              : ""
-        },
-        "skipperCredentials": {
-          "isAttached": skipperCredentialsPaths.isNotEmpty,
-          "image": (skipperCredentialsPaths.isNotEmpty &&
-                  imageController.uploadedUrls.length > 1)
-              ? imageController.uploadedUrls[1]
-              : ""
-        },
-        "boatSafetyCertificate": {
-          "isAttached": boatSafetyCertificatePaths.isNotEmpty,
-          "image": (boatSafetyCertificatePaths.isNotEmpty &&
-                  imageController.uploadedUrls.length > 2)
-              ? imageController.uploadedUrls[2]
-              : ""
-        },
-        "vesselInsurance": {
-          "isAttached": vesselInsuranceDocPaths.isNotEmpty,
-          "image": (vesselInsuranceDocPaths.isNotEmpty &&
-                  imageController.uploadedUrls.length > 3)
-              ? imageController.uploadedUrls[3]
-              : ""
-        },
-        "publicLiabilityInsurance": {
-          "isAttached": publicLiabilityInsuranceDocPaths.isNotEmpty,
-          "image": (publicLiabilityInsuranceDocPaths.isNotEmpty &&
-                  imageController.uploadedUrls.length > 4)
-              ? imageController.uploadedUrls[4]
-              : ""
-        },
-        "localAuthorityLicence": {
-          "isAttached": localAuthorityLicencePaths.isNotEmpty,
-          "image": (localAuthorityLicencePaths.isNotEmpty &&
-                  imageController.uploadedUrls.length > 5)
-              ? imageController.uploadedUrls[5]
-              : ""
-        }
-      },
-
-      "uniqueFeatures": uniqueFeaturesController.text.trim(),
-      "promotionalDescription": promotionalDescriptionController.text.trim(),
-
-      "photos": {
-        "interior": interiorImages ?? [],
-        "exterior": exteriorImages ?? [],
-        "onWaterView": onWaterViewImages ?? []
-      },
-
-      "service_image": imageController.uploadedUrls.isNotEmpty
-          ? imageController.uploadedUrls
-          : [],
-
-      "comfort": {
-        "leatherInterior": comfort['leatherInterior'] ?? false,
-        "wifiAccess": comfort['wifiAccess'] ?? false,
-        "airConditioning": comfort['airConditioning'] ?? false,
-        "complimentaryDrinks": {
-          "available": comfort['complimentaryDrinks'] ?? false,
-          "details": comfort['complimentaryDrinksDetails'] ?? ""
-        },
-        "inCarEntertainment": comfort['inCarEntertainment'] ?? false,
-        "bluetoothUsb": comfort['bluetoothUsb'] ?? false,
-        "redCarpetService": comfort['redCarpetService'] ?? false,
-        "onboardRestroom": comfort['onboardRestroom'] ?? false
-      },
-
-      "events": {
-        "weddingDecor": events['weddingDecor'] ?? false,
-        "weddingDecorPrice": events['weddingDecorPrice'] ?? 0,
-        "partyLightingSystem": events['partyLightingSystem'] ?? false,
-        "partyLightingPrice": events['partyLightingPrice'] ?? 0,
-        "champagnePackages": events['champagnePackages'] ?? false,
-        "champagnePackagePrice": events['champagnePackagePrice'] ?? 0,
-        "photographyPackages": events['photographyPackages'] ?? false,
-        "photographyPackagePrice": events['photographyPackagePrice'] ?? 0
-      },
-
-      "accessibility": {
-        "wheelchairAccessVehicle":
-            accessibility['wheelchairAccessVehicle'] ?? false,
-        "wheelchairAccessPrice": accessibility['wheelchairAccessPrice'] ?? 0,
-        "childCarSeats": accessibility['childCarSeats'] ?? false,
-        "childCarSeatsPrice": accessibility['childCarSeatsPrice'] ?? 0,
-        "petFriendlyService": accessibility['petFriendlyService'] ?? false,
-        "petFriendlyPrice": accessibility['petFriendlyPrice'] ?? 0,
-        "disabledAccessRamp": accessibility['disabledAccessRamp'] ?? false,
-        "disabledAccessRampPrice":
-            accessibility['disabledAccessRampPrice'] ?? 0,
-        "seniorFriendlyAssistance":
-            accessibility['seniorFriendlyAssistance'] ?? false,
-        "seniorAssistancePrice": accessibility['seniorAssistancePrice'] ?? 0,
-        "strollerBuggyStorage": accessibility['strollerBuggyStorage'] ?? false,
-        "strollerStoragePrice": accessibility['strollerStoragePrice'] ?? 0
-      },
-
-      "security": {
-        "vehicleTrackingGps": security['vehicleTrackingGps'] ?? false,
-        "cctvFitted": security['cctvFitted'] ?? false,
-        "publicLiabilityInsurance":
-            security['publicLiabilityInsurance'] ?? false,
-        "safetyCertifiedDrivers": security['safetyCertifiedDrivers'] ?? false
-      },
-
-      "departurePoint": departurePoints.value.trim(),
-      "postcode": basePostcodeController.text.trim(),
-      "serviceCoverage": navigableRoutes.toList(),
-      "mileageRadius": 0,
-
-      "coupons": couponController.coupons
-          .map((coupon) => {
-                "coupon_code": coupon['coupon_code'] ?? "",
-                "discount_type": coupon['discount_type'] ?? "",
-                "discount_value": coupon['discount_value'] ?? 0,
-                "usage_limit": coupon['usage_limit'] ?? 0,
-                "current_usage_count": coupon['current_usage_count'] ?? 0,
-                "expiry_date": coupon['expiry_date'] != null &&
-                        coupon['expiry_date'].toString().isNotEmpty
-                    ? DateFormat('yyyy-MM-dd').format(
-                        DateTime.parse(coupon['expiry_date'].toString()))
-                    : "",
-                "is_global": coupon['is_global'] ?? false
-              })
-          .toList(),
-
-      "special_price_days": calenderController.specialPrices
-          .map((e) => {
-                "date": e['date'] != null
-                    ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime)
-                    : "",
-                "price": e['price'] as double? ?? 0
-              })
-          .toList(),
-
-      "booking_date_from": calenderController.fromDate.value != null
-          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-              .format(calenderController.fromDate.value)
-          : "",
-
-      "booking_date_to": calenderController.toDate.value != null
-          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-              .format(calenderController.toDate.value)
-          : "",
-
-      "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
-      "hireType":
-          hireOptionSkippered == true ? "skippered-only" : (hireOption ?? ""),
-
-      "isAccurateInfo": isAccurateInfo,
-      "noContactDetailsShared": noContactDetailsShared,
-      "agreeCookiesPolicy": agreeCookiesPolicy,
-      "agreePrivacyPolicy": agreePrivacyPolicy,
-      "agreeCancellationPolicy": agreeCancellationPolicy,
-    };
-
-    // Submit to API
-    final api = AddVendorServiceApi();
+  Future<void> _submitForm() async {
     try {
-      final isAdded = await api.addServiceVendor(data, 'boat');
-      if (isAdded) {
-        Get.to(() => HomePageAddService());
-      } else {
-        Get.snackbar('Error', 'Add Service Failed. Please try again.',
+      // Form validation
+      if (!_boatHireFormKey.currentState!.validate()) {
+        Get.snackbar(
+            "Validation Error", "Please fill all required fields correctly.",
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white);
+        return;
+      }
+
+      // Client-side validation
+      if (!boatTypes.values.any((v) => v)) {
+        Get.snackbar(
+            "Missing Information", "Please select at least one boat type.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (!typicalUseCases.values.any((v) => v)) {
+        Get.snackbar(
+            "Missing Information", "Please select at least one use case.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (departurePoints.value.isEmpty) {
+        Get.snackbar("Missing Information", "Departure point is required.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (navigableRoutes.isEmpty) {
+        Get.snackbar(
+            "Missing Information", "At least one navigable route is required.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (advanceBooking == null) {
+        Get.snackbar(
+            "Missing Information", "Advance booking requirement is required.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (!yearRound && !seasonal) {
+        Get.snackbar("Missing Information",
+            "Please select availability (Year-round or Seasonal).",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (seasonal && (seasonStart == null || seasonEnd == null)) {
+        Get.snackbar("Missing Information",
+            "Season start and end months are required for seasonal availability.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (!bookingOptions.values.any((v) => v)) {
+        Get.snackbar(
+            "Missing Information", "Please select at least one booking option.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      final hourlyRate = double.tryParse(hourlyRateController.text.trim()) ?? 0;
+      final halfDayRate =
+          double.tryParse(halfDayRateController.text.trim()) ?? 0;
+      final fullDayRate =
+          double.tryParse(fullDayRateController.text.trim()) ?? 0;
+      final overnightRate =
+          double.tryParse(overnightCharterRateController.text.trim()) ?? 0;
+
+      if (hourlyRate == 0 &&
+          halfDayRate == 0 &&
+          fullDayRate == 0 &&
+          overnightRate == 0) {
+        Get.snackbar(
+            "Missing Information", "At least one boat rate must be provided.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (packageDealsController.text.trim().isEmpty) {
+        Get.snackbar(
+            "Missing Information", "Package deals description is required.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (hireOption == null) {
+        Get.snackbar("Missing Information", "Hire option is required.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (cancellationPolicy == null || cancellationPolicy!.isEmpty) {
+        Get.snackbar("Missing Information", "Cancellation policy is required.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (boatMasterLicencePaths.isEmpty ||
+          skipperCredentialsPaths.isEmpty ||
+          boatSafetyCertificatePaths.isEmpty ||
+          vesselInsuranceDocPaths.isEmpty ||
+          publicLiabilityInsuranceDocPaths.isEmpty ||
+          localAuthorityLicencePaths.isEmpty) {
+        Get.snackbar(
+            "Missing Information", "All document uploads are required.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      if (!isAccurateInfo ||
+          !noContactDetailsShared ||
+          !agreeCookiesPolicy ||
+          !agreePrivacyPolicy ||
+          !agreeCancellationPolicy) {
+        Get.snackbar("Missing Information", "Please agree to all declarations.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      // Upload documents
+      final documentsUploaded = await _uploadDocuments();
+      if (!documentsUploaded) {
+        return;
+      }
+
+      // Prepare data payload
+      final data = {
+        "vendorId": vendorId,
+        "categoryId": widget.CategoryId,
+        "subcategoryId": widget.SubCategoryId,
+        "service_name": serviceNameController.text.trim(),
+        "service_status": "1",
+
+        "boatTypes": {
+          "canalBoat": boatTypes['canalBoat'],
+          "narrowboat": boatTypes['narrowboat'],
+          "dayCruiser": boatTypes['dayCruiser'],
+          "luxuryYacht": boatTypes['luxuryYacht'],
+          "sailboat": boatTypes['sailboat'],
+          "fishingBoat": boatTypes['fishingBoat'],
+          "houseboat": boatTypes['houseboat'],
+          "partyBoat": boatTypes['partyBoat'],
+          "rib": boatTypes['rib'],
+          "selfDrive": boatTypes['selfDrive'],
+          "skipperedStaffed": boatTypes['skipperedStaffed'],
+          "other": boatTypes['other'],
+          "otherSpecified": boatTypes['other'] == true
+              ? otherBoatTypeController.text.trim()
+              : ""
+        },
+
+        "typicalUseCases": {
+          "privateHire": typicalUseCases['privateHire'],
+          "familyTrips": typicalUseCases['familyTrips'],
+          "corporateEvents": typicalUseCases['corporateEvents'],
+          "henStagParties": typicalUseCases['henStagParties'],
+          "birthdayParties": typicalUseCases['birthdayParties'],
+          "weddingsProposals": typicalUseCases['weddingsProposals'],
+          "fishingTrips": typicalUseCases['fishingTrips'],
+          "sightseeingTours": typicalUseCases['sightseeingTours'],
+          "overnightStays": typicalUseCases['overnightStays'],
+          "other": typicalUseCases['other'],
+          "otherSpecified": typicalUseCases['other'] == true
+              ? otherUseCaseController.text.trim()
+              : ""
+        },
+
+        "fleetSize": fleetSizeController.text.trim(),
+        "fleetInfo": {
+          "boatName": boatNameController.text.trim(),
+          "type": boatTypeController.text.trim(),
+          "onboardFeatures": onboardFeaturesController.text.trim(),
+          "capacity": capacityController.text.trim(),
+          "year": yearController.text.trim(),
+          "notes": notesController.text.trim()
+        },
+
+        "boatType": otherBoatTypeController.text.trim().isNotEmpty
+            ? otherBoatTypeController.text.trim()
+            : boatTypeController.text.trim(),
+        "makeAndModel": makeModelController.text.trim(),
+        "firstRegistered": firstRegistrationDate.value.toIso8601String(),
+        "luggageCapacity":
+            int.tryParse(luggageCapacityController.text.trim()) ?? 0,
+        "seats": int.tryParse(numberOfSeatsController.text.trim()) ?? 0,
+        "departurePoints": departurePoints.value,
+        "navigableRoutes":
+            navigableRoutes.where((route) => route.isNotEmpty).toList(),
+
+        // Updated to match API requirements
+        "boatRates": {
+          "hourlyRate": hourlyRate,
+          "halfDayHire": halfDayRate,
+          "tenHourDayHire": fullDayRate,
+          "perMileRate": perMileRate ?? 0.0,
+        },
+
+        "advanceBooking": advanceBooking,
+        "availability": {
+          "yearRound": yearRound,
+          "seasonal": seasonal,
+          "seasonStart": seasonStart ?? "",
+          "seasonEnd": seasonEnd ?? ""
+        },
+
+        "bookingOptions": {
+          "hourly": bookingOptions['hourly'],
+          "halfDay": bookingOptions['halfDay'],
+          "fullDay": bookingOptions['fullDay'],
+          "multiDay": bookingOptions['multiDay'],
+          "overnightStay": bookingOptions['overnightStay']
+        },
+
+        "cateringEntertainment": {
+          "offered": cateringEntertainmentOffered,
+          "description": cateringEntertainmentOffered == true
+              ? cateringDescriptionController.text.trim()
+              : ""
+        },
+
+        "licensing": {
+          "publicLiabilityInsuranceProvider":
+              publicLiabilityInsuranceProviderController.text.trim(),
+          "vesselInsuranceProvider":
+              vesselInsuranceProviderController.text.trim(),
+          "insuranceProvider": insuranceProviderController.text.trim(),
+          "policyNumber": policyNumberController.text.trim(),
+          "expiryDate": policyExpiryDateController.text.trim().isNotEmpty
+              ? DateFormat('yyyy-MM-dd').format(DateFormat('dd-MM-yyyy')
+                  .parse(policyExpiryDateController.text.trim()))
+              : ""
+        },
+
+        "licenseRequired": licenseRequired,
+
+        // Safe document handling to prevent RangeError
+        "documents": {
+          "boatMasterLicence": {
+            "isAttached": boatMasterLicencePaths.isNotEmpty,
+            "image": (boatMasterLicencePaths.isNotEmpty &&
+                    imageController.uploadedUrls.isNotEmpty &&
+                    imageController.uploadedUrls.length > 0)
+                ? imageController.uploadedUrls[0]
+                : ""
+          },
+          "skipperCredentials": {
+            "isAttached": skipperCredentialsPaths.isNotEmpty,
+            "image": (skipperCredentialsPaths.isNotEmpty &&
+                    imageController.uploadedUrls.length > 1)
+                ? imageController.uploadedUrls[1]
+                : ""
+          },
+          "boatSafetyCertificate": {
+            "isAttached": boatSafetyCertificatePaths.isNotEmpty,
+            "image": (boatSafetyCertificatePaths.isNotEmpty &&
+                    imageController.uploadedUrls.length > 2)
+                ? imageController.uploadedUrls[2]
+                : ""
+          },
+          "vesselInsurance": {
+            "isAttached": vesselInsuranceDocPaths.isNotEmpty,
+            "image": (vesselInsuranceDocPaths.isNotEmpty &&
+                    imageController.uploadedUrls.length > 3)
+                ? imageController.uploadedUrls[3]
+                : ""
+          },
+          "publicLiabilityInsurance": {
+            "isAttached": publicLiabilityInsuranceDocPaths.isNotEmpty,
+            "image": (publicLiabilityInsuranceDocPaths.isNotEmpty &&
+                    imageController.uploadedUrls.length > 4)
+                ? imageController.uploadedUrls[4]
+                : ""
+          },
+          "localAuthorityLicence": {
+            "isAttached": localAuthorityLicencePaths.isNotEmpty,
+            "image": (localAuthorityLicencePaths.isNotEmpty &&
+                    imageController.uploadedUrls.length > 5)
+                ? imageController.uploadedUrls[5]
+                : ""
+          }
+        },
+
+        "uniqueFeatures": uniqueFeaturesController.text.trim(),
+        "promotionalDescription": promotionalDescriptionController.text.trim(),
+
+        "photos": {
+          "interior": interiorImages ?? [],
+          "exterior": exteriorImages ?? [],
+          "onWaterView": onWaterViewImages ?? []
+        },
+
+        "service_image": imageController.uploadedUrls.isNotEmpty
+            ? imageController.uploadedUrls
+            : [],
+
+        "comfort": {
+          "leatherInterior": comfort['leatherInterior'] ?? false,
+          "wifiAccess": comfort['wifiAccess'] ?? false,
+          "airConditioning": comfort['airConditioning'] ?? false,
+          "complimentaryDrinks": {
+            "available": comfort['complimentaryDrinks'] ?? false,
+            "details": comfort['complimentaryDrinksDetails'] ?? ""
+          },
+          "inCarEntertainment": comfort['inCarEntertainment'] ?? false,
+          "bluetoothUsb": comfort['bluetoothUsb'] ?? false,
+          "redCarpetService": comfort['redCarpetService'] ?? false,
+          "onboardRestroom": comfort['onboardRestroom'] ?? false
+        },
+
+        "events": {
+          "weddingDecor": events['weddingDecor'] ?? false,
+          "weddingDecorPrice": events['weddingDecorPrice'] ?? 0,
+          "partyLightingSystem": events['partyLightingSystem'] ?? false,
+          "partyLightingPrice": events['partyLightingPrice'] ?? 0,
+          "champagnePackages": events['champagnePackages'] ?? false,
+          "champagnePackagePrice": events['champagnePackagePrice'] ?? 0,
+          "photographyPackages": events['photographyPackages'] ?? false,
+          "photographyPackagePrice": events['photographyPackagePrice'] ?? 0
+        },
+
+        "accessibility": {
+          "wheelchairAccessVehicle":
+              accessibility['wheelchairAccessVehicle'] ?? false,
+          "wheelchairAccessPrice": accessibility['wheelchairAccessPrice'] ?? 0,
+          "childCarSeats": accessibility['childCarSeats'] ?? false,
+          "childCarSeatsPrice": accessibility['childCarSeatsPrice'] ?? 0,
+          "petFriendlyService": accessibility['petFriendlyService'] ?? false,
+          "petFriendlyPrice": accessibility['petFriendlyPrice'] ?? 0,
+          "disabledAccessRamp": accessibility['disabledAccessRamp'] ?? false,
+          "disabledAccessRampPrice":
+              accessibility['disabledAccessRampPrice'] ?? 0,
+          "seniorFriendlyAssistance":
+              accessibility['seniorFriendlyAssistance'] ?? false,
+          "seniorAssistancePrice": accessibility['seniorAssistancePrice'] ?? 0,
+          "strollerBuggyStorage":
+              accessibility['strollerBuggyStorage'] ?? false,
+          "strollerStoragePrice": accessibility['strollerStoragePrice'] ?? 0
+        },
+
+        "security": {
+          "vehicleTrackingGps": security['vehicleTrackingGps'] ?? false,
+          "cctvFitted": security['cctvFitted'] ?? false,
+          "publicLiabilityInsurance":
+              security['publicLiabilityInsurance'] ?? false,
+          "safetyCertifiedDrivers": security['safetyCertifiedDrivers'] ?? false
+        },
+
+        "departurePoint": departurePoints.value.trim(),
+        "postcode": basePostcodeController.text.trim(),
+        "serviceCoverage": navigableRoutes.toList(),
+        "mileageRadius": 0,
+
+        "coupons": couponController.coupons
+            .map((coupon) => {
+                  "coupon_code": coupon['coupon_code'] ?? "",
+                  "discount_type": coupon['discount_type'] ?? "",
+                  "discount_value": coupon['discount_value'] ?? 0,
+                  "usage_limit": coupon['usage_limit'] ?? 0,
+                  "current_usage_count": coupon['current_usage_count'] ?? 0,
+                  "expiry_date": coupon['expiry_date'] != null &&
+                          coupon['expiry_date'].toString().isNotEmpty
+                      ? DateFormat('yyyy-MM-dd').format(
+                          DateTime.parse(coupon['expiry_date'].toString()))
+                      : "",
+                  "is_global": coupon['is_global'] ?? false
+                })
+            .toList(),
+
+        "special_price_days": calenderController.specialPrices
+            .map((e) => {
+                  "date": e['date'] != null
+                      ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime)
+                      : "",
+                  "price": e['price'] as double? ?? 0
+                })
+            .toList(),
+
+        "booking_date_from": calenderController.fromDate.value != null
+            ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(calenderController.fromDate.value)
+            : "",
+
+        "booking_date_to": calenderController.toDate.value != null
+            ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(calenderController.toDate.value)
+            : "",
+
+        "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
+        "hireType":
+            hireOptionSkippered == true ? "skippered-only" : (hireOption ?? ""),
+
+        "isAccurateInfo": isAccurateInfo,
+        "noContactDetailsShared": noContactDetailsShared,
+        "agreeCookiesPolicy": agreeCookiesPolicy,
+        "agreePrivacyPolicy": agreePrivacyPolicy,
+        "agreeCancellationPolicy": agreeCancellationPolicy,
+      };
+
+      // Submit to API
+      final api = AddVendorServiceApi();
+      final isAdded = await api.addServiceVendor(data, 'boat');
+
+      if (isAdded) {
+        Get.snackbar(
+          'Success',
+          'Service added successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+        Get.to(() => HomePageAddService());
+      } else {
+        Get.snackbar(
+          'Error',
+          'Add Service Failed. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
       }
     } catch (e) {
       print("API Error: $e");
-      Get.snackbar('Error', 'Server error: $e',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'Server error: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
     } finally {
+      // Always reset loading state
       setState(() {
         _isSubmitting = false;
       });
-      final ServiceController controller = Get.find<ServiceController>();
-      controller.fetchServices();
+
+      // Refresh services list
+      try {
+        final ServiceController controller = Get.find<ServiceController>();
+        controller.fetchServices();
+      } catch (e) {
+        print("Error refreshing services: $e");
+      }
     }
   }
 
@@ -1148,7 +1188,7 @@ class _BoatHireServiceState extends State<BoatHireService> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$label Date',
+          '$label Date *',
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
@@ -1371,12 +1411,6 @@ class _BoatHireServiceState extends State<BoatHireService> {
                     },
                   ),
                 ),
-
-                const SizedBox(height: 10),
-
-                const Text('First Registration Date *',
-                    style:
-                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
 
                 const SizedBox(height: 10),
                 _buildDatePicker(
@@ -1615,7 +1649,7 @@ class _BoatHireServiceState extends State<BoatHireService> {
                     textcont: locationRadiusController,
                     textfilled_height: 17,
                     textfilled_weight: 1,
-                    keytype: TextInputType.text,
+                    keytype: TextInputType.number,
                     hinttext: "Enter Location Radius (miles)",
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -1882,7 +1916,7 @@ class _BoatHireServiceState extends State<BoatHireService> {
                   width: double.infinity,
                   child: CustomDropdown(
                     hintText: "Select Hire Option",
-                    items: ['Skippered Only', 'Self Drive'],
+                    items: ['Skippered Only'],
                     selectedValue: hireOption,
                     onChanged: (value) {
                       setState(() {
@@ -2454,6 +2488,7 @@ class _BoatHireServiceState extends State<BoatHireService> {
                     onPressed: _isSubmitting
                         ? null // Disable button while submitting
                         : () async {
+                            // Make this async
                             if (!_boatHireFormKey.currentState!.validate()) {
                               Get.snackbar(
                                 "Validation Error",
@@ -2639,14 +2674,12 @@ class _BoatHireServiceState extends State<BoatHireService> {
                                   margin: const EdgeInsets.all(10));
                               return;
                             }
+
                             setState(() {
-                              _isSubmitting = true; // Start loading
+                              _isSubmitting = true;
                             });
-                            _submitForm();
-                            setState(() {
-                              _isSubmitting =
-                                  false; // Stop loading after submission
-                            });
+
+                            await _submitForm();
                           },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(

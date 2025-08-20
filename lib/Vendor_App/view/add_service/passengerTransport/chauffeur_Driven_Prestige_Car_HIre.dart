@@ -453,32 +453,26 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
       "locationRadius": locationRadiusController.text.trim(),
       "areasCovered": areasCovered.toList(),
 
-      // Service status
-      "service_status": serviceStatus,
+      "service_status": serviceStatus?.toLowerCase() ?? "open",
       "service_approve_status": "0",
 
-      // Fleet information (match API structure exactly)
+      // Fleet information - FIXED: Added missing required fields
       "fleetInfo": {
-        "capacity": "",
         "make": makeModelController.text.trim(),
         "model": makeModelController.text.trim(),
+        "makeAndModel":
+            "${makeModelController.text.trim()} ${makeModelController.text.trim()}", // ADDED: Combined make and model
         "year": yearController.text.trim(),
         "wheelchairAccessible":
             accessibilitySpecial['wheelchairAccess'] ?? false,
-        "makeAndModel": makeModelController.text.trim(),
         "seats": seatsController.text.trim(),
+        "luggageCapacity": bootSpaceController.text.trim(),
         "firstRegistration": yearController.text.trim().isNotEmpty
             ? "${yearController.text.trim()}-01-01"
             : ""
       },
 
-      // Chauffeur details
-      "chauffeurDetails": {
-        "yearsExperience": 0, // Add controller if you have this field
-        "dresscode": "" // Add controller if you have this field
-      },
-
-      // Pricing details (strings for some fields as per API)
+      // Rest of your data remains the same...
       "pricingDetails": {
         "dayRate": dayRate.toString(),
         "mileageLimit":
@@ -499,10 +493,8 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
         "fuelChargesIncluded": fuelChargesIncluded,
       },
 
-      // Availability details
       "availabilityDetails": {"available24x7": availabilityStatus},
 
-      // Booking dates
       "booking_date_from": calendarController.fromDate.value != null
           ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
               .format(calendarController.fromDate.value)
@@ -512,7 +504,6 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
               .format(calendarController.toDate.value)
           : "",
 
-      // Special pricing days
       "special_price_days": calendarController.specialPrices
           .map((e) => {
                 "date": e['date'] != null
@@ -522,36 +513,12 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
               })
           .toList(),
 
-      // Features (simplified structure as per API)
-      "features": {
-        "comfort": {
-          "leatherInterior": comfortLuxury['leatherInterior'] ?? false,
-          // Add other comfort features as boolean values
-        },
-        "events": {
-          "weddingDecor": eventsExtras['weddingDecor'] ?? false,
-          // Add other event features as boolean values
-        },
-        "accessibility": {
-          "wheelchairAccessVehicle":
-              accessibilitySpecial['wheelchairAccess'] ?? false,
-          // Add other accessibility features as boolean values
-        },
-        "security": {
-          "vehicleTrackingGps":
-              securityCompliance['vehicleTrackingGps'] ?? false,
-          // Add other security features as boolean values
-        }
-      },
-
-      // Service images
       "service_image": imageController.uploadedUrls.isNotEmpty
           ? imageController.uploadedUrls
           : [],
 
-      // Licensing documents (simplified structure)
-      "licensing": {
-        "documents": {
+      "docs": {
+        "chauffeurDocs": {
           "vehicleInsurance": {
             "isAttached":
                 vehicleInsuranceEnabled && vehicleInsurancePaths.isNotEmpty
@@ -562,63 +529,21 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
           "chauffeurDrivingLicence": {
             "isAttached":
                 chauffeurLicenceEnabled && chauffeurLicencePaths.isNotEmpty
+          }
+        },
+        if (operatorLicenceEnabled)
+          "operatorLicence": {
+            "isAttached":
+                operatorLicenceEnabled && operatorLicencePaths.isNotEmpty
           },
-          // Add operator licence if needed
-          if (operatorLicenceEnabled)
-            "operatorLicence": {
-              "isAttached":
-                  operatorLicenceEnabled && operatorLicencePaths.isNotEmpty
-            },
-          // Add public liability if needed
-          if (publicLiabilityEnabled)
-            "publicLiabilityInsurance": {
-              "isAttached":
-                  publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty
-            }
-        }
+        if (publicLiabilityEnabled)
+          "publicLiabilityInsurance": {
+            "isAttached":
+                publicLiabilityEnabled && publicLiabilityPaths.isNotEmpty
+          }
       },
 
-      // Cancellation policy
       "cancellation_policy_type": cancellationPolicy ?? "MODERATE",
-
-      // Additional fields from API format
-      "kilometer_price": "",
-      "city_name": [],
-      "certifications": [],
-      "operators": [],
-
-      // Form errors (if any)
-      "formErrors": {"booking_date_to": ""},
-
-      "listing_data": {
-        "title": "${serviceNameController.text.trim()} Chauffeur Service",
-        "description":
-            "${serviceNameController.text.trim()} chauffeur service based in ${baseLocationController.text.trim()}",
-        "price": dayRate.toString(),
-        "price_formatted": "£${dayRate.toString()}/day",
-        "location": baseLocationController.text.trim(),
-        "image": imageController.uploadedUrls.isNotEmpty
-            ? imageController.uploadedUrls.first
-            : "",
-        "status": "open",
-        "category": "Chauffeur Service",
-        "features": [
-          makeModelController.text.trim(),
-          "${seatsController.text.trim()} seats",
-          "${yearController.text.trim()} model",
-          serviceType
-        ].where((f) => f!.isNotEmpty).toList(),
-        "areasCovered": areasCovered.take(3).toList(),
-        "summary": {
-          "day_rate": dayRate.toString(),
-          "hourly_rate": hourlyRate.toString(),
-          "vehicle": makeModelController.text.trim(),
-          "availability": calendarController.fromDate.value != null &&
-                  calendarController.toDate.value != null
-              ? "${DateFormat('dd/MM/yyyy').format(calendarController.fromDate.value)} - ${DateFormat('dd/MM/yyyy').format(calendarController.toDate.value)}"
-              : ""
-        }
-      }
     };
 
     final api = AddVendorServiceApi();
@@ -1645,7 +1570,7 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                   width: double.infinity,
                   child: CustomDropdown(
                     hintText: "Select Service Status",
-                    items: ['Open', 'Close'],
+                    items: ['open', 'close'],
                     selectedValue: serviceStatus,
                     onChanged: (value) {
                       setState(() {
@@ -1654,6 +1579,7 @@ class _ChauffeurHireServiceState extends State<ChauffeurHireService> {
                     },
                   ),
                 ),
+
                 const SizedBox(height: 20),
                 const Text(
                   'Availability *',
