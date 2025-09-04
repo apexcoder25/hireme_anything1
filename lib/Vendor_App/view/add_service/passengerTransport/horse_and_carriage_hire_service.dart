@@ -60,7 +60,8 @@ class _HorseAndCarriageHireServiceState
     'Specialty Carriage': false,
   };
   TextEditingController otherCarriageController = TextEditingController();
-  TextEditingController fleetSizeController = TextEditingController();
+  TextEditingController seatsController = TextEditingController();
+  TextEditingController luggageCapacityController = TextEditingController();
 
   // Section 3: Equipment & Safety
   bool isMaintainedAndSafetyChecked = false;
@@ -204,7 +205,8 @@ class _HorseAndCarriageHireServiceState
     imageController.dispose();
     makeAndModelController.dispose();
     otherCarriageController.dispose();
-    fleetSizeController.dispose();
+    seatsController.dispose();
+    luggageCapacityController.dispose();
     maintenanceFrequencyController.dispose();
     carriageTypeController.dispose();
     horseBreedController.dispose();
@@ -289,147 +291,111 @@ class _HorseAndCarriageHireServiceState
       });
       return;
     }
-
-    final data = {
-      "vendorId": vendorId,
-      "categoryId": widget.CategoryId,
-      "subcategoryId": widget.SubCategoryId,
-      "service_name": serviceNameController.text.trim(),
-
-      // Required field - add listing title
-      "listingTitle":
-          serviceNameController.text.trim(), 
-
-      // Required vehicleDetails object
-      "vehicleDetails": {
-        "makeAndModel": makeAndModelController.text.trim(),
-        "firstRegistered":
-            DateFormat("yyyy-MM-dd").format(firstRegisteredDate.value),
-        "basePostcode": basePostcodeController.text.trim(),
-        "locationRadius": locationRadiusController.text.trim(),
-      },
-
-      "carriageTypes": carriageTypes,
-      "otherCarriage": carriageTypes['Specialty Carriage'] == true
-          ? otherCarriageController.text.trim()
-          : "",
-      "fleetSize": fleetSizeController.text.trim(),
-
-      "equipmentSafety": {
-        "isMaintainedAndSafetyChecked": isMaintainedAndSafetyChecked,
-        // Fixed: Use valid enum value instead of "2"
-        "maintenanceFrequency": isMaintainedAndSafetyChecked
-            ? "Monthly"
-            : "", // Valid options: "Weekly", "Monthly", "Quarterly", "Annually"
-      },
-
-      "fleetInfo": {
-        "carriageType": carriageTypeController.text.trim(),
-        "horseBreed": horseBreedController.text.trim(),
-        "color": colorController.text.trim(),
-        "capacity": capacityController.text.trim(),
-        "year": yearController.text.trim(),
-        "notes": notesController.text.trim(),
-      },
-
-      "pricing": {
-        "dayRate": double.tryParse(dayRateController.text.trim()) ?? 0,
-        // Fixed: Ensure mileageLimit is at least 200
-        "mileageLimit": math.max(
-            double.tryParse(mileageLimitController.text.trim()) ?? 200, 200),
-        "extraMileageCharge":
-            double.tryParse(extraMileageChargeController.text.trim()) ?? 0,
-        "waitTimeFree":
-            double.tryParse(waitTimeFreeController.text.trim()) ?? 0,
-        "decorationFee":
-            double.tryParse(decorationFeeController.text.trim()) ?? 0,
-        "standardService":
-            double.tryParse(standardServiceController.text.trim()) ?? 0,
-        "premiumService":
-            double.tryParse(premiumServiceController.text.trim()) ?? 0,
-        "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
-        "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
-        "bookingProcess": bookingProcessController.text.trim(),
-        "paymentTerms": paymentTermsController.text.trim(),
-        "fuelAndFeedIncluded": fuelAndFeedIncluded,
-      },
-
-      "coverageAvailability": {
-        "areasCovered": areasCovered.toList(),
-        "serviceStatus": serviceStatus,
-        "fromDate":
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-        "toDate":
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
-      },
-
-      "accessibilitySpecial": {
-        "Wheelchair Accessible Carriage":
-            accessibilitySpecial['Wheelchair Accessible Carriage']!,
-        "Wheelchair Access Price":
-            double.tryParse(wheelchairAccessPriceController.text.trim()) ?? 0,
-        "Assistance for Elderly":
-            accessibilitySpecial['Assistance for Elderly']!,
-        "Elderly Assistance Price":
-            double.tryParse(elderlyAssistancePriceController.text.trim()) ?? 0,
-        "Custom Decorations": accessibilitySpecial['Custom Decorations']!,
-        "Custom Decoration Price":
-            double.tryParse(customDecorationPriceController.text.trim()) ?? 0,
-      },
-
-      "handlerDetails": {
-        "handlerDetails": handlerDetails,
-        "eventType": eventType,
-        "additionalServices": additionalServices,
-      },
-
-      "licensingInsurance": {
-        "hasPublicLiabilityInsurance": hasPublicLiabilityInsurance,
-        "insuranceProvider": hasPublicLiabilityInsurance
-            ? insuranceProviderController.text.trim()
-            : "",
-        "insurancePolicyNumber": hasPublicLiabilityInsurance
-            ? insurancePolicyNumberController.text.trim()
-            : "",
-        "insuranceExpiryDate": hasPublicLiabilityInsurance
-            ? insuranceExpiryDateController.text.trim()
-            : "",
-        "hasPerformingAnimalLicence": hasPerformingAnimalLicence,
-        "animalLicenceNumber": hasPerformingAnimalLicence
-            ? animalLicenceNumberController.text.trim()
-            : "",
-        "licensingAuthority": hasPerformingAnimalLicence
-            ? licensingAuthorityController.text.trim()
-            : "",
-        "licenceExpiryDate": hasPerformingAnimalLicence
-            ? licenceExpiryDateController.text.trim()
-            : "",
-        "licencePaths": licenceEnabled ? licencePaths : [],
-        "insuranceCertificatePaths":
-            insuranceCertificateEnabled ? insuranceCertificatePaths : [],
-        "horseCertificatesPaths":
-            horseCertificatesEnabled ? horseCertificatesPaths : [],
-        "carriagePhotosPaths": carriagePhotosPaths,
-      },
-
-      "businessHighlights": {
-        "uniqueService": uniqueServiceController.text.trim(),
-        "promotionalDescription": promotionalDescriptionController.text.trim(),
-      },
-
-      "declaration": {
-        "agreeTerms": agreeTerms,
-        "noContactDetails": noContactDetails,
-        "agreeCookies": agreeCookies,
-        "agreePrivacy": agreePrivacy,
-        "agreeCancellation": agreeCancellation,
-        "cancellationPolicy": cancellationPolicy ?? "FLEXIBLE",
-      },
-
-      // Required field - add cancellation policy type
-      "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
-    };
-
+final data = {
+    "vendorId": vendorId,
+    "categoryId": widget.CategoryId,
+    "subcategoryId": widget.SubCategoryId,
+    "service_name": serviceNameController.text.trim(),
+    "listingTitle": serviceNameController.text.trim(),
+    
+    "vehicleDetails": {
+      "makeAndModel": makeAndModelController.text.trim(),
+      "firstRegistered": DateFormat("yyyy-MM-dd").format(firstRegisteredDate.value),
+      "basePostcode": basePostcodeController.text.trim(),
+      "locationRadius": locationRadiusController.text.trim(),
+      // Ensure these are ALWAYS present and non-null
+      "luggageCapacity": luggageCapacityController.text.trim(),
+      "seats": seatsController.text.trim(),
+    },
+    
+    "carriageTypes": carriageTypes,
+    "otherCarriage": carriageTypes['Specialty Carriage'] == true
+        ? otherCarriageController.text.trim()
+        : "",
+    "fleetSize": seatsController.text.trim(),
+    
+    "equipmentSafety": {
+      "isMaintainedAndSafetyChecked": isMaintainedAndSafetyChecked,
+      "maintenanceFrequency": "Monthly", 
+    },
+    
+    "fleetInfo": {
+      "carriageType": carriageTypeController.text.trim(),
+      "horseBreed": horseBreedController.text.trim(),
+      "color": colorController.text.trim(),
+      "capacity": capacityController.text.trim(),
+      "year": yearController.text.trim(),
+      "notes": notesController.text.trim(),
+    },
+    
+    "pricing": {
+      "dayRate": double.tryParse(dayRateController.text.trim()) ?? 0,
+      "mileageLimit": math.max(double.tryParse(mileageLimitController.text.trim()) ?? 200, 200),
+      "extraMileageCharge": double.tryParse(extraMileageChargeController.text.trim()) ?? 0,
+      "waitTimeFree": double.tryParse(waitTimeFreeController.text.trim()) ?? 0,
+      "decorationFee": double.tryParse(decorationFeeController.text.trim()) ?? 0,
+      "standardService": double.tryParse(standardServiceController.text.trim()) ?? 0,
+      "premiumService": double.tryParse(premiumServiceController.text.trim()) ?? 0,
+      "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
+      "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
+      "bookingProcess": bookingProcessController.text.trim(),
+      "paymentTerms": paymentTermsController.text.trim(),
+      "fuelAndFeedIncluded": fuelAndFeedIncluded,
+    },
+    
+    "coverageAvailability": {
+      "areasCovered": areasCovered.toList(),
+      "serviceStatus": serviceStatus,
+      "fromDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
+      "toDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
+    },
+    
+    "accessibilitySpecial": {
+      "Wheelchair Accessible Carriage": accessibilitySpecial['Wheelchair Accessible Carriage']!,
+      "Wheelchair Access Price": double.tryParse(wheelchairAccessPriceController.text.trim()) ?? 0,
+      "Assistance for Elderly": accessibilitySpecial['Assistance for Elderly']!,
+      "Elderly Assistance Price": double.tryParse(elderlyAssistancePriceController.text.trim()) ?? 0,
+      "Custom Decorations": accessibilitySpecial['Custom Decorations']!,
+      "Custom Decoration Price": double.tryParse(customDecorationPriceController.text.trim()) ?? 0,
+    },
+    
+    "handlerDetails": {
+      "handlerDetails": handlerDetails,
+      "eventType": eventType,
+      "additionalServices": additionalServices,
+    },
+    
+    "licensingInsurance": {
+      "hasPublicLiabilityInsurance": hasPublicLiabilityInsurance,
+      "insuranceProvider": hasPublicLiabilityInsurance ? insuranceProviderController.text.trim() : "",
+      "insurancePolicyNumber": hasPublicLiabilityInsurance ? insurancePolicyNumberController.text.trim() : "",
+      "insuranceExpiryDate": hasPublicLiabilityInsurance ? insuranceExpiryDateController.text.trim() : "",
+      "hasPerformingAnimalLicence": hasPerformingAnimalLicence,
+      "animalLicenceNumber": hasPerformingAnimalLicence ? animalLicenceNumberController.text.trim() : "",
+      "licensingAuthority": hasPerformingAnimalLicence ? licensingAuthorityController.text.trim() : "",
+      "licenceExpiryDate": hasPerformingAnimalLicence ? licenceExpiryDateController.text.trim() : "",
+      "licencePaths": licenceEnabled ? licencePaths : [],
+      "insuranceCertificatePaths": insuranceCertificateEnabled ? insuranceCertificatePaths : [],
+      "horseCertificatesPaths": horseCertificatesEnabled ? horseCertificatesPaths : [],
+      "carriagePhotosPaths": carriagePhotosPaths,
+    },
+    
+    "businessHighlights": {
+      "uniqueService": uniqueServiceController.text.trim(),
+      "promotionalDescription": promotionalDescriptionController.text.trim(),
+    },
+    
+    "declaration": {
+      "agreeTerms": agreeTerms,
+      "noContactDetails": noContactDetails,
+      "agreeCookies": agreeCookies,
+      "agreePrivacy": agreePrivacy,
+      "agreeCancellation": agreeCancellation,
+      "cancellationPolicy": cancellationPolicy ?? "FLEXIBLE",
+    },
+    
+    "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
+  };
     final api = AddVendorServiceApi();
     try {
       final isAdded = await api.addServiceVendor(data, 'horseCarriage');
@@ -1026,7 +992,7 @@ class _HorseAndCarriageHireServiceState
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Number of Carriages in Fleet',
+                    'Number of Seats',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
 
@@ -1035,11 +1001,29 @@ class _HorseAndCarriageHireServiceState
                     width: double.infinity,
                     child: Signup_textfilled(
                       length: 10,
-                      textcont: fleetSizeController,
+                      textcont: seatsController,
                       textfilled_height: 17,
                       textfilled_weight: 1,
                       keytype: TextInputType.number,
-                      hinttext: "Enter number of carriages",
+                      hinttext: "Enter number of seats",
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Luggage Capacity',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Signup_textfilled(
+                      length: 10,
+                      textcont: luggageCapacityController,
+                      textfilled_height: 17,
+                      textfilled_weight: 1,
+                      keytype: TextInputType.number,
+                      hinttext: "Luggage Capacity",
                     ),
                   ),
                   const SizedBox(height: 10),

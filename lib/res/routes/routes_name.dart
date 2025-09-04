@@ -22,130 +22,97 @@ import 'package:hire_any_thing/views/user_booking_details/views/my_booking_scree
 import 'package:hire_any_thing/views/user_profle/user_profle_screen.dart';
 import 'package:hire_any_thing/views/why_choose_us_screen/why_choose_us_screen.dart';
 
-class AppRoutes{
-
-  static appRoutes () => [
-    GetPage(
-      name:UserRoutesName.introScreen , 
-      page: () => IntroductionScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      GetPage(
-      name:UserRoutesName.loginUserView, 
-      page: () => UserLoginScreeen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
+class AppRoutes {
+  static appRoutes() => [
         GetPage(
-      name:UserRoutesName.registerUserView , 
-      page: () => UserSignUp(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      GetPage(
-      name:UserRoutesName.homeUserView , 
-      page: () => UserHomePageScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-       GetPage(
-      name:UserRoutesName.tutorHireScreen , 
-      page: () =>TutorHireScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-       GetPage(
-      name:UserRoutesName.passengerTransportHireScreen, 
-      page: () =>PassengerTransportHireDetailsScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      )
-      ,
-       GetPage(
-      name:UserRoutesName.artistHireScreen, 
-      page: () =>ArtistHireDetailsScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
- GetPage(
-      name:UserRoutesName.userProfleScreen, 
-      page: () =>UserProfileScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      
-       GetPage(
-      name:UserRoutesName.userBookingsDetailsScreen , 
-      page: () =>MyBookingsScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      GetPage(name: '/home', page: () =>  UserHomePageScreen()),
-      GetPage(name: '/login', page: () => const Agree_screen()),
-      GetPage(name: '/services', page: () =>  ServicesScreen()),
-      GetPage(name: '/contact', page: () => const ContactUsScreen()),
-      GetPage(name: '/about', page: () => const AboutScreen()),
-
-       GetPage(
-      name:VendorRoutesName.loginVendorView , 
-      page: () => VendorLoginScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-
-       GetPage(
-      name:VendorRoutesName.homeVendorView , 
-      page: () => HomePageAddService(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      
-      
-       GetPage(
-      name:VendorRoutesName.accountsAndManagementScreen , 
-      page: () => AccountsAndManagementScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-
-
-
-       GetPage(
-      name:VendorRoutesName.registerVendorView , 
-      page: () => VendorSignUp(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-
- GetPage(
-      name:UserRoutesName.allCategoryView , 
-      page: () =>       CategoryGridPage(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      GetPage(
-      name:UserRoutesName.paymentSuccess, 
-      page: () => PaymentSuccessScreen(orderId: Get.arguments['orderId']),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      GetPage(
-      name:UserRoutesName.MeetingRoomHireScreen, 
-      page: () =>MeetingRoomHireScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-      GetPage(
-      name:UserRoutesName.WhyChooseUsScreen,
-      page: () => WhyChooseUsScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: Duration(milliseconds: 250)
-      ),
-  ];
-
+            name: UserRoutesName.introScreen,
+            page: () => IntroductionScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.loginUserView,
+            page: () => UserLoginScreeen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.registerUserView,
+            page: () => UserSignUp(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.homeUserView,
+            page: () => UserHomePageScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.tutorHireScreen,
+            page: () => TutorHireScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.passengerTransportHireScreen,
+            page: () => PassengerTransportHireDetailsScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.artistHireScreen,
+            page: () => ArtistHireDetailsScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.userProfleScreen,
+            page: () => UserProfileScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.userBookingsDetailsScreen,
+            page: () => MyBookingsScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(name: '/home', page: () => UserHomePageScreen()),
+        GetPage(name: '/login', page: () => const Agree_screen()),
+        GetPage(name: '/services', page: () => ServicesScreen()),
+        GetPage(name: '/contact', page: () => const ContactUsScreen()),
+        GetPage(name: '/about', page: () => const AboutScreen()),
+        GetPage(
+            name: VendorRoutesName.loginVendorView,
+            page: () => VendorLoginScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: VendorRoutesName.homeVendorView,
+            page: () => HomePageAddService(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: VendorRoutesName.accountsAndManagementScreen,
+            page: () => AccountsAndManagementScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: VendorRoutesName.registerVendorView,
+            page: () => VendorSignUp(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.allCategoryView,
+            page: () => CategoryGridPage(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.paymentSuccess,
+            page: () => PaymentSuccessScreen(orderId: Get.arguments['orderId']),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.MeetingRoomHireScreen,
+            page: () => MeetingRoomHireScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+        GetPage(
+            name: UserRoutesName.WhyChooseUsScreen,
+            page: () => WhyChooseUsScreen(),
+            transition: Transition.leftToRight,
+            transitionDuration: Duration(milliseconds: 250)),
+      ];
 }
-
-
-
-

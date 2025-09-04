@@ -127,10 +127,16 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
     // Debug service name
     print('asdfgh ${service.serviceName2}');
 
-    String serviceName =
-        service.serviceType == "limousine" || service.serviceType == "horse"
-            ? (service.serviceName2 ?? 'Unnamed Service')
-            : (service.serviceName2 ?? 'Unnamed Service');
+    String serviceName;
+
+    if (service.serviceType == "limousine" || service.serviceType == "horse") {
+      serviceName = service.serviceName2 ?? 'Unnamed Service';
+    } else if (service.serviceType == "coach" ||
+        service.serviceType == "chauffeur") {
+      serviceName = service.listingTitle ?? 'Unnamed Service';
+    } else {
+      serviceName = service.serviceName2 ?? 'Unnamed Service';
+    }
 
     print("Service Name Debug: $serviceName for type: ${service.serviceType}");
 
@@ -315,7 +321,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                                   service.serviceApproveStatus == false
                               ? "Pending"
                               : "Approved",
-                          style: const TextStyle(fontSize: 12, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.white),
                         ),
                         backgroundColor: service.serviceApproveStatus == "0" ||
                                 service.serviceApproveStatus == false

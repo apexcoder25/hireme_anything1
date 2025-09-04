@@ -18,7 +18,8 @@ class UserHomePageScreen extends StatefulWidget {
 class _UserHomePageScreenState extends State<UserHomePageScreen> {
   final CategoryController controller = Get.put(CategoryController());
   final ScrollController _scrollController = ScrollController();
-  final UserProfileController profileController = Get.put(UserProfileController());
+  final UserProfileController profileController =
+      Get.put(UserProfileController());
 
   int _selectedIndex = 0;
 
@@ -67,7 +68,7 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
         backgroundColor: Colors.lightBlue[50],
         elevation: 0,
         centerTitle: true,
-        title: Text(
+        title: const Text(
           'Explore Our Services',
           style: TextStyle(
               color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
@@ -90,7 +91,7 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Center(
+              const Center(
                 child: Text(
                   'Discover Our Wide Range of Categories',
                   style: TextStyle(
@@ -100,8 +101,8 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
                 ),
               ),
               CategoriesCarouselScreen(),
-              SizedBox(height: 10),
-              Center(
+              const SizedBox(height: 10),
+              const Center(
                 child: Text(
                   'Find Affordable Options from Nearby Service Providers',
                   style: TextStyle(
@@ -110,12 +111,11 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
                       fontWeight: FontWeight.w500),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildCategoriesCarousel(context, controller.categories),
-              SizedBox(height: 16),
-             
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const SizedBox(height: 16),
+              const Text(
                 textAlign: TextAlign.center,
                 'Find Affordable Options from Nearby Rental Providers',
                 style: TextStyle(
@@ -123,11 +123,11 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               _buildOfferingsCarousel(context, controller.categories),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
               _buildCustomPackageSection(context),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             ],
           ),
         );
@@ -204,7 +204,7 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
+        const Text(
           'Popular Service Categories',
           style: TextStyle(
             fontSize: 20,
@@ -212,13 +212,13 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
             color: Colors.black,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Container(
           width: 150,
           height: 2,
           color: Colors.orange,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           'Find trusted professionals for all your service needs',
           style: TextStyle(
@@ -229,8 +229,8 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
         SizedBox(height: 16),
         GridView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
@@ -261,7 +261,7 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
                   SizedBox(height: 8),
                   Text(
                     category['name'],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       color: Colors.black87,
                       fontWeight: FontWeight.w500,
@@ -275,7 +275,7 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
             );
           },
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         ElevatedButton(
           onPressed: () {
             Get.toNamed(UserRoutesName.allCategoryView);
@@ -283,13 +283,13 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,
             foregroundColor: Colors.black,
-            side: BorderSide(color: Colors.orange, width: 2),
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            side: const BorderSide(color: Colors.orange, width: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
           ),
-          child: Row(
+          child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
@@ -370,7 +370,7 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
                           Expanded(
                             child: Text(
                               category.categoryName,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black),
@@ -418,24 +418,24 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
+          const Text(
             'Did not find your Package?',
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
           ),
-          Text(
+          const Text(
             'Feel free to ask us.\nWe\'ll make it for you',
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             "Don’t worry if you haven’t found exactly what you’re looking for on our platform. At HireAnything, we’re dedicated to meeting your unique needs. Simply reach out to us with your specific requirements, and our team will work diligently to create a tailored package just for you.",
             style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             maxLines: 6,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Center(
             child: ElevatedButton(
               onPressed: () {

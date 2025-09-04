@@ -14,171 +14,218 @@ class UserLoginScreeen extends StatefulWidget {
 }
 
 class _UserLoginScreeenState extends State<UserLoginScreeen> {
-    final UserProfileController profileController = Get.put(UserProfileController());
-
+  late UserProfileController profileController;
 
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   bool loader = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Get existing controller or create new one
+    try {
+      profileController = Get.find<UserProfileController>();
+    } catch (e) {
+      profileController = Get.put(UserProfileController());
+    }
+  }
+
+  @override
   void dispose() {
     passwordController.dispose();
     emailController.dispose();
-
     super.dispose();
   }
+
+  Future<void> _handleLogin() async {
+    // Validate inputs
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
+      _showErrorSnackbar("Email and password cannot be empty!");
+      return;
+    }
+
+    // Basic email validation
+    if (!GetUtils.isEmail(emailController.text.trim())) {
+      _showErrorSnackbar("Please enter a valid email address!");
+      return;
+    }
+
+    setState(() {
+      loader = true;
+    });
+
+    try {
+      final isRegistered = await apiServiceUserSide.userLogin({
+        "email": emailController.text.trim(),
+        "password": passwordController.text.trim(),
+      });
+
+      print("Login result: $isRegistered");
+
+      if (isRegistered) {
+        print("Fetching profile...");
+
+        // Key fix: Refresh token before fetching profile
+        await profileController.refreshToken();
+        await profileController.fetchProfile();
+
+        // Check if profile was successfully fetched
+        if (profileController.isLogin.value) {
+          print("Navigating to ${UserRoutesName.homeUserView}");
+          Get.offAllNamed(UserRoutesName.homeUserView);
+        } else {
+          _showErrorSnackbar("Failed to load user profile. Please try again.");
+        }
+      } else {
+        _showErrorSnackbar(
+            "Invalid credentials. Please check your email and password.");
+      }
+    } catch (e) {
+      print("Login error: $e");
+      _showErrorSnackbar(
+          "Login failed. Please check your connection and try again.");
+    } finally {
+      setState(() {
+        loader = false;
+      });
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    Get.snackbar(
+      "Login Error",
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.redAccent,
+      colorText: Colors.white,
+      borderRadius: 8.0,
+      margin: const EdgeInsets.all(16),
+      duration: const Duration(seconds: 3),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: colors.scaffold_background_color,
-        appBar: AppBar(
-          backgroundColor: colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: const Text(
-            "User Login Screen",
-            style: TextStyle(fontWeight: FontWeight.bold, color: colors.black),
-          ),
-          leading: IconButton(
-            onPressed: () {
-             Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.arrow_back,
-              color: colors.black,
-            ),
+      backgroundColor: colors.scaffold_background_color,
+      appBar: AppBar(
+        backgroundColor: colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          "User Login Screen",
+          style: TextStyle(fontWeight: FontWeight.bold, color: colors.black),
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back,
+            color: colors.black,
           ),
         ),
-        body: SingleChildScrollView(
-            child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                 
-                    const Text(
-                      "Enter Email",
-                      style: TextStyle(color: Colors.black87, fontSize: 16),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Enter Email",
+                style: TextStyle(color: Colors.black87, fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              Signup_textfilled(
+                textfilled_height: 17,
+                textfilled_weight: 1,
+                textcont: emailController,
+                length: 50,
+                keytype: TextInputType.emailAddress, // Changed to emailAddress
+                hinttext: "Email Id",
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Enter Password",
+                style: TextStyle(color: Colors.black87, fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              Signup_textfilled(
+                textfilled_height: 17,
+                textfilled_weight: 1,
+                textcont: passwordController,
+                length: 50,
+                keytype: TextInputType.text,
+                hinttext: "Password",
+                isPassword: true,
+              ),
+              const SizedBox(height: 40), // Increased spacing
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed:
+                      loader ? null : _handleLogin, // Disable when loading
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.disabled)) {
+                          return Colors.grey[400]!;
+                        }
+                        return const Color.fromARGB(255, 102, 145, 218);
+                      },
                     ),
-                    const SizedBox(height: 10),
-                    Signup_textfilled(
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      textcont: emailController,
-                      length: 50,
-                      keytype: TextInputType.name,
-                      hinttext: "Email Id",
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      "Enter Password",
-                      style: TextStyle(color: Colors.black87, fontSize: 16),
-                    ),
-                    const SizedBox(height: 10),
-                    Signup_textfilled(
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      textcont: passwordController,
-                      length: 50,
-                      keytype: TextInputType.text,
-                      hinttext: "Password",
-                      isPassword: true,
-                    ),
-                    const SizedBox(height: 20),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            loader = true;
-                          });
-
-                          if (emailController.text.trim().isNotEmpty &&
-                              passwordController.text.trim().isNotEmpty) {
-                            final isRegistered =
-                                await apiServiceUserSide.userLogin({
-                              "email": emailController.text.trim(),
-                              "password": passwordController.text.trim(),
-                            });
-
-                            if (isRegistered) {
-                              profileController.fetchProfile();
-                              Get.offAllNamed(UserRoutesName.homeUserView);
-                              
-                            } else {
-                              Get.snackbar(
-                                "Error",
-                                "Registration failed. Please try again!",
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.redAccent,
-                                colorText: Colors.white,
-                                borderRadius: 8.0,
-                                margin: const EdgeInsets.all(16),
-                                duration: const Duration(seconds: 3),
-                              );
-                            }
-                          } else {
-                            Get.snackbar(
-                              "Error",
-                              "Email and password cannot be empty!",
-                              snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor: Colors.redAccent,
-                              colorText: Colors.white,
-                              borderRadius: 8.0,
-                              margin: const EdgeInsets.all(16),
-                              duration: const Duration(seconds: 3),
-                            );
-                          }
-
-                          setState(() {
-                            loader = false;
-                          });
-                        },
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.resolveWith<Color>(
-                            (Set<MaterialState> states) {
-                              return Color.fromARGB(255, 102, 145, 218);
-                            },
+                  ),
+                  child: loader
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        )
+                      : const Text(
+                          "Login",
+                          style: TextStyle(
+                            color: Colors
+                                .white, // Changed to white for better contrast
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: (loader == false)
-                            ? const Text("Login",
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 0, 0, 0),
-                                  fontSize: 18,
-                                ))
-                            : const CircularProgressIndicator(
-                                color: Colors.grey,
-                              ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Don't have an account?", // Fixed typo
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: colors.hintext_shop,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                  TextButton(
+                    child: const Text(
+                      "Sign Up",
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(
+                        color: colors.button_color,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Dont have an account?",
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: colors.hintext_shop,
-                              fontWeight: FontWeight.normal),
-                        ),
-                        TextButton(
-                          child: const Text("Sign Up",
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(
-                                  color: colors.button_color,
-                                  fontWeight: FontWeight.w600)),
-                          onPressed: () {
-                            Get.offNamed(UserRoutesName.registerUserView);
-                          },
-                        )
-                      ],
-                    ),
-                  ],
-                ))));
+                    onPressed: () {
+                      Get.offNamed(UserRoutesName.registerUserView);
+                    },
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

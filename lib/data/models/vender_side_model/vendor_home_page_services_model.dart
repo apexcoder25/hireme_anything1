@@ -137,6 +137,7 @@ class Service {
     required this.serviceBookingDateTo,
     required this.serviceSpecialPriceDays,
     required this.offeringPrice,
+    required this.listingTitle,
     required this.operatingHours,
     required this.basePostcode,
     required this.bookingTypes,
@@ -206,6 +207,7 @@ class Service {
   final String? serviceBookingDateTo;
   final List<dynamic> serviceSpecialPriceDays;
   final int? offeringPrice;
+  final String? listingTitle;
   final OperatingHours? operatingHours;
   final String? basePostcode;
   final BookingTypes? bookingTypes;
@@ -361,6 +363,7 @@ class Service {
       serviceSpecialPriceDays: json["special_price_days"] == null
           ? []
           : List<dynamic>.from(json["special_price_days"]!.map((x) => x)),
+          listingTitle: json["listingTitle"],
       offeringPrice: json["offering_price"],
       operatingHours: json["operatingHours"] == null
           ? null
@@ -448,6 +451,7 @@ class Service {
         "booking_date_to": serviceBookingDateTo,
         "special_price_days": serviceSpecialPriceDays.map((x) => x).toList(),
         "offering_price": offeringPrice,
+        "listingTitle": listingTitle,
         "operatingHours": operatingHours?.toJson(),
         "basePostcode": basePostcode,
         "bookingTypes": bookingTypes?.toJson(),
@@ -1158,7 +1162,13 @@ class FleetDetails {
       makeModel: json["makeModel"],
       color: json["color"],
       capacity: json["capacity"],
-      year: json["year"],
+      year: json["year"] == null
+          ? null
+          : json["year"] is int
+              ? json["year"]
+              : json["year"] is String
+                  ? int.tryParse(json["year"])
+                  : null,
       notes: json["notes"],
     );
   }
@@ -1206,7 +1216,13 @@ class FleetInfo {
       type: json["type"],
       capacity: json["capacity"],
       onboardFeatures: json["onboardFeatures"],
-      year: json["year"],
+      year: json["year"] == null
+          ? null
+          : json["year"] is int
+              ? json["year"]
+              : json["year"] is String
+                  ? int.tryParse(json["year"])
+                  : null,
       notes: json["notes"],
       makeAndModel: json["makeAndModel"],
       wheelchairAccessible: json["wheelchairAccessible"],
@@ -1692,7 +1708,13 @@ class FleetDetail {
       vehicleId: json["vehicleId"],
       makeModel: json["make_Model"],
       type: json["type"],
-      year: json["year"],
+      year: json["year"] == null
+          ? null
+          : json["year"] is int
+              ? json["year"]
+              : json["year"] is String
+                  ? int.tryParse(json["year"])
+                  : null,
       color: json["color"],
       capacity: json["capacity"],
       vehicleDescription: json["vehicleDescription"],
@@ -1787,7 +1809,7 @@ class SubcategoryId {
   }
 
   Map<String, dynamic> toJson() => {
-        "_id": id,
+        "_id": id, 
         "subcategory_name": subcategoryName,
       };
 }

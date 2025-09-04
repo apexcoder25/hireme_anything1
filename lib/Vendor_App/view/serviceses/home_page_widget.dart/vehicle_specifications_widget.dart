@@ -187,12 +187,12 @@ class VehicleSpecificationsWidget extends StatelessWidget {
     if (service.fleetInfo != null) {
       specs.addAll([
         _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel ?? 'N/A'),
-        _buildSpecRow("Type", service.fleetInfo!.type ?? 'N/A'),
-        _buildSpecRow("Capacity", "${service.fleetInfo!.capacity ?? 'N/A'} passengers"),
-        _buildSpecRow("Year", service.fleetInfo!.year?.toString() ?? 'N/A'),
+        // _buildSpecRow("Type", service.fleetInfo!.type ?? 'N/A'),
+        // _buildSpecRow("Capacity", "${service.fleetInfo!.seats ?? 'N/A'} passengers"),
+        // _buildSpecRow("Year", service.fleetInfo!.year?.toString() ?? 'N/A'),
         _buildSpecRow("Wheelchair Accessible", service.fleetInfo!.wheelchairAccessible == true ? 'Yes' : 'No'),
         _buildSpecRow("Air Conditioning", service.fleetInfo!.airConditioning == true ? 'Yes' : 'No'),
-        _buildSpecRow("Luggage Space", service.fleetInfo!.luggageSpace == true ? 'Yes' : 'No'),
+        // _buildSpecRow("Luggage Capacity", service.fleetInfo!.luggageCapacity == true ? 'Yes' : 'No'),
       ]);
     } else if (service.fleetDetails != null) {
       specs.addAll([

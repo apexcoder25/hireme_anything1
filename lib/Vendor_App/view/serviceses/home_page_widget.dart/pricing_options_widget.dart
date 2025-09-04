@@ -71,6 +71,12 @@ class PricingOptionsWidget extends StatelessWidget {
         return service.hourlyRate != null ||
             service.halfDayRate != null ||
             service.fullDayRate != null;
+      case 'chauffeur':
+        return service.hourlyRate != null ||
+            service.halfDayRate != null ||
+            service.fullDayRate != null ||
+            service.pricing != null ||
+            service.pricingDetails != null;
       case 'coach':
         return service.pricing != null ||
             service.hourlyRate != null ||
@@ -96,6 +102,8 @@ class PricingOptionsWidget extends StatelessWidget {
         return _buildMinibusPricing();
       case 'limousine':
         return _buildLimousinePricing();
+      case 'chauffeur':
+        return _buildChauffeurPricing();
       case 'coach':
         return _buildCoachPricing();
       default:
@@ -313,6 +321,42 @@ class PricingOptionsWidget extends StatelessWidget {
       pricingRows.add(_buildSingleRate(
           "Excess Mileage Charge", service.mileageCapExcessCharge));
     }
+
+    return pricingRows.isEmpty ? [_noPricingWidget()] : pricingRows;
+  }
+
+  List<Widget> _buildChauffeurPricing() {
+    List<Widget> pricingRows = [];
+
+    if (service.pricing != null &&
+        _hasAnyRate(service.pricing!.hourlyRate, service.pricing!.halfDayRate,
+            service.pricing!.fullDayRate)) {
+      pricingRows.add(_buildRateRow([
+        _buildRateColumn("Hourly", service.pricing!.hourlyRate),
+        _buildRateColumn("Half Day", service.pricing!.halfDayRate),
+        _buildRateColumn("Full Day", service.pricing!.fullDayRate),
+      ]));
+      print('ye ???');
+    } else if (service.pricingDetails != null &&
+        _hasAnyRate(
+            service.pricingDetails!.hourlyRate,
+            service.pricingDetails!.halfDayRate,
+            service.pricingDetails!.fullDayRate)) {
+      pricingRows.add(_buildRateRow([
+        _buildRateColumn("Hourly", service.pricingDetails!.hourlyRate),
+        _buildRateColumn("Half Day", service.pricingDetails!.halfDayRate),
+        _buildRateColumn("Full Day", service.pricingDetails!.fullDayRate),
+      ]));
+      print('ye ??');
+    } else if (_hasAnyRate(
+        service.hourlyRate, service.halfDayRate, service.fullDayRate)) {
+      pricingRows.add(_buildRateRow([
+        _buildRateColumn("Hourly", service.hourlyRate),
+        _buildRateColumn("Half Day", service.halfDayRate),
+        _buildRateColumn("Full Day", service.fullDayRate),
+      ]));
+    }
+    print('pricingRows anc: $pricingRows');
 
     return pricingRows.isEmpty ? [_noPricingWidget()] : pricingRows;
   }
@@ -582,7 +626,7 @@ class PricingOptionsWidget extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: value ? Colors.green[50] : Colors.red.shade50,
+        color: value ? Colors.green.shade50 : Colors.red.shade50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
             color: value ? Colors.green.shade100 : Colors.red.shade100),

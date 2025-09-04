@@ -8,9 +8,9 @@ import 'package:http/http.dart' as http;
 
 class UserProfileController extends GetxController {
   var profile = Rxn<UserProfileModel>();
-  var isLoading = false.obs; // Changed to false initially
+  var isLoading = false.obs;
   var isLogin = false.obs;
-  var token = "".obs; // Made observable for debugging
+  var token = "".obs;
 
   @override
   void onInit() {
@@ -31,7 +31,16 @@ class UserProfileController extends GetxController {
     print("Loaded Token: ${token.value}");
   }
 
+  // Add this method to refresh token manually
+  Future<void> refreshToken() async {
+    await _loadToken();
+    print("Token refreshed: ${token.value}");
+  }
+
   Future<void> fetchProfile() async {
+    // Always refresh token before fetching to ensure we have the latest token
+    await _loadToken();
+
     if (token.value.isEmpty) {
       print("Token is empty, cannot fetch profile!");
       isLogin.value = false;
@@ -41,8 +50,6 @@ class UserProfileController extends GetxController {
     try {
       isLoading(true);
       var response = await http.get(
-        
-
         Uri.parse(AppUrlsUserSide.profile),
         headers: {
           "Content-Type": "application/json",
@@ -58,10 +65,14 @@ class UserProfileController extends GetxController {
         if (data != null && data["_id"] != null) {
           profile.value = UserProfileModel.fromJson(data);
           isLogin.value = true;
+          print("Profile fetched successfully!");
         } else {
           print("No profile data found in API response");
           isLogin.value = false;
         }
+      } else if (response.statusCode == 401) {
+        print("Unauthorized: Token might be expired");
+        await logout();
       } else {
         print("API Request Failed: ${response.statusCode}");
         isLogin.value = false;
@@ -75,6 +86,9 @@ class UserProfileController extends GetxController {
   }
 
   Future<void> updateProfile(UserProfileModel updatedProfile) async {
+    // Ensure token is fresh
+    await _loadToken();
+
     if (token.value.isEmpty) {
       print("Token is empty, cannot update profile!");
       return;
@@ -97,6 +111,7 @@ class UserProfileController extends GetxController {
       if (response.statusCode == 200) {
         profile.value = updatedProfile;
         Get.back();
+        print("Profile updated successfully!");
       } else {
         print("Profile update failed: ${response.statusCode}");
       }
@@ -105,5 +120,14 @@ class UserProfileController extends GetxController {
     } finally {
       isLoading(false);
     }
+  }
+
+  // Method to logout and clear session
+  Future<void> logout() async {
+    await SessionManageerUserSide().removeToken();
+    token.value = "";
+    profile.value = null;
+    isLogin.value = false;
+    print("User logged out successfully");
   }
 }

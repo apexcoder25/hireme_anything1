@@ -22,7 +22,9 @@ class HorseCarriageEditScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
-    final controller = Get.put(HorseCarriageEditController(serviceId: serviceId), tag: serviceId);
+    final controller = Get.put(
+        HorseCarriageEditController(serviceId: serviceId),
+        tag: serviceId);
 
     return Scaffold(
       backgroundColor: colors.scaffold_background_color,
@@ -30,7 +32,8 @@ class HorseCarriageEditScreen extends StatelessWidget {
         backgroundColor: colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text('Edit Horse & Carriage Service', style: TextStyle(fontWeight: FontWeight.bold, color: colors.black)),
+        title: const Text('Edit Horse & Carriage Service',
+            style: TextStyle(fontWeight: FontWeight.bold, color: colors.black)),
         leading: IconButton(
           onPressed: () => Get.back(),
           icon: const Icon(Icons.arrow_back, color: colors.black),
@@ -45,9 +48,13 @@ class HorseCarriageEditScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('SECTION 1: Business Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 1: Business Information',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                const Text('Service Name *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Service Name *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 50,
@@ -56,21 +63,32 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.text,
                   hinttext: "Enter Service Name",
-                  validator: (value) => value?.isEmpty ?? true ? 'Service Name is required' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Service Name is required'
+                      : null,
                 ),
                 const SizedBox(height: 20),
-
-                const Text('SECTION 2: Horse & Carriage Service Details', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 2: Horse & Carriage Service Details',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                const Text('Carriage Types *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Carriage Types *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 10,
-                  children: controller.carriageTypes.entries.map((entry) => Obx(() => ChoiceChip(
-                    label: Text(entry.key.replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}').trim()),
-                    selected: entry.value.value,
-                    onSelected: (selected) => entry.value.value = selected,
-                  ))).toList(),
+                  children: controller.carriageTypes.entries
+                      .map((entry) => Obx(() => ChoiceChip(
+                            label: Text(entry.key
+                                .replaceAllMapped(RegExp(r'([A-Z])'),
+                                    (match) => ' ${match.group(1)}')
+                                .trim()),
+                            selected: entry.value.value,
+                            onSelected: (selected) =>
+                                entry.value.value = selected,
+                          )))
+                      .toList(),
                 ),
                 if (controller.carriageTypes['other']!.value) ...[
                   const SizedBox(height: 10),
@@ -81,19 +99,31 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     textfilled_weight: 1,
                     keytype: TextInputType.text,
                     hinttext: "Specify other carriage type",
-                    validator: (value) => controller.carriageTypes['other']!.value && (value?.isEmpty ?? true) ? 'Specify other carriage type' : null,
+                    validator: (value) =>
+                        controller.carriageTypes['other']!.value &&
+                                (value?.isEmpty ?? true)
+                            ? 'Specify other carriage type'
+                            : null,
                   ),
                 ],
                 const SizedBox(height: 20),
-                const Text('Horse Types *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Horse Types *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 10,
-                  children: controller.horseTypes.entries.map((entry) => Obx(() => ChoiceChip(
-                    label: Text(entry.key.replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}').trim()),
-                    selected: entry.value.value,
-                    onSelected: (selected) => entry.value.value = selected,
-                  ))).toList(),
+                  children: controller.horseTypes.entries
+                      .map((entry) => Obx(() => ChoiceChip(
+                            label: Text(entry.key
+                                .replaceAllMapped(RegExp(r'([A-Z])'),
+                                    (match) => ' ${match.group(1)}')
+                                .trim()),
+                            selected: entry.value.value,
+                            onSelected: (selected) =>
+                                entry.value.value = selected,
+                          )))
+                      .toList(),
                 ),
                 if (controller.horseTypes['other']!.value) ...[
                   const SizedBox(height: 10),
@@ -104,19 +134,31 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     textfilled_weight: 1,
                     keytype: TextInputType.text,
                     hinttext: "Specify other horse type",
-                    validator: (value) => controller.horseTypes['other']!.value && (value?.isEmpty ?? true) ? 'Specify other horse type' : null,
+                    validator: (value) =>
+                        controller.horseTypes['other']!.value &&
+                                (value?.isEmpty ?? true)
+                            ? 'Specify other horse type'
+                            : null,
                   ),
                 ],
                 const SizedBox(height: 20),
-                const Text('Occasions *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Occasions *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 10,
-                  children: controller.occasions.entries.map((entry) => Obx(() => ChoiceChip(
-                    label: Text(entry.key.replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}').trim()),
-                    selected: entry.value.value,
-                    onSelected: (selected) => entry.value.value = selected,
-                  ))).toList(),
+                  children: controller.occasions.entries
+                      .map((entry) => Obx(() => ChoiceChip(
+                            label: Text(entry.key
+                                .replaceAllMapped(RegExp(r'([A-Z])'),
+                                    (match) => ' ${match.group(1)}')
+                                .trim()),
+                            selected: entry.value.value,
+                            onSelected: (selected) =>
+                                entry.value.value = selected,
+                          )))
+                      .toList(),
                 ),
                 if (controller.occasions['other']!.value) ...[
                   const SizedBox(height: 10),
@@ -127,14 +169,21 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     textfilled_weight: 1,
                     keytype: TextInputType.text,
                     hinttext: "Specify other occasion",
-                    validator: (value) => controller.occasions['other']!.value && (value?.isEmpty ?? true) ? 'Specify other occasion' : null,
+                    validator: (value) =>
+                        controller.occasions['other']!.value &&
+                                (value?.isEmpty ?? true)
+                            ? 'Specify other occasion'
+                            : null,
                   ),
                 ],
                 const SizedBox(height: 20),
-
-                const Text('SECTION 3: Fleet Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 3: Fleet Information',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                const Text('Number of Carriages in Fleet *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Number of Carriages in Fleet *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 10,
@@ -143,10 +192,13 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.number,
                   hinttext: "Enter number of carriages",
-                  validator: (value) => value?.isEmpty ?? true ? 'Fleet size is required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Fleet size is required' : null,
                 ),
                 const SizedBox(height: 10),
-                const Text('Carriage Type *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Carriage Type *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 50,
@@ -155,10 +207,14 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.text,
                   hinttext: "Enter Carriage Type",
-                  validator: (value) => value?.isEmpty ?? true ? 'Carriage type is required' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Carriage type is required'
+                      : null,
                 ),
                 const SizedBox(height: 10),
-                const Text('Horse Type *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Horse Type *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 50,
@@ -167,10 +223,13 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.text,
                   hinttext: "Enter Horse Type",
-                  validator: (value) => value?.isEmpty ?? true ? 'Horse type is required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Horse type is required' : null,
                 ),
                 const SizedBox(height: 10),
-                const Text('Onboard Decor *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Onboard Decor *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 100,
@@ -179,10 +238,14 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.text,
                   hinttext: "Enter Onboard Decor",
-                  validator: (value) => value?.isEmpty ?? true ? 'Onboard decor is required' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Onboard decor is required'
+                      : null,
                 ),
                 const SizedBox(height: 10),
-                const Text('Capacity *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Capacity *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 10,
@@ -191,68 +254,112 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.number,
                   hinttext: "Enter Capacity",
-                  validator: (value) => value?.isEmpty ?? true ? 'Capacity is required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Capacity is required' : null,
                 ),
                 const SizedBox(height: 20),
-
-                const Text('SECTION 4: Locations & Booking Info', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 4: Locations & Booking Info',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                _buildCitySelection(context, controller, 'Primary Dock/Departure Point', true, controller.navigableRoutes, controller.departurePoints),
+                _buildCitySelection(
+                    context,
+                    controller,
+                    'Primary Dock/Departure Point',
+                    true,
+                    controller.navigableRoutes,
+                    controller.departurePoints),
                 const SizedBox(height: 20),
-                _buildCitySelection(context, controller, 'Navigable Routes or Locations', false, controller.navigableRoutes, controller.departurePoints),
+                _buildCitySelection(
+                    context,
+                    controller,
+                    'Navigable Routes or Locations',
+                    false,
+                    controller.navigableRoutes,
+                    controller.departurePoints),
                 const SizedBox(height: 20),
-                const Text('Availability Period *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Availability Period *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(child: _buildDatePicker(context, controller, 'Start', controller.calenderController.fromDate, true)),
+                    Expanded(
+                        child: _buildDatePicker(context, controller, 'Start',
+                            controller.calenderController.fromDate, true)),
                     const SizedBox(width: 10),
-                    Expanded(child: _buildDatePicker(context, controller, 'End', controller.calenderController.toDate, false)),
+                    Expanded(
+                        child: _buildDatePicker(context, controller, 'End',
+                            controller.calenderController.toDate, false)),
                   ],
                 ),
                 const SizedBox(height: 20),
-                const Text('Booking Options *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Booking Options *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 10,
-                  children: controller.bookingOptions.entries.map((entry) => Obx(() => ChoiceChip(
-                    label: Text(entry.key.replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}').trim()),
-                    selected: entry.value.value,
-                    onSelected: (selected) => entry.value.value = selected,
-                  ))).toList(),
+                  children: controller.bookingOptions.entries
+                      .map((entry) => Obx(() => ChoiceChip(
+                            label: Text(entry.key
+                                .replaceAllMapped(RegExp(r'([A-Z])'),
+                                    (match) => ' ${match.group(1)}')
+                                .trim()),
+                            selected: entry.value.value,
+                            onSelected: (selected) =>
+                                entry.value.value = selected,
+                          )))
+                      .toList(),
                 ),
                 const SizedBox(height: 20),
-                const Text('Advance Booking Requirement *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Advance Booking Requirement *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Obx(() => CustomDropdown(
-                  hintText: "Select Option",
-                  items: ['2+ Weeks', '48 hours', '1 Week'],
-                  selectedValue: controller.advanceBooking.value,
-                  onChanged: (value) => controller.advanceBooking.value = value ?? '',
-                )),
+                      hintText: "Select Option",
+                      items: ['2+ Weeks', '48 hours', '1 Week'],
+                      selectedValue: controller.advanceBooking.value,
+                      onChanged: (value) =>
+                          controller.advanceBooking.value = value ?? '',
+                    )),
                 const SizedBox(height: 20),
-
-                const Text('SECTION 5: Equipment & Safety', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 5: Equipment & Safety',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Obx(() => CustomCheckbox(
-                  title: 'Are carriages regularly maintained and safety-checked?',
-                  value: controller.regularMaintenance.value,
-                  onChanged: (value) => controller.regularMaintenance.value = value!,
-                )),
+                      title:
+                          'Are carriages regularly maintained and safety-checked?',
+                      value: controller.regularMaintenance.value,
+                      onChanged: (value) =>
+                          controller.regularMaintenance.value = value!,
+                    )),
                 if (controller.regularMaintenance.value) ...[
                   const SizedBox(height: 10),
-                  const Text('Safety Checks *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const Text('Safety Checks *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 10,
-                    children: controller.safetyChecks.entries.map((entry) => Obx(() => ChoiceChip(
-                      label: Text(entry.key.replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}').trim()),
-                      selected: entry.value.value,
-                      onSelected: (selected) => entry.value.value = selected,
-                    ))).toList(),
+                    children: controller.safetyChecks.entries
+                        .map((entry) => Obx(() => ChoiceChip(
+                              label: Text(entry.key
+                                  .replaceAllMapped(RegExp(r'([A-Z])'),
+                                      (match) => ' ${match.group(1)}')
+                                  .trim()),
+                              selected: entry.value.value,
+                              onSelected: (selected) =>
+                                  entry.value.value = selected,
+                            )))
+                        .toList(),
                   ),
                   const SizedBox(height: 10),
-                  const Text('How Often *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const Text('How Often *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   Signup_textfilled(
                     length: 50,
@@ -260,53 +367,86 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     textfilled_height: 17,
                     textfilled_weight: 1,
                     keytype: TextInputType.text,
-                    hinttext: "Enter frequency (e.g., Optional / Themed upon request)",
-                    validator: (value) => controller.regularMaintenance.value && (value?.isEmpty ?? true) ? 'Maintenance frequency is required' : null,
+                    hinttext:
+                        "Enter frequency (e.g., Optional / Themed upon request)",
+                    validator: (value) => controller.regularMaintenance.value &&
+                            (value?.isEmpty ?? true)
+                        ? 'Maintenance frequency is required'
+                        : null,
                   ),
                   const SizedBox(height: 10),
-                  const Text('Animal Welfare Standards *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const Text('Animal Welfare Standards *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 10,
-                    children: controller.animalWelfareStandards.entries.map((entry) => Obx(() => ChoiceChip(
-                      label: Text(entry.key.replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}').trim()),
-                      selected: entry.value.value,
-                      onSelected: (selected) => entry.value.value = selected,
-                    ))).toList(),
+                    children: controller.animalWelfareStandards.entries
+                        .map((entry) => Obx(() => ChoiceChip(
+                              label: Text(entry.key
+                                  .replaceAllMapped(RegExp(r'([A-Z])'),
+                                      (match) => ' ${match.group(1)}')
+                                  .trim()),
+                              selected: entry.value.value,
+                              onSelected: (selected) =>
+                                  entry.value.value = selected,
+                            )))
+                        .toList(),
                   ),
                 ],
                 const SizedBox(height: 20),
-
-                const Text('SECTION 6: Accessibility Services', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 6: Accessibility Services',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 10,
-                  children: controller.accessibilityServices.entries.map((entry) => Obx(() => ChoiceChip(
-                    label: Text(entry.key.replaceAllMapped(RegExp(r'([A-Z])'), (match) => ' ${match.group(1)}').trim()),
-                    selected: entry.value.value,
-                    onSelected: (selected) => entry.value.value = selected,
-                  ))).toList(),
+                  children: controller.accessibilityServices.entries
+                      .map((entry) => Obx(() => ChoiceChip(
+                            label: Text(entry.key
+                                .replaceAllMapped(RegExp(r'([A-Z])'),
+                                    (match) => ' ${match.group(1)}')
+                                .trim()),
+                            selected: entry.value.value,
+                            onSelected: (selected) =>
+                                entry.value.value = selected,
+                          )))
+                      .toList(),
                 ),
                 const SizedBox(height: 20),
-
-                const Text('SECTION 7: Licensing & Insurance', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 7: Licensing & Insurance',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                Obx(() => CustomCheckbox(title: 'Do you hold Public Liability Insurance?', value: controller.publicLiabilityInsurance.value, onChanged: (value) => controller.publicLiabilityInsurance.value = value!)),
+                Obx(() => CustomCheckbox(
+                    title: 'Do you hold Public Liability Insurance?',
+                    value: controller.publicLiabilityInsurance.value,
+                    onChanged: (value) =>
+                        controller.publicLiabilityInsurance.value = value!)),
                 if (controller.publicLiabilityInsurance.value) ...[
                   const SizedBox(height: 10),
-                  const Text('Public Liability Insurance Provider *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const Text('Public Liability Insurance Provider *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   Signup_textfilled(
                     length: 100,
-                    textcont: controller.publicLiabilityInsuranceProviderController,
+                    textcont:
+                        controller.publicLiabilityInsuranceProviderController,
                     textfilled_height: 17,
                     textfilled_weight: 1,
                     keytype: TextInputType.text,
                     hinttext: "Enter Provider",
-                    validator: (value) => controller.publicLiabilityInsurance.value && (value?.isEmpty ?? true) ? 'Provider is required' : null,
+                    validator: (value) =>
+                        controller.publicLiabilityInsurance.value &&
+                                (value?.isEmpty ?? true)
+                            ? 'Provider is required'
+                            : null,
                   ),
                   const SizedBox(height: 10),
-                  const Text('Policy Number *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const Text('Policy Number *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   Signup_textfilled(
                     length: 50,
@@ -315,10 +455,16 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     textfilled_weight: 1,
                     keytype: TextInputType.text,
                     hinttext: "Enter Policy Number",
-                    validator: (value) => controller.publicLiabilityInsurance.value && (value?.isEmpty ?? true) ? 'Policy number is required' : null,
+                    validator: (value) =>
+                        controller.publicLiabilityInsurance.value &&
+                                (value?.isEmpty ?? true)
+                            ? 'Policy number is required'
+                            : null,
                   ),
                   const SizedBox(height: 10),
-                  const Text('Policy Expiry Date *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const Text('Policy Expiry Date *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   GestureDetector(
                     onTap: () async {
@@ -328,7 +474,9 @@ class HorseCarriageEditScreen extends StatelessWidget {
                         firstDate: DateTime.now(),
                         lastDate: DateTime(2099, 12, 31),
                       );
-                      if (picked != null) controller.policyExpiryDateController.text = DateFormat('dd-MM-yyyy').format(picked);
+                      if (picked != null)
+                        controller.policyExpiryDateController.text =
+                            DateFormat('dd-MM-yyyy').format(picked);
                     },
                     child: AbsorbPointer(
                       child: Signup_textfilled(
@@ -338,54 +486,97 @@ class HorseCarriageEditScreen extends StatelessWidget {
                         textfilled_weight: 1,
                         keytype: TextInputType.datetime,
                         hinttext: "dd-mm-yyyy",
-                        validator: (value) => controller.publicLiabilityInsurance.value && (value?.isEmpty ?? true) ? 'Expiry date is required' : null,
+                        validator: (value) =>
+                            controller.publicLiabilityInsurance.value &&
+                                    (value?.isEmpty ?? true)
+                                ? 'Expiry date is required'
+                                : null,
                       ),
                     ),
                   ),
                 ],
                 const SizedBox(height: 20),
-                Obx(() => CustomCheckbox(title: 'Do you hold a Performing Animal Licence (if applicable)?', value: controller.performingAnimalLicence.value, onChanged: (value) => controller.performingAnimalLicence.value = value!)),
+                Obx(() => CustomCheckbox(
+                    title:
+                        'Do you hold a Performing Animal Licence (if applicable)?',
+                    value: controller.performingAnimalLicence.value,
+                    onChanged: (value) =>
+                        controller.performingAnimalLicence.value = value!)),
                 if (controller.performingAnimalLicence.value) ...[
                   const SizedBox(height: 10),
-                  _buildDocumentUploadSection(context, controller, "Performing Animal Licence *", controller.performingAnimalLicencePaths, true),
+                  _buildDocumentUploadSection(
+                      context,
+                      controller,
+                      "Performing Animal Licence *",
+                      controller.performingAnimalLicencePaths,
+                      true),
                   const SizedBox(height: 10),
-                  const Text('Issuing Authority *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const Text('Issuing Authority *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   Signup_textfilled(
                     length: 100,
-                    textcont: TextEditingController(text: controller.issuingAuthority.value),
+                    textcont: TextEditingController(
+                        text: controller.issuingAuthority.value),
                     textfilled_height: 17,
                     textfilled_weight: 1,
                     keytype: TextInputType.text,
                     hinttext: "Enter Issuing Authority",
-                    validator: (value) => controller.performingAnimalLicence.value && (value?.isEmpty ?? true) ? 'Issuing authority is required' : null,
-                    onChanged: (value) => controller.issuingAuthority.value = value,
+                    validator: (value) =>
+                        controller.performingAnimalLicence.value &&
+                                (value?.isEmpty ?? true)
+                            ? 'Issuing authority is required'
+                            : null,
+                    onChanged: (value) =>
+                        controller.issuingAuthority.value = value,
                   ),
                 ],
                 const SizedBox(height: 20),
-                const Text('Cancellation Policy *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Cancellation Policy *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Obx(() => CustomDropdown(
-                  hintText: "Select a Cancellation Policy",
-                  items: controller.cancellationPolicyMap.keys.toList(),
-                  selectedValue: controller.cancellationPolicyMap.entries.firstWhere((entry) => entry.value == controller.cancellationPolicy?.value, orElse: () => const MapEntry("", "")).key,
-                  onChanged: (value) => controller.cancellationPolicy?.value = controller.cancellationPolicyMap[value] ?? '',
-                )),
+                      hintText: "Select a Cancellation Policy",
+                      items: controller.cancellationPolicyMap.keys.toList(),
+                      selectedValue: controller.cancellationPolicyMap.entries
+                          .firstWhere(
+                              (entry) =>
+                                  entry.value ==
+                                  controller.cancellationPolicy?.value,
+                              orElse: () => const MapEntry("", ""))
+                          .key,
+                      onChanged: (value) =>
+                          controller.cancellationPolicy?.value =
+                              controller.cancellationPolicyMap[value] ?? '',
+                    )),
                 const SizedBox(height: 20),
-
-                const Text('SECTION 8: Document Upload', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 8: Document Upload',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                _buildDocumentUploadSection(context, controller, "Carriage Photos *", controller.carriagePhotosPaths, true),
+                _buildDocumentUploadSection(context, controller,
+                    "Carriage Photos *", controller.carriagePhotosPaths, true),
                 const SizedBox(height: 20),
-                _buildDocumentUploadSection(context, controller, "Horse Photos *", controller.horsePhotosPaths, true),
+                _buildDocumentUploadSection(context, controller,
+                    "Horse Photos *", controller.horsePhotosPaths, true),
                 if (controller.publicLiabilityInsurance.value) ...[
                   const SizedBox(height: 20),
-                  _buildDocumentUploadSection(context, controller, "Public Liability Insurance Document *", controller.publicLiabilityInsuranceDocPaths, true),
+                  _buildDocumentUploadSection(
+                      context,
+                      controller,
+                      "Public Liability Insurance Document *",
+                      controller.publicLiabilityInsuranceDocPaths,
+                      true),
                 ],
-
-                const Text('SECTION 9: Business Highlights', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text('SECTION 9: Business Highlights',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                const Text('What makes your service unique or premium? *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('What makes your service unique or premium? *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 500,
@@ -394,10 +585,14 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.text,
                   hinttext: "Enter what makes your service unique",
-                  validator: (value) => value?.isEmpty ?? true ? 'Unique features are required' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Unique features are required'
+                      : null,
                 ),
                 const SizedBox(height: 20),
-                const Text('Promotional Description (max 100 words) *', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const Text('Promotional Description (max 100 words) *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 Signup_textfilled(
                   length: 100,
@@ -406,110 +601,236 @@ class HorseCarriageEditScreen extends StatelessWidget {
                   textfilled_weight: 1,
                   keytype: TextInputType.text,
                   hinttext: "Enter promotional description",
-                  validator: (value) => value?.isEmpty ?? true ? 'Promotional description is required' : null,
+                  validator: (value) => value?.isEmpty ?? true
+                      ? 'Promotional description is required'
+                      : null,
                 ),
                 const SizedBox(height: 20),
-
-                const Text("Coupons / Discounts", style: TextStyle(color: Colors.black87, fontSize: 18)),
+                const Text("Coupons / Discounts",
+                    style: TextStyle(color: Colors.black87, fontSize: 18)),
                 const SizedBox(height: 20),
-                SizedBox(width: w * 0.45, height: 50, child: ElevatedButton(
-                  onPressed: () => Get.dialog(AddCouponDialog()),
-                  style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green)),
-                  child: const Text("Add Coupon", style: TextStyle(color: Colors.white)),
-                )),
+                SizedBox(
+                    width: w * 0.45,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () => Get.dialog(AddCouponDialog()),
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color>(
+                                  (states) => Colors.green)),
+                      child: const Text("Add Coupon",
+                          style: TextStyle(color: Colors.white)),
+                    )),
                 const SizedBox(height: 20),
-                Obx(() => controller.couponController.coupons.isEmpty ? const SizedBox.shrink() : CouponList()),
+                Obx(() => controller.couponController.coupons.isEmpty
+                    ? const SizedBox.shrink()
+                    : CouponList()),
                 const SizedBox(height: 20),
-
                 Obx(() => Container(
-                  width: w,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: controller.isSubmitting.value
-                        ? null
-                        : () async {
-                            if (formKey.currentState!.validate()) {
-                              final data = {
-                                "availability": {
-                                  "booking_date_from": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(controller.calenderController.fromDate.value),
-                                  "booking_date_to": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(controller.calenderController.toDate.value),
-                                },
-                                "carriageTypes": {
-                                  for (var entry in controller.carriageTypes.entries) entry.key: entry.value.value,
-                                  "otherSpecified": controller.carriageTypes['other']!.value ? controller.otherCarriageTypeController.text.trim() : "",
-                                },
-                                "horseTypes": {
-                                  for (var entry in controller.horseTypes.entries) entry.key: entry.value.value,
-                                  "otherSpecified": controller.horseTypes['other']!.value ? controller.otherHorseTypeController.text.trim() : "",
-                                },
-                                "occasions": {
-                                  for (var entry in controller.occasions.entries) entry.key: entry.value.value,
-                                  "otherSpecified": controller.occasions['other']!.value ? controller.otherOccasionController.text.trim() : "",
-                                },
-                                "bookingOptions": {
-                                  for (var entry in controller.bookingOptions.entries) entry.key: entry.value.value,
-                                },
-                                "cancellation_policy_type": controller.cancellationPolicy?.value,
-                                "category": "PassengerTransport",
-                                "categoryId": "676ac544234968d45b494992",
-                                "departurePoints": controller.departurePoints.value,
-                                "equipmentSafety": {
-                                  "regularMaintenance": controller.regularMaintenance.value,
-                                  "safetyChecks": {
-                                    for (var entry in controller.safetyChecks.entries) entry.key: entry.value.value,
-                                  },
-                                  "maintenanceFrequency": controller.regularMaintenance.value ? controller.maintenanceFrequencyController.text.trim() : "",
-                                  "animalWelfareStandards": {
-                                    for (var entry in controller.animalWelfareStandards.entries) entry.key: entry.value.value,
-                                  },
-                                },
-                                "fleetInfo": {
-                                  "carriageType": controller.carriageTypeController.text.trim(),
-                                  "horseType": controller.horseTypeController.text.trim(),
-                                  "onboardDecor": controller.onboardDecorController.text.trim(),
-                                  "capacity": int.tryParse(controller.capacityController.text.trim()) ?? 0,
-                                },
-                                "fleetSize": int.tryParse(controller.fleetSizeController.text.trim()) ?? 0,
-                                "accessibilityServices": {
-                                  for (var entry in controller.accessibilityServices.entries) entry.key: entry.value.value,
-                                },
-                                "licensing": {
-                                  "publicLiabilityInsurance": controller.publicLiabilityInsurance.value,
-                                  "publicLiabilityInsuranceProvider": controller.publicLiabilityInsurance.value ? controller.publicLiabilityInsuranceProviderController.text.trim() : "",
-                                  "policyNumber": controller.publicLiabilityInsurance.value ? controller.policyNumberController.text.trim() : "",
-                                  "expiryDate": controller.publicLiabilityInsurance.value ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(DateFormat('dd-MM-yyyy').parse(controller.policyExpiryDateController.text.trim())) : "",
-                                  "performingAnimalLicence": controller.performingAnimalLicence.value,
-                                  "issuingAuthority": controller.performingAnimalLicence.value ? controller.issuingAuthority.value : "",
-                                  "documents": {
-                                    "publicLiabilityInsurance": {
-                                      "isAttached": controller.publicLiabilityInsuranceDocPaths.isNotEmpty,
-                                      "image": controller.publicLiabilityInsuranceDocPaths.isNotEmpty ? controller.publicLiabilityInsuranceDocPaths.first : "",
+                      width: w,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: controller.isSubmitting.value
+                            ? null
+                            : () async {
+                                if (formKey.currentState!.validate()) {
+                                  final data = {
+                                    "availability": {
+                                      "booking_date_from": DateFormat(
+                                              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                          .format(controller.calenderController
+                                              .fromDate.value),
+                                      "booking_date_to": DateFormat(
+                                              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                          .format(controller
+                                              .calenderController.toDate.value),
                                     },
-                                    "performingAnimalLicence": {
-                                      "isAttached": controller.performingAnimalLicencePaths.isNotEmpty,
-                                      "image": controller.performingAnimalLicencePaths.isNotEmpty ? controller.performingAnimalLicencePaths.first : "",
+                                    "carriageTypes": {
+                                      for (var entry
+                                          in controller.carriageTypes.entries)
+                                        entry.key: entry.value.value,
+                                      "otherSpecified": controller
+                                              .carriageTypes['other']!.value
+                                          ? controller
+                                              .otherCarriageTypeController.text
+                                              .trim()
+                                          : "",
                                     },
-                                  },
-                                },
-                                "navigableRoutes": controller.navigableRoutes.value,
-                                "promotionalDescription": controller.promotionalDescriptionController.text.trim(),
-        "service_name": controller.serviceNameController.text.trim(),
-        "service_type": "horse_carriage",
-        "sub_category": "Horse & Carriage Hire",
-        "subcategoryId": "676ace13234968d45b4949db",
-        "uniqueFeatures": controller.uniqueFeaturesController.text.trim(),
-        "vendorId": await SessionVendorSideManager().getVendorId(),
-        "_id": serviceId,
-                              };
-                              await controller.submitForm(data);
-                            }
-                          },
-                    style: ButtonStyle(backgroundColor: MaterialStateProperty.resolveWith<Color>((states) => Colors.green)),
-                    child: controller.isSubmitting.value
-                        ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                        : const Text("Update", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  ),
-                )),
+                                    "horseTypes": {
+                                      for (var entry
+                                          in controller.horseTypes.entries)
+                                        entry.key: entry.value.value,
+                                      "otherSpecified":
+                                          controller.horseTypes['other']!.value
+                                              ? controller
+                                                  .otherHorseTypeController.text
+                                                  .trim()
+                                              : "",
+                                    },
+                                    "occasions": {
+                                      for (var entry
+                                          in controller.occasions.entries)
+                                        entry.key: entry.value.value,
+                                      "otherSpecified":
+                                          controller.occasions['other']!.value
+                                              ? controller
+                                                  .otherOccasionController.text
+                                                  .trim()
+                                              : "",
+                                    },
+                                    "bookingOptions": {
+                                      for (var entry
+                                          in controller.bookingOptions.entries)
+                                        entry.key: entry.value.value,
+                                    },
+                                    "cancellation_policy_type":
+                                        controller.cancellationPolicy?.value,
+                                    "category": "PassengerTransport",
+                                    "categoryId": "676ac544234968d45b494992",
+                                    "departurePoints":
+                                        controller.departurePoints.value,
+                                    "equipmentSafety": {
+                                      "regularMaintenance":
+                                          controller.regularMaintenance.value,
+                                      "safetyChecks": {
+                                        for (var entry
+                                            in controller.safetyChecks.entries)
+                                          entry.key: entry.value.value,
+                                      },
+                                      "maintenanceFrequency": controller
+                                              .regularMaintenance.value
+                                          ? controller
+                                              .maintenanceFrequencyController
+                                              .text
+                                              .trim()
+                                          : "",
+                                      "animalWelfareStandards": {
+                                        for (var entry in controller
+                                            .animalWelfareStandards.entries)
+                                          entry.key: entry.value.value,
+                                      },
+                                    },
+                                    "fleetInfo": {
+                                      "carriageType": controller
+                                          .carriageTypeController.text
+                                          .trim(),
+                                      "horseType": controller
+                                          .horseTypeController.text
+                                          .trim(),
+                                      "onboardDecor": controller
+                                          .onboardDecorController.text
+                                          .trim(),
+                                      "capacity": int.tryParse(controller
+                                              .capacityController.text
+                                              .trim()) ??
+                                          0,
+                                    },
+                                    "fleetSize": int.tryParse(controller
+                                            .fleetSizeController.text
+                                            .trim()) ??
+                                        0,
+                                    "accessibilityServices": {
+                                      for (var entry in controller
+                                          .accessibilityServices.entries)
+                                        entry.key: entry.value.value,
+                                    },
+                                    "licensing": {
+                                      "publicLiabilityInsurance": controller
+                                          .publicLiabilityInsurance.value,
+                                      "publicLiabilityInsuranceProvider": controller
+                                              .publicLiabilityInsurance.value
+                                          ? controller
+                                              .publicLiabilityInsuranceProviderController
+                                              .text
+                                              .trim()
+                                          : "",
+                                      "policyNumber": controller
+                                              .publicLiabilityInsurance.value
+                                          ? controller
+                                              .policyNumberController.text
+                                              .trim()
+                                          : "",
+                                      "expiryDate": controller
+                                              .publicLiabilityInsurance.value
+                                          ? DateFormat(
+                                                  "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                                              .format(DateFormat('dd-MM-yyyy')
+                                                  .parse(controller
+                                                      .policyExpiryDateController
+                                                      .text
+                                                      .trim()))
+                                          : "",
+                                      "performingAnimalLicence": controller
+                                          .performingAnimalLicence.value,
+                                      "issuingAuthority": controller
+                                              .performingAnimalLicence.value
+                                          ? controller.issuingAuthority.value
+                                          : "",
+                                      "documents": {
+                                        "publicLiabilityInsurance": {
+                                          "isAttached": controller
+                                              .publicLiabilityInsuranceDocPaths
+                                              .isNotEmpty,
+                                          "image": controller
+                                                  .publicLiabilityInsuranceDocPaths
+                                                  .isNotEmpty
+                                              ? controller
+                                                  .publicLiabilityInsuranceDocPaths
+                                                  .first
+                                              : "",
+                                        },
+                                        "performingAnimalLicence": {
+                                          "isAttached": controller
+                                              .performingAnimalLicencePaths
+                                              .isNotEmpty,
+                                          "image": controller
+                                                  .performingAnimalLicencePaths
+                                                  .isNotEmpty
+                                              ? controller
+                                                  .performingAnimalLicencePaths
+                                                  .first
+                                              : "",
+                                        },
+                                      },
+                                    },
+                                    "navigableRoutes":
+                                        controller.navigableRoutes.value,
+                                    "promotionalDescription": controller
+                                        .promotionalDescriptionController.text
+                                        .trim(),
+                                    "service_name": controller
+                                        .serviceNameController.text
+                                        .trim(),
+                                    "service_type": "horse_carriage",
+                                    "sub_category": "Horse & Carriage Hire",
+                                    "subcategoryId": "676ace13234968d45b4949db",
+                                    "uniqueFeatures": controller
+                                        .uniqueFeaturesController.text
+                                        .trim(),
+                                    "vendorId": await SessionVendorSideManager()
+                                        .getVendorId(),
+                                    "_id": serviceId,
+                                  };
+                                  await controller.submitForm(data);
+                                }
+                              },
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                                    (states) => Colors.green)),
+                        child: controller.isSubmitting.value
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2.5))
+                            : const Text("Update",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
+                      ),
+                    )),
                 const SizedBox(height: 20),
               ],
             ),
@@ -519,7 +840,13 @@ class HorseCarriageEditScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCitySelection(BuildContext context, HorseCarriageEditController controller, String title, bool isSingleSelection, RxList<String> selectedCities, RxString singleCity) {
+  Widget _buildCitySelection(
+      BuildContext context,
+      HorseCarriageEditController controller,
+      String title,
+      bool isSingleSelection,
+      RxList<String> selectedCities,
+      RxString singleCity) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -601,15 +928,16 @@ class HorseCarriageEditScreen extends StatelessWidget {
                       child: Row(
                         children: [
                           Obx(() => Checkbox(
-                            value: selectedCities.contains(city),
-                            onChanged: (bool? value) {
-                              if (value == true && !selectedCities.contains(city)) {
-                                selectedCities.add(city);
-                              } else if (value == false) {
-                                selectedCities.remove(city);
-                              }
-                            },
-                          )),
+                                value: selectedCities.contains(city),
+                                onChanged: (bool? value) {
+                                  if (value == true &&
+                                      !selectedCities.contains(city)) {
+                                    selectedCities.add(city);
+                                  } else if (value == false) {
+                                    selectedCities.remove(city);
+                                  }
+                                },
+                              )),
                           Expanded(child: Text(city)),
                         ],
                       ),
@@ -664,8 +992,10 @@ class HorseCarriageEditScreen extends StatelessWidget {
                                       city,
                                       style: const TextStyle(fontSize: 14),
                                     ),
-                                    deleteIcon: const Icon(Icons.close, size: 18),
-                                    onDeleted: () => selectedCities.remove(city),
+                                    deleteIcon:
+                                        const Icon(Icons.close, size: 18),
+                                    onDeleted: () =>
+                                        selectedCities.remove(city),
                                     backgroundColor: Colors.grey[200],
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20),
@@ -678,7 +1008,12 @@ class HorseCarriageEditScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDatePicker(BuildContext context, HorseCarriageEditController controller, String label, Rx<DateTime> date, bool isFromDate) {
+  Widget _buildDatePicker(
+      BuildContext context,
+      HorseCarriageEditController controller,
+      String label,
+      Rx<DateTime> date,
+      bool isFromDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -698,7 +1033,9 @@ class HorseCarriageEditScreen extends StatelessWidget {
             if (picked != null) {
               date.value = picked;
               if (isFromDate) {
-                controller.calenderController.updateDateRange(controller.calenderController.fromDate.value, controller.calenderController.toDate.value);
+                controller.calenderController.updateDateRange(
+                    controller.calenderController.fromDate.value,
+                    controller.calenderController.toDate.value);
               }
             }
           },
@@ -712,9 +1049,9 @@ class HorseCarriageEditScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Obx(() => Text(
-                  DateFormat('dd/MM/yyyy').format(date.value),
-                  style: const TextStyle(fontSize: 16),
-                )),
+                      DateFormat('dd/MM/yyyy').format(date.value),
+                      style: const TextStyle(fontSize: 16),
+                    )),
                 const Icon(Icons.calendar_today, color: Colors.grey),
               ],
             ),
@@ -725,7 +1062,12 @@ class HorseCarriageEditScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDocumentUploadSection(BuildContext context, HorseCarriageEditController controller, String title, RxList<String> documentPaths, bool isRequired) {
+  Widget _buildDocumentUploadSection(
+      BuildContext context,
+      HorseCarriageEditController controller,
+      String title,
+      RxList<String> documentPaths,
+      bool isRequired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -759,7 +1101,8 @@ class HorseCarriageEditScreen extends StatelessWidget {
                       onTap: () {
                         documentPaths.clear();
                       },
-                      child: const Icon(Icons.close, color: Colors.redAccent, size: 20),
+                      child: const Icon(Icons.close,
+                          color: Colors.redAccent, size: 20),
                     ),
                   ),
                 ],
@@ -780,8 +1123,11 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     title: const Text('Take a Photo'),
                     onTap: () async {
                       await controller.imageController.pickImages(true);
-                      if (controller.imageController.selectedImages.isNotEmpty) {
-                        documentPaths.value = [controller.imageController.selectedImages.last];
+                      if (controller
+                          .imageController.selectedImages.isNotEmpty) {
+                        documentPaths.value = [
+                          controller.imageController.selectedImages.last
+                        ];
                         controller.imageController.selectedImages.removeLast();
                       }
                       Get.back();
@@ -792,8 +1138,11 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     title: const Text('Choose from Gallery'),
                     onTap: () async {
                       await controller.imageController.pickImages(false);
-                      if (controller.imageController.selectedImages.isNotEmpty) {
-                        documentPaths.value = [controller.imageController.selectedImages.last];
+                      if (controller
+                          .imageController.selectedImages.isNotEmpty) {
+                        documentPaths.value = [
+                          controller.imageController.selectedImages.last
+                        ];
                         controller.imageController.selectedImages.removeLast();
                       }
                       Get.back();
@@ -818,7 +1167,10 @@ class HorseCarriageEditScreen extends StatelessWidget {
                     SizedBox(height: 8),
                     Text(
                       'Click to upload PDF, PNG, JPG (max 5MB)',
-                      style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w700),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ],
