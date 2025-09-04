@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:hire_any_thing/constants_file/app_user_side_urls.dart';
 import 'package:hire_any_thing/data/models/user_side_model/user_booking_model.dart';
 import 'package:hire_any_thing/data/services/api_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hire_any_thing/data/session_manage/session_user_side_manage.dart'; // Add this import
 
 class UserBookingApi {
   final ApiService _apiService = ApiService();
@@ -11,14 +11,14 @@ class UserBookingApi {
   // Fetch user bookings
   Future<List<BookingDetails>> getUserBookings() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      
-      final token = prefs.getString("usertoken");
+      // Use session manager instead of direct SharedPreferences
+      final sessionManager = SessionManageerUserSide();
+      final token = await sessionManager.getToken();
 
-      if ( token == null) {
+      if (token == null || token.isEmpty) {
         Get.snackbar(
           "Error",
-          "token not found. Please login again.",
+          "Session expired. Please login again.",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -29,12 +29,10 @@ class UserBookingApi {
         return [];
       }
 
-      
       _apiService.setRequestHeaders({"Authorization": "Bearer $token"});
 
       final response = await _apiService.getApi(
         AppUrlsUserSide.userBookings,
-       
       );
 
       print('Booking Response: $response');
@@ -75,13 +73,13 @@ class UserBookingApi {
   // Create a new booking
   Future<bool> createBooking(Map<String, dynamic> bookingData) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("usertoken");
+      final sessionManager = SessionManageerUserSide();
+      final token = await sessionManager.getToken();
 
-      if (token == null) {
+      if (token == null || token.isEmpty) {
         Get.snackbar(
           "Error",
-          "Token not found. Please login again.",
+          "Session expired. Please login again.",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -92,7 +90,6 @@ class UserBookingApi {
         return false;
       }
 
-      // Set authorization header using the new method
       _apiService.setRequestHeaders({"Authorization": "Bearer $token"});
 
       final response = await _apiService.postApi(
@@ -143,16 +140,15 @@ class UserBookingApi {
     }
   }
 
-
   Future<bool> cancelBooking(String bookingId) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString("usertoken");
+      final sessionManager = SessionManageerUserSide();
+      final token = await sessionManager.getToken();
 
-      if (token == null) {
+      if (token == null || token.isEmpty) {
         Get.snackbar(
           "Error",
-          "Token not found. Please login again.",
+          "Session expired. Please login again.",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -163,7 +159,6 @@ class UserBookingApi {
         return false;
       }
 
-      // Set authorization header using the new method
       _apiService.setRequestHeaders({"Authorization": "Bearer $token"});
 
       final response = await _apiService.postApi(

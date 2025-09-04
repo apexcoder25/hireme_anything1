@@ -1,4 +1,3 @@
-
 class FilterModel {
   FilterModel({
     required this.success,
@@ -14,7 +13,9 @@ class FilterModel {
     return FilterModel(
       success: json["success"],
       count: json["count"],
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      data: json["data"] == null
+          ? []
+          : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
     );
   }
 
@@ -185,77 +186,179 @@ class Datum {
   factory Datum.fromJson(Map<String, dynamic> json) {
     return Datum(
       id: json["_id"],
-      categoryId: json["categoryId"] == null ? null : CategoryId.fromJson(json["categoryId"]),
-      subcategoryId: json["subcategoryId"] == null ? null : SubcategoryId.fromJson(json["subcategoryId"]),
-      vendorId: json["vendorId"],
+      categoryId: json["categoryId"] == null
+          ? null
+          : CategoryId.fromJson(json["categoryId"]),
+      subcategoryId: json["subcategoryId"] == null
+          ? null
+          : SubcategoryId.fromJson(json["subcategoryId"]),
+      vendorId: json["vendorId"] is Map<String, dynamic>
+          ? json["vendorId"]["id"]?.toString()
+          : json["vendorId"]?.toString(),
       datumServiceName: json["service_name"],
       emergencyContactNumber: json["emergencyContactNumber"],
-      funeralVehicleTypes: json["funeralVehicleTypes"] == null ? [] : List<String>.from(json["funeralVehicleTypes"]!.map((x) => x)),
-      pricingDetails: json["pricingDetails"] == null ? null : PricingDetails.fromJson(json["pricingDetails"]),
-      accessibilityAndSpecialServices: json["accessibilityAndSpecialServices"] == null ? [] : List<AccessibilityAndSpecialService>.from(json["accessibilityAndSpecialServices"]!.map((x) => AccessibilityAndSpecialService.fromJson(x))),
-      funeralPackageOptions: json["funeralPackageOptions"] == null ? null : FuneralPackageOptions.fromJson(json["funeralPackageOptions"]),
-      bookingAvailabilityDateFrom: DateTime.tryParse(json["booking_availability_date_from"] ?? ""),
-      bookingAvailabilityDateTo: DateTime.tryParse(json["booking_availability_date_to"] ?? ""),
-      datumSpecialPriceDays: json["special_price_days"] == null ? [] : List<SpecialPriceDay>.from(json["special_price_days"]!.map((x) => SpecialPriceDay.fromJson(x))),
-      areasCovered: json["areasCovered"] == null ? [] : List<String>.from(json["areasCovered"]!.map((x) => x)),
-      fleetDetails: json["fleetDetails"] == null ? null : FleetDetails.fromJson(json["fleetDetails"]),
-      driverDetail: json["driver_detail"] == null ? null : DriverDetail.fromJson(json["driver_detail"]),
-      serviceDetail: json["service_detail"] == null ? null : ServiceDetail.fromJson(json["service_detail"]),
-      licensingDetails: json["licensingDetails"] == null ? null : LicensingDetails.fromJson(json["licensingDetails"]),
-      insuranceDetails: json["insuranceDetails"] == null ? null : InsuranceDetails.fromJson(json["insuranceDetails"]),
-      uploadedDocuments: json["uploaded_Documents"] == null ? null : UploadedDocuments.fromJson(json["uploaded_Documents"]),
-      businessProfile: json["businessProfile"] == null ? null : BusinessProfile.fromJson(json["businessProfile"]),
+      funeralVehicleTypes: json["funeralVehicleTypes"] == null
+          ? []
+          : List<String>.from(json["funeralVehicleTypes"]!.map((x) => x)),
+      pricingDetails: json["pricingDetails"] == null
+          ? null
+          : PricingDetails.fromJson(json["pricingDetails"]),
+      accessibilityAndSpecialServices:
+          json["accessibilityAndSpecialServices"] == null
+              ? []
+              : List<AccessibilityAndSpecialService>.from(
+                  json["accessibilityAndSpecialServices"]!
+                      .map((x) => AccessibilityAndSpecialService.fromJson(x))),
+      funeralPackageOptions: json["funeralPackageOptions"] == null
+          ? null
+          : FuneralPackageOptions.fromJson(json["funeralPackageOptions"]),
+      bookingAvailabilityDateFrom:
+          DateTime.tryParse(json["booking_availability_date_from"] ?? ""),
+      bookingAvailabilityDateTo:
+          DateTime.tryParse(json["booking_availability_date_to"] ?? ""),
+      datumSpecialPriceDays: json["special_price_days"] == null
+          ? []
+          : List<SpecialPriceDay>.from(json["special_price_days"]!
+              .map((x) => SpecialPriceDay.fromJson(x))),
+      areasCovered: json["areasCovered"] == null
+          ? []
+          : List<String>.from(json["areasCovered"]!.map((x) => x)),
+      fleetDetails: json["fleetDetails"] == null
+          ? null
+          : FleetDetails.fromJson(json["fleetDetails"]),
+      driverDetail: json["driver_detail"] == null
+          ? null
+          : DriverDetail.fromJson(json["driver_detail"]),
+      serviceDetail: json["service_detail"] == null
+          ? null
+          : ServiceDetail.fromJson(json["service_detail"]),
+      licensingDetails: json["licensingDetails"] == null
+          ? null
+          : LicensingDetails.fromJson(json["licensingDetails"]),
+      insuranceDetails: json["insuranceDetails"] == null
+          ? null
+          : InsuranceDetails.fromJson(json["insuranceDetails"]),
+      uploadedDocuments: json["uploaded_Documents"] == null
+          ? null
+          : UploadedDocuments.fromJson(json["uploaded_Documents"]),
+      businessProfile: json["businessProfile"] == null
+          ? null
+          : BusinessProfile.fromJson(json["businessProfile"]),
       approvalStatus: json["approvalStatus"],
       serviceStatus: json["service_status"],
       serviceApproveStatus: json["service_approve_status"],
       cancellationPolicyType: json["cancellation_policy_type"],
-      coupons: json["coupons"] == null ? [] : List<Coupon>.from(json["coupons"]!.map((x) => Coupon.fromJson(x))),
+      coupons: json["coupons"] == null
+          ? []
+          : List<Coupon>.from(json["coupons"]!.map((x) => Coupon.fromJson(x))),
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       v: json["__v"],
       sourceModel: json["_sourceModel"],
       serviceName: json["serviceName"],
-      serviceDetails: json["serviceDetails"] == null ? null : ServiceDetails.fromJson(json["serviceDetails"]),
-      equipmentSafety: json["equipmentSafety"] == null ? null : EquipmentSafety.fromJson(json["equipmentSafety"]),
-      licensingInsurance: json["licensingInsurance"] == null ? null : LicensingInsurance.fromJson(json["licensingInsurance"]),
-      marketing: json["marketing"] == null ? null : Marketing.fromJson(json["marketing"]),
-      bookingAvailability: json["bookingAvailability"] == null ? null : BookingAvailability.fromJson(json["bookingAvailability"]),
-      serviceAreas: json["serviceAreas"] == null ? [] : List<String>.from(json["serviceAreas"]!.map((x) => x)),
-      availabilityPeriod: json["availabilityPeriod"] == null ? null : AvailabilityPeriod.fromJson(json["availabilityPeriod"]),
-      specialPriceDays: json["specialPriceDays"] == null ? [] : List<SpecialPriceDay>.from(json["specialPriceDays"]!.map((x) => SpecialPriceDay.fromJson(x))),
-      pricing: json["pricing"] == null ? null : Pricing.fromJson(json["pricing"]),
-      images: json["images"] == null ? [] : List<String>.from(json["images"]!.map((x) => x)),
-      accessibilityServices: json["accessibilityServices"] == null ? [] : List<String>.from(json["accessibilityServices"]!.map((x) => x)),
-      documents: json["documents"] == null ? null : DatumDocuments.fromJson(json["documents"]),
-      eventsExtras: json["eventsExtras"] == null ? [] : List<String>.from(json["eventsExtras"]!.map((x) => x)),
-      featurePricing: json["featurePricing"] == null ? null : FeaturePricing.fromJson(json["featurePricing"]),
+      serviceDetails: json["serviceDetails"] == null
+          ? null
+          : ServiceDetails.fromJson(json["serviceDetails"]),
+      equipmentSafety: json["equipmentSafety"] == null
+          ? null
+          : EquipmentSafety.fromJson(json["equipmentSafety"]),
+      licensingInsurance: json["licensingInsurance"] == null
+          ? null
+          : LicensingInsurance.fromJson(json["licensingInsurance"]),
+      marketing: json["marketing"] == null
+          ? null
+          : Marketing.fromJson(json["marketing"]),
+      bookingAvailability: json["bookingAvailability"] == null
+          ? null
+          : BookingAvailability.fromJson(json["bookingAvailability"]),
+      serviceAreas: json["serviceAreas"] == null
+          ? []
+          : List<String>.from(json["serviceAreas"]!.map((x) => x)),
+      availabilityPeriod: json["availabilityPeriod"] == null
+          ? null
+          : AvailabilityPeriod.fromJson(json["availabilityPeriod"]),
+      specialPriceDays: json["specialPriceDays"] == null
+          ? []
+          : List<SpecialPriceDay>.from(json["specialPriceDays"]!
+              .map((x) => SpecialPriceDay.fromJson(x))),
+      pricing:
+          json["pricing"] == null ? null : Pricing.fromJson(json["pricing"]),
+      images: json["images"] == null
+          ? []
+          : List<String>.from(json["images"]!.map((x) => x)),
+      accessibilityServices: json["accessibilityServices"] == null
+          ? []
+          : List<String>.from(json["accessibilityServices"]!.map((x) => x)),
+      documents: json["documents"] == null
+          ? null
+          : DatumDocuments.fromJson(json["documents"]),
+      eventsExtras: json["eventsExtras"] == null
+          ? []
+          : List<String>.from(json["eventsExtras"]!.map((x) => x)),
+      featurePricing: json["featurePricing"] == null
+          ? null
+          : FeaturePricing.fromJson(json["featurePricing"]),
       serviceType: json["serviceType"],
       vehicleType: json["vehicleType"],
       baseLocationPostcode: json["baseLocationPostcode"],
-      fleetInfo: json["fleetInfo"] == null ? null : FleetInfo.fromJson(json["fleetInfo"]),
-      occasionsCatered: json["occasionsCatered"] == null ? null : OccasionsCatered.fromJson(json["occasionsCatered"]),
-      features: json["features"] == null ? null : Features.fromJson(json["features"]),
+      fleetInfo: json["fleetInfo"] == null
+          ? null
+          : FleetInfo.fromJson(json["fleetInfo"]),
+      occasionsCatered: json["occasionsCatered"] == null
+          ? null
+          : OccasionsCatered.fromJson(json["occasionsCatered"]),
+      features:
+          json["features"] == null ? null : Features.fromJson(json["features"]),
       datumBookingDateFrom: DateTime.tryParse(json["booking_date_from"] ?? ""),
       datumBookingDateTo: json["booking_date_to"],
-      licensing: json["licensing"] == null ? null : Licensing.fromJson(json["licensing"]),
-      serviceImage: json["service_image"] == null ? [] : List<String>.from(json["service_image"]!.map((x) => x)),
-      listingData: json["listing_data"] == null ? null : ListingData.fromJson(json["listing_data"]),
+      licensing: json["licensing"] == null
+          ? null
+          : Licensing.fromJson(json["licensing"]),
+      serviceImage: json["service_image"] == null
+          ? []
+          : List<String>.from(json["service_image"]!.map((x) => x)),
+      listingData: json["listing_data"] == null
+          ? null
+          : ListingData.fromJson(json["listing_data"]),
       media: json["media"] == null ? null : Media.fromJson(json["media"]),
-      occasionsCovered: json["occasionsCovered"] == null ? [] : List<String>.from(json["occasionsCovered"]!.map((x) => x)),
+      occasionsCovered: json["occasionsCovered"] == null
+          ? []
+          : List<String>.from(json["occasionsCovered"]!.map((x) => x)),
       available247: json["available_24_7"],
-      bookingOptions: json["bookingOptions"] == null ? [] : List<dynamic>.from(json["bookingOptions"]!.map((x) => x)),
-      datumFleetDetails: json["fleet_details"] == null ? [] : List<FleetDetail>.from(json["fleet_details"]!.map((x) => FleetDetail.fromJson(x))),
-      fullDayRate: json["fullDayRate"] != null ? int.tryParse(json["fullDayRate"].toString()) : null,
-      hourlyRate: json["hourlyRate"] != null ? int.tryParse(json["hourlyRate"].toString()) : null,
-      halfDayRate: json["halfDayRate"] != null ? double.tryParse(json["halfDayRate"].toString()) : null,
-      weddingPackageRate: json["weddingPackageRate"] != null ? double.tryParse(json["weddingPackageRate"].toString()) : null,
-      airportTransferRate: json["airportTransferRate"] != null ? double.tryParse(json["airportTransferRate"].toString()) : null,
+      bookingOptions: json["bookingOptions"] == null
+          ? []
+          : List<dynamic>.from(json["bookingOptions"]!.map((x) => x)),
+      datumFleetDetails: json["fleet_details"] == null
+          ? []
+          : List<FleetDetail>.from(
+              json["fleet_details"]!.map((x) => FleetDetail.fromJson(x))),
+      fullDayRate: json["fullDayRate"] != null
+          ? int.tryParse(json["fullDayRate"].toString())
+          : null,
+      hourlyRate: json["hourlyRate"] != null
+          ? int.tryParse(json["hourlyRate"].toString())
+          : null,
+      halfDayRate: json["halfDayRate"] != null
+          ? double.tryParse(json["halfDayRate"].toString())
+          : null,
+      weddingPackageRate: json["weddingPackageRate"] != null
+          ? double.tryParse(json["weddingPackageRate"].toString())
+          : null,
+      airportTransferRate: json["airportTransferRate"] != null
+          ? double.tryParse(json["airportTransferRate"].toString())
+          : null,
       fuelIncluded: json["fuelIncluded"],
-      mileageCapLimit: json["mileageCapLimit"] != null ? int.tryParse(json["mileageCapLimit"].toString()) : null,
-      mileageCapExcessCharge: json["mileageCapExcessCharge"] != null ? int.tryParse(json["mileageCapExcessCharge"].toString()) : null,
+      mileageCapLimit: json["mileageCapLimit"] != null
+          ? int.tryParse(json["mileageCapLimit"].toString())
+          : null,
+      mileageCapExcessCharge: json["mileageCapExcessCharge"] != null
+          ? int.tryParse(json["mileageCapExcessCharge"].toString())
+          : null,
       bookingDateFrom: DateTime.tryParse(json["bookingDateFrom"] ?? ""),
       bookingDateTo: DateTime.tryParse(json["bookingDateTo"] ?? ""),
-      documentation: json["documentation"] == null ? null : Documentation.fromJson(json["documentation"]),
+      documentation: json["documentation"] == null
+          ? null
+          : Documentation.fromJson(json["documentation"]),
       otherOccasions: json["otherOccasions"],
       promoVideoLink: json["promoVideoLink"],
       promotionalDescription: json["promotionalDescription"],
@@ -272,11 +375,15 @@ class Datum {
         "emergencyContactNumber": emergencyContactNumber,
         "funeralVehicleTypes": funeralVehicleTypes.map((x) => x).toList(),
         "pricingDetails": pricingDetails?.toJson(),
-        "accessibilityAndSpecialServices": accessibilityAndSpecialServices.map((x) => x.toJson()).toList(),
+        "accessibilityAndSpecialServices":
+            accessibilityAndSpecialServices.map((x) => x.toJson()).toList(),
         "funeralPackageOptions": funeralPackageOptions?.toJson(),
-        "booking_availability_date_from": bookingAvailabilityDateFrom?.toIso8601String(),
-        "booking_availability_date_to": bookingAvailabilityDateTo?.toIso8601String(),
-        "special_price_days": datumSpecialPriceDays.map((x) => x.toJson()).toList(),
+        "booking_availability_date_from":
+            bookingAvailabilityDateFrom?.toIso8601String(),
+        "booking_availability_date_to":
+            bookingAvailabilityDateTo?.toIso8601String(),
+        "special_price_days":
+            datumSpecialPriceDays.map((x) => x.toJson()).toList(),
         "areasCovered": areasCovered.map((x) => x).toList(),
         "fleetDetails": fleetDetails?.toJson(),
         "driver_detail": driverDetail?.toJson(),
@@ -357,7 +464,9 @@ class AccessibilityAndSpecialService {
   factory AccessibilityAndSpecialService.fromJson(Map<String, dynamic> json) {
     return AccessibilityAndSpecialService(
       serviceType: json["serviceType"],
-      additionalPrice: json["additionalPrice"] != null ? int.tryParse(json["additionalPrice"].toString()) : null,
+      additionalPrice: json["additionalPrice"] != null
+          ? int.tryParse(json["additionalPrice"].toString())
+          : null,
       id: json["_id"],
     );
   }
@@ -408,9 +517,13 @@ class BookingAvailability {
 
   factory BookingAvailability.fromJson(Map<String, dynamic> json) {
     return BookingAvailability(
-      availableFor: json["availableFor"] == null ? [] : List<String>.from(json["availableFor"]!.map((x) => x)),
+      availableFor: json["availableFor"] == null
+          ? []
+          : List<String>.from(json["availableFor"]!.map((x) => x)),
       leadTime: json["leadTime"],
-      bookingOptions: json["bookingOptions"] == null ? [] : List<dynamic>.from(json["bookingOptions"]!.map((x) => x)),
+      bookingOptions: json["bookingOptions"] == null
+          ? []
+          : List<dynamic>.from(json["bookingOptions"]!.map((x) => x)),
       available247: json["available_24_7"],
       serviceHours: json["serviceHours"],
     );
@@ -498,9 +611,15 @@ class Coupon {
     return Coupon(
       couponCode: json["coupon_code"],
       discountType: json["discount_type"],
-      discountValue: json["discount_value"] != null ? double.tryParse(json["discount_value"].toString()) : null,
-      usageLimit: json["usage_limit"] != null ? int.tryParse(json["usage_limit"].toString()) : null,
-      currentUsageCount: json["current_usage_count"] != null ? int.tryParse(json["current_usage_count"].toString()) : null,
+      discountValue: json["discount_value"] != null
+          ? double.tryParse(json["discount_value"].toString())
+          : null,
+      usageLimit: json["usage_limit"] != null
+          ? int.tryParse(json["usage_limit"].toString())
+          : null,
+      currentUsageCount: json["current_usage_count"] != null
+          ? int.tryParse(json["current_usage_count"].toString())
+          : null,
       expiryDate: DateTime.tryParse(json["expiry_date"] ?? ""),
       isGlobal: json["is_global"],
       id: json["_id"],
@@ -551,7 +670,9 @@ class FleetDetail {
       type: json["type"],
       year: json["year"] != null ? int.tryParse(json["year"].toString()) : null,
       color: json["color"],
-      capacity: json["capacity"] != null ? int.tryParse(json["capacity"].toString()) : null,
+      capacity: json["capacity"] != null
+          ? int.tryParse(json["capacity"].toString())
+          : null,
       vehicleDescription: json["vehicleDescription"],
       bootSpace: json["bootSpace"],
       keyFeatures: json["key_Features"],
@@ -587,13 +708,16 @@ class SpecialPriceDay {
   factory SpecialPriceDay.fromJson(Map<String, dynamic> json) {
     return SpecialPriceDay(
       date: DateTime.tryParse(json["date"] ?? ""),
-      price: json["price"] != null ? double.tryParse(json["price"].toString()) : null,
+      price: json["price"] != null
+          ? double.tryParse(json["price"].toString())
+          : null,
       id: json["_id"],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "date": "${date?.year.toString().padLeft(4, '0')}-${date?.month.toString().padLeft(2, '0')}-${date?.day.toString().padLeft(2, '0')}",
+        "date":
+            "${date?.year.toString().padLeft(4, '0')}-${date?.month.toString().padLeft(2, '0')}-${date?.day.toString().padLeft(2, '0')}",
         "price": price,
         "_id": id,
       };
@@ -650,9 +774,16 @@ class DatumDocuments {
 
   factory DatumDocuments.fromJson(Map<String, dynamic> json) {
     return DatumDocuments(
-      publicLiabilityInsurance: json["publicLiabilityInsurance"],
-      animalLicense: json["animalLicense"],
-      riskAssessment: json["riskAssessment"],
+      publicLiabilityInsurance:
+          json["publicLiabilityInsurance"] is Map<String, dynamic>
+              ? json["publicLiabilityInsurance"]["url"]?.toString()
+              : json["publicLiabilityInsurance"]?.toString(),
+      animalLicense: json["animalLicense"] is Map<String, dynamic>
+          ? json["animalLicense"]["url"]?.toString()
+          : json["animalLicense"]?.toString(),
+      riskAssessment: json["riskAssessment"] is Map<String, dynamic>
+          ? json["riskAssessment"]["url"]?.toString()
+          : json["riskAssessment"]?.toString(),
     );
   }
 
@@ -704,11 +835,15 @@ class EquipmentSafety {
 
   factory EquipmentSafety.fromJson(Map<String, dynamic> json) {
     return EquipmentSafety(
-      safetyChecks: json["safetyChecks"] == null ? [] : List<String>.from(json["safetyChecks"]!.map((x) => x)),
+      safetyChecks: json["safetyChecks"] == null
+          ? []
+          : List<String>.from(json["safetyChecks"]!.map((x) => x)),
       isMaintained: json["isMaintained"],
       uniformType: json["uniformType"],
       offersRouteInspection: json["offersRouteInspection"],
-      animalWelfareStandards: json["animalWelfareStandards"] == null ? [] : List<String>.from(json["animalWelfareStandards"]!.map((x) => x)),
+      animalWelfareStandards: json["animalWelfareStandards"] == null
+          ? []
+          : List<String>.from(json["animalWelfareStandards"]!.map((x) => x)),
       otherMaintenanceFrequency: json["otherMaintenanceFrequency"],
     );
   }
@@ -736,9 +871,15 @@ class FeaturePricing {
 
   factory FeaturePricing.fromJson(Map<String, dynamic> json) {
     return FeaturePricing(
-      eventsExtras: json["eventsExtras"] == null ? null : EventsExtras.fromJson(json["eventsExtras"]),
-      accessibilityServices: json["accessibilityServices"] == null ? null : AccessibilityServices.fromJson(json["accessibilityServices"]),
-      eventsAndCustomization: json["eventsAndCustomization"] == null ? null : EventsAndCustomization.fromJson(json["eventsAndCustomization"]),
+      eventsExtras: json["eventsExtras"] == null
+          ? null
+          : EventsExtras.fromJson(json["eventsExtras"]),
+      accessibilityServices: json["accessibilityServices"] == null
+          ? null
+          : AccessibilityServices.fromJson(json["accessibilityServices"]),
+      eventsAndCustomization: json["eventsAndCustomization"] == null
+          ? null
+          : EventsAndCustomization.fromJson(json["eventsAndCustomization"]),
     );
   }
 
@@ -764,10 +905,18 @@ class AccessibilityServices {
 
   factory AccessibilityServices.fromJson(Map<String, dynamic> json) {
     return AccessibilityServices(
-      wheelchairAccessVehicle: json["WheelchairAccessVehicle"] != null ? double.tryParse(json["WheelchairAccessVehicle"].toString()) : null,
-      childCarSeats: json["ChildCarSeats"] != null ? double.tryParse(json["ChildCarSeats"].toString()) : null,
-      strollerBuggyStorage: json["Stroller/BuggyStorage"] != null ? int.tryParse(json["Stroller/BuggyStorage"].toString()) : null,
-      wheelchairAccess: json["WheelchairAccess"] != null ? double.tryParse(json["WheelchairAccess"].toString()) : null,
+      wheelchairAccessVehicle: json["WheelchairAccessVehicle"] != null
+          ? double.tryParse(json["WheelchairAccessVehicle"].toString())
+          : null,
+      childCarSeats: json["ChildCarSeats"] != null
+          ? double.tryParse(json["ChildCarSeats"].toString())
+          : null,
+      strollerBuggyStorage: json["Stroller/BuggyStorage"] != null
+          ? int.tryParse(json["Stroller/BuggyStorage"].toString())
+          : null,
+      wheelchairAccess: json["WheelchairAccess"] != null
+          ? double.tryParse(json["WheelchairAccess"].toString())
+          : null,
     );
   }
 
@@ -788,7 +937,9 @@ class EventsAndCustomization {
 
   factory EventsAndCustomization.fromJson(Map<String, dynamic> json) {
     return EventsAndCustomization(
-      redCarpetService: json["RedCarpetService"] != null ? double.tryParse(json["RedCarpetService"].toString()) : null,
+      redCarpetService: json["RedCarpetService"] != null
+          ? double.tryParse(json["RedCarpetService"].toString())
+          : null,
     );
   }
 
@@ -812,10 +963,18 @@ class EventsExtras {
 
   factory EventsExtras.fromJson(Map<String, dynamic> json) {
     return EventsExtras(
-      partyLightingSystem: json["PartyLightingSystem"] != null ? int.tryParse(json["PartyLightingSystem"].toString()) : null,
-      weddingDcorribbonsFlowers: json["WeddingDécorribbons,flowers"] != null ? double.tryParse(json["WeddingDécorribbons,flowers"].toString()) : null,
-      champagnePackages: json["ChampagnePackages"] != null ? double.tryParse(json["ChampagnePackages"].toString()) : null,
-      photographyPackages: json["PhotographyPackages"] != null ? int.tryParse(json["PhotographyPackages"].toString()) : null,
+      partyLightingSystem: json["PartyLightingSystem"] != null
+          ? int.tryParse(json["PartyLightingSystem"].toString())
+          : null,
+      weddingDcorribbonsFlowers: json["WeddingDécorribbons,flowers"] != null
+          ? double.tryParse(json["WeddingDécorribbons,flowers"].toString())
+          : null,
+      champagnePackages: json["ChampagnePackages"] != null
+          ? double.tryParse(json["ChampagnePackages"].toString())
+          : null,
+      photographyPackages: json["PhotographyPackages"] != null
+          ? int.tryParse(json["PhotographyPackages"].toString())
+          : null,
     );
   }
 
@@ -850,14 +1009,26 @@ class Features {
 
   factory Features.fromJson(Map<String, dynamic> json) {
     return Features(
-      comfort: json["comfort"] == null ? null : Comfort.fromJson(json["comfort"]),
+      comfort:
+          json["comfort"] == null ? null : Comfort.fromJson(json["comfort"]),
       events: json["events"] == null ? null : Events.fromJson(json["events"]),
-      accessibility: json["accessibility"] == null ? null : Accessibility.fromJson(json["accessibility"]),
-      security: json["security"] == null ? null : Security.fromJson(json["security"]),
-      comfortAndLuxury: json["comfortAndLuxury"] == null ? [] : List<String>.from(json["comfortAndLuxury"]!.map((x) => x)),
-      eventsAndCustomization: json["eventsAndCustomization"] == null ? [] : List<String>.from(json["eventsAndCustomization"]!.map((x) => x)),
-      accessibilityServices: json["accessibilityServices"] == null ? [] : List<String>.from(json["accessibilityServices"]!.map((x) => x)),
-      safetyAndCompliance: json["safetyAndCompliance"] == null ? [] : List<String>.from(json["safetyAndCompliance"]!.map((x) => x)),
+      accessibility: json["accessibility"] == null
+          ? null
+          : Accessibility.fromJson(json["accessibility"]),
+      security:
+          json["security"] == null ? null : Security.fromJson(json["security"]),
+      comfortAndLuxury: json["comfortAndLuxury"] == null
+          ? []
+          : List<String>.from(json["comfortAndLuxury"]!.map((x) => x)),
+      eventsAndCustomization: json["eventsAndCustomization"] == null
+          ? []
+          : List<String>.from(json["eventsAndCustomization"]!.map((x) => x)),
+      accessibilityServices: json["accessibilityServices"] == null
+          ? []
+          : List<String>.from(json["accessibilityServices"]!.map((x) => x)),
+      safetyAndCompliance: json["safetyAndCompliance"] == null
+          ? []
+          : List<String>.from(json["safetyAndCompliance"]!.map((x) => x)),
     );
   }
 
@@ -910,12 +1081,24 @@ class Accessibility {
       disabledAccessRamp: json["disabledAccessRamp"],
       seniorFriendlyAssistance: json["seniorFriendlyAssistance"],
       strollerBuggyStorage: json["strollerBuggyStorage"],
-      wheelchairAccessPrice: json["wheelchairAccessPrice"] != null ? int.tryParse(json["wheelchairAccessPrice"].toString()) : null,
-      petFriendlyPrice: json["petFriendlyPrice"] != null ? int.tryParse(json["petFriendlyPrice"].toString()) : null,
-      childCarSeatsPrice: json["childCarSeatsPrice"] != null ? int.tryParse(json["childCarSeatsPrice"].toString()) : null,
-      disabledAccessRampPrice: json["disabledAccessRampPrice"] != null ? int.tryParse(json["disabledAccessRampPrice"].toString()) : null,
-      seniorAssistancePrice: json["seniorAssistancePrice"] != null ? int.tryParse(json["seniorAssistancePrice"].toString()) : null,
-      strollerStoragePrice: json["strollerStoragePrice"] != null ? int.tryParse(json["strollerStoragePrice"].toString()) : null,
+      wheelchairAccessPrice: json["wheelchairAccessPrice"] != null
+          ? int.tryParse(json["wheelchairAccessPrice"].toString())
+          : null,
+      petFriendlyPrice: json["petFriendlyPrice"] != null
+          ? int.tryParse(json["petFriendlyPrice"].toString())
+          : null,
+      childCarSeatsPrice: json["childCarSeatsPrice"] != null
+          ? int.tryParse(json["childCarSeatsPrice"].toString())
+          : null,
+      disabledAccessRampPrice: json["disabledAccessRampPrice"] != null
+          ? int.tryParse(json["disabledAccessRampPrice"].toString())
+          : null,
+      seniorAssistancePrice: json["seniorAssistancePrice"] != null
+          ? int.tryParse(json["seniorAssistancePrice"].toString())
+          : null,
+      strollerStoragePrice: json["strollerStoragePrice"] != null
+          ? int.tryParse(json["strollerStoragePrice"].toString())
+          : null,
     );
   }
 
@@ -960,7 +1143,9 @@ class Comfort {
 
   factory Comfort.fromJson(Map<String, dynamic> json) {
     return Comfort(
-      complimentaryDrinks: json["complimentaryDrinks"] == null ? null : ComplimentaryDrinks.fromJson(json["complimentaryDrinks"]),
+      complimentaryDrinks: json["complimentaryDrinks"] == null
+          ? null
+          : ComplimentaryDrinks.fromJson(json["complimentaryDrinks"]),
       leatherInterior: json["leatherInterior"],
       wifiAccess: json["wifiAccess"],
       airConditioning: json["airConditioning"],
@@ -1034,10 +1219,18 @@ class Events {
       partyLightingSystem: json["partyLightingSystem"],
       champagnePackages: json["champagnePackages"],
       photographyPackages: json["photographyPackages"],
-      weddingDecorPrice: json["weddingDecorPrice"] != null ? int.tryParse(json["weddingDecorPrice"].toString()) : null,
-      partyLightingPrice: json["partyLightingPrice"] != null ? int.tryParse(json["partyLightingPrice"].toString()) : null,
-      champagnePackagePrice: json["champagnePackagePrice"] != null ? int.tryParse(json["champagnePackagePrice"].toString()) : null,
-      photographyPackagePrice: json["photographyPackagePrice"] != null ? int.tryParse(json["photographyPackagePrice"].toString()) : null,
+      weddingDecorPrice: json["weddingDecorPrice"] != null
+          ? int.tryParse(json["weddingDecorPrice"].toString())
+          : null,
+      partyLightingPrice: json["partyLightingPrice"] != null
+          ? int.tryParse(json["partyLightingPrice"].toString())
+          : null,
+      champagnePackagePrice: json["champagnePackagePrice"] != null
+          ? int.tryParse(json["champagnePackagePrice"].toString())
+          : null,
+      photographyPackagePrice: json["photographyPackagePrice"] != null
+          ? int.tryParse(json["photographyPackagePrice"].toString())
+          : null,
     );
   }
 
@@ -1105,7 +1298,9 @@ class FleetDetails {
       vehicleType: json["vehicleType"],
       makeModel: json["makeModel"],
       color: json["color"],
-      capacity: json["capacity"] != null ? int.tryParse(json["capacity"].toString()) : null,
+      capacity: json["capacity"] != null
+          ? int.tryParse(json["capacity"].toString())
+          : null,
       year: json["year"] != null ? int.tryParse(json["year"].toString()) : null,
       notes: json["notes"],
     );
@@ -1143,7 +1338,8 @@ class FleetInfo {
       makeAndModel: json["makeAndModel"],
       year: json["year"] != null ? int.tryParse(json["year"].toString()) : null,
       colour: json["colour"],
-      seats: json["seats"] != null ? int.tryParse(json["seats"].toString()) : null,
+      seats:
+          json["seats"] != null ? int.tryParse(json["seats"].toString()) : null,
       bootSpace: json["bootSpace"],
       chauffeurName: json["chauffeurName"],
     );
@@ -1170,8 +1366,12 @@ class FuneralPackageOptions {
 
   factory FuneralPackageOptions.fromJson(Map<String, dynamic> json) {
     return FuneralPackageOptions(
-      standard: json["standard"] != null ? int.tryParse(json["standard"].toString()) : null,
-      vipExecutive: json["vipExecutive"] != null ? int.tryParse(json["vipExecutive"].toString()) : null,
+      standard: json["standard"] != null
+          ? int.tryParse(json["standard"].toString())
+          : null,
+      vipExecutive: json["vipExecutive"] != null
+          ? int.tryParse(json["vipExecutive"].toString())
+          : null,
     );
   }
 
@@ -1194,7 +1394,8 @@ class InsuranceDetails {
 
   factory InsuranceDetails.fromJson(Map<String, dynamic> json) {
     return InsuranceDetails(
-      publicLiabilityInsuranceProvider: json["publicLiabilityInsuranceProvider"],
+      publicLiabilityInsuranceProvider:
+          json["publicLiabilityInsuranceProvider"],
       policyNumber: json["policyNumber"],
       policyExpiryDate: DateTime.tryParse(json["policyExpiryDate"] ?? ""),
     );
@@ -1216,7 +1417,9 @@ class Licensing {
 
   factory Licensing.fromJson(Map<String, dynamic> json) {
     return Licensing(
-      documents: json["documents"] == null ? null : LicensingDocuments.fromJson(json["documents"]),
+      documents: json["documents"] == null
+          ? null
+          : LicensingDocuments.fromJson(json["documents"]),
     );
   }
 
@@ -1242,11 +1445,21 @@ class LicensingDocuments {
 
   factory LicensingDocuments.fromJson(Map<String, dynamic> json) {
     return LicensingDocuments(
-      operatorLicence: json["operatorLicence"] == null ? null : OperatorLicence.fromJson(json["operatorLicence"]),
-      vehicleInsurance: json["vehicleInsurance"] == null ? null : ChauffeurDrivingLicence.fromJson(json["vehicleInsurance"]),
-      publicLiabilityInsurance: json["publicLiabilityInsurance"] == null ? null : ChauffeurDrivingLicence.fromJson(json["publicLiabilityInsurance"]),
-      v5CLogbook: json["v5cLogbook"] == null ? null : ChauffeurDrivingLicence.fromJson(json["v5cLogbook"]),
-      chauffeurDrivingLicence: json["chauffeurDrivingLicence"] == null ? null : ChauffeurDrivingLicence.fromJson(json["chauffeurDrivingLicence"]),
+      operatorLicence: json["operatorLicence"] == null
+          ? null
+          : OperatorLicence.fromJson(json["operatorLicence"]),
+      vehicleInsurance: json["vehicleInsurance"] == null
+          ? null
+          : ChauffeurDrivingLicence.fromJson(json["vehicleInsurance"]),
+      publicLiabilityInsurance: json["publicLiabilityInsurance"] == null
+          ? null
+          : ChauffeurDrivingLicence.fromJson(json["publicLiabilityInsurance"]),
+      v5CLogbook: json["v5cLogbook"] == null
+          ? null
+          : ChauffeurDrivingLicence.fromJson(json["v5cLogbook"]),
+      chauffeurDrivingLicence: json["chauffeurDrivingLicence"] == null
+          ? null
+          : ChauffeurDrivingLicence.fromJson(json["chauffeurDrivingLicence"]),
     );
   }
 
@@ -1390,18 +1603,24 @@ class ListingData {
 
   factory ListingData.fromJson(Map<String, dynamic> json) {
     return ListingData(
-      summary: json["summary"] == null ? null : Summary.fromJson(json["summary"]),
+      summary:
+          json["summary"] == null ? null : Summary.fromJson(json["summary"]),
       title: json["title"],
       description: json["description"],
-      price: json["price"] != null ? int.tryParse(json["price"].toString()) : null,
+      price:
+          json["price"] != null ? int.tryParse(json["price"].toString()) : null,
       priceFormatted: json["price_formatted"],
       location: json["location"],
       image: json["image"],
       status: json["status"],
       category: json["category"],
       subCategory: json["sub_category"],
-      features: json["features"] == null ? [] : List<String>.from(json["features"]!.map((x) => x)),
-      areasCovered: json["areasCovered"] == null ? [] : List<String>.from(json["areasCovered"]!.map((x) => x)),
+      features: json["features"] == null
+          ? []
+          : List<String>.from(json["features"]!.map((x) => x)),
+      areasCovered: json["areasCovered"] == null
+          ? []
+          : List<String>.from(json["areasCovered"]!.map((x) => x)),
     );
   }
 
@@ -1436,8 +1655,12 @@ class Summary {
 
   factory Summary.fromJson(Map<String, dynamic> json) {
     return Summary(
-      dayRate: json["day_rate"] != null ? int.tryParse(json["day_rate"].toString()) : null,
-      hourlyRate: json["hourly_rate"] != null ? int.tryParse(json["hourly_rate"].toString()) : null,
+      dayRate: json["day_rate"] != null
+          ? int.tryParse(json["day_rate"].toString())
+          : null,
+      hourlyRate: json["hourly_rate"] != null
+          ? int.tryParse(json["hourly_rate"].toString())
+          : null,
       vehicle: json["vehicle"],
       availability: json["availability"],
     );
@@ -1465,7 +1688,9 @@ class Marketing {
   factory Marketing.fromJson(Map<String, dynamic> json) {
     return Marketing(
       description: json["description"],
-      serviceHighlights: json["serviceHighlights"] == null ? [] : List<dynamic>.from(json["serviceHighlights"]!.map((x) => x)),
+      serviceHighlights: json["serviceHighlights"] == null
+          ? []
+          : List<dynamic>.from(json["serviceHighlights"]!.map((x) => x)),
       promoVideoLink: json["promoVideoLink"],
     );
   }
@@ -1548,10 +1773,18 @@ class Pricing {
 
   factory Pricing.fromJson(Map<String, dynamic> json) {
     return Pricing(
-      hourlyRate: json["hourlyRate"] != null ? int.tryParse(json["hourlyRate"].toString()) : null,
-      halfDayRate: json["halfDayRate"] != null ? int.tryParse(json["halfDayRate"].toString()) : null,
-      fullDayRate: json["fullDayRate"] != null ? double.tryParse(json["fullDayRate"].toString()) : null,
-      ceremonyPackageRate: json["ceremonyPackageRate"] != null ? int.tryParse(json["ceremonyPackageRate"].toString()) : null,
+      hourlyRate: json["hourlyRate"] != null
+          ? int.tryParse(json["hourlyRate"].toString())
+          : null,
+      halfDayRate: json["halfDayRate"] != null
+          ? int.tryParse(json["halfDayRate"].toString())
+          : null,
+      fullDayRate: json["fullDayRate"] != null
+          ? double.tryParse(json["fullDayRate"].toString())
+          : null,
+      ceremonyPackageRate: json["ceremonyPackageRate"] != null
+          ? int.tryParse(json["ceremonyPackageRate"].toString())
+          : null,
     );
   }
 
@@ -1592,17 +1825,35 @@ class PricingDetails {
 
   factory PricingDetails.fromJson(Map<String, dynamic> json) {
     return PricingDetails(
-      dayRate: json["dayRate"] != null ? double.tryParse(json["dayRate"].toString()) : null,
-      halfDayRate: json["halfDayRate"] != null ? double.tryParse(json["halfDayRate"].toString()) : null,
-      hourlyRate: json["hourlyRate"] != null ? double.tryParse(json["hourlyRate"].toString()) : null,
+      dayRate: json["dayRate"] != null
+          ? double.tryParse(json["dayRate"].toString())
+          : null,
+      halfDayRate: json["halfDayRate"] != null
+          ? double.tryParse(json["halfDayRate"].toString())
+          : null,
+      hourlyRate: json["hourlyRate"] != null
+          ? double.tryParse(json["hourlyRate"].toString())
+          : null,
       fuelChargesIncluded: json["fuelChargesIncluded"],
-      extraMileageCharge: json["extraMileageCharge"] != null ? double.tryParse(json["extraMileageCharge"].toString()) : null,
-      waitTimeFeePerHour: json["waitTimeFeePerHour"] != null ? double.tryParse(json["waitTimeFeePerHour"].toString()) : null,
-      decoratingFloralServiceFee: json["decoratingFloralServiceFee"] != null ? int.tryParse(json["decoratingFloralServiceFee"].toString()) : null,
-      mileageLimit: json["mileageLimit"] != null ? double.tryParse(json["mileageLimit"].toString()) : null,
+      extraMileageCharge: json["extraMileageCharge"] != null
+          ? double.tryParse(json["extraMileageCharge"].toString())
+          : null,
+      waitTimeFeePerHour: json["waitTimeFeePerHour"] != null
+          ? double.tryParse(json["waitTimeFeePerHour"].toString())
+          : null,
+      decoratingFloralServiceFee: json["decoratingFloralServiceFee"] != null
+          ? int.tryParse(json["decoratingFloralServiceFee"].toString())
+          : null,
+      mileageLimit: json["mileageLimit"] != null
+          ? double.tryParse(json["mileageLimit"].toString())
+          : null,
       chauffeurIncluded: json["chauffeurIncluded"],
-      weddingPackage: json["weddingPackage"] != null ? int.tryParse(json["weddingPackage"].toString()) : null,
-      airportTransfer: json["airportTransfer"] != null ? int.tryParse(json["airportTransfer"].toString()) : null,
+      weddingPackage: json["weddingPackage"] != null
+          ? int.tryParse(json["weddingPackage"].toString())
+          : null,
+      airportTransfer: json["airportTransfer"] != null
+          ? int.tryParse(json["airportTransfer"].toString())
+          : null,
     );
   }
 
@@ -1639,7 +1890,9 @@ class ServiceDetail {
       worksWithFuneralDirectors: json["worksWithFuneralDirectors"],
       supportsAllFuneralTypes: json["supportsAllFuneralTypes"],
       funeralServiceType: json["funeralServiceType"],
-      additionalSupportServices: json["additionalSupportServices"] == null ? [] : List<String>.from(json["additionalSupportServices"]!.map((x) => x)),
+      additionalSupportServices: json["additionalSupportServices"] == null
+          ? []
+          : List<String>.from(json["additionalSupportServices"]!.map((x) => x)),
     );
   }
 
@@ -1647,7 +1900,8 @@ class ServiceDetail {
         "worksWithFuneralDirectors": worksWithFuneralDirectors,
         "supportsAllFuneralTypes": supportsAllFuneralTypes,
         "funeralServiceType": funeralServiceType,
-        "additionalSupportServices": additionalSupportServices.map((x) => x).toList(),
+        "additionalSupportServices":
+            additionalSupportServices.map((x) => x).toList(),
       };
 }
 
@@ -1676,11 +1930,21 @@ class ServiceDetails {
 
   factory ServiceDetails.fromJson(Map<String, dynamic> json) {
     return ServiceDetails(
-      occasionsCatered: json["occasionsCatered"] == null ? [] : List<String>.from(json["occasionsCatered"]!.map((x) => x)),
-      carriageTypes: json["carriageTypes"] == null ? [] : List<String>.from(json["carriageTypes"]!.map((x) => x)),
-      horseTypes: json["horseTypes"] == null ? [] : List<String>.from(json["horseTypes"]!.map((x) => x)),
-      numberOfCarriages: json["numberOfCarriages"] != null ? int.tryParse(json["numberOfCarriages"].toString()) : null,
-      fleetSize: json["fleetSize"] != null ? int.tryParse(json["fleetSize"].toString()) : null,
+      occasionsCatered: json["occasionsCatered"] == null
+          ? []
+          : List<String>.from(json["occasionsCatered"]!.map((x) => x)),
+      carriageTypes: json["carriageTypes"] == null
+          ? []
+          : List<String>.from(json["carriageTypes"]!.map((x) => x)),
+      horseTypes: json["horseTypes"] == null
+          ? []
+          : List<String>.from(json["horseTypes"]!.map((x) => x)),
+      numberOfCarriages: json["numberOfCarriages"] != null
+          ? int.tryParse(json["numberOfCarriages"].toString())
+          : null,
+      fleetSize: json["fleetSize"] != null
+          ? int.tryParse(json["fleetSize"].toString())
+          : null,
       basePostcode: json["basePostcode"],
       otherOccasion: json["otherOccasion"],
       otherCarriageType: json["otherCarriageType"],
@@ -1744,7 +2008,9 @@ class UploadedDocuments {
       insuranceCertificate: json["insuranceCertificate"],
       driverLicencesAndDbs: json["driverLicencesAndDBS"],
       vehicleMoTs: json["vehicleMOTs"],
-      fleetPhotos: json["fleetPhotos"] == null ? [] : List<String>.from(json["fleetPhotos"]!.map((x) => x)),
+      fleetPhotos: json["fleetPhotos"] == null
+          ? []
+          : List<String>.from(json["fleetPhotos"]!.map((x) => x)),
     );
   }
 

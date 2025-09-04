@@ -13,7 +13,8 @@ class MyBookingsScreen extends StatefulWidget {
 }
 
 class _MyBookingsScreenState extends State<MyBookingsScreen> {
-  final UserBookingController bookingController = Get.put(UserBookingController());
+  final UserBookingController bookingController =
+      Get.put(UserBookingController());
   RxBool isPast = true.obs;
 
   @override
@@ -50,10 +51,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       child: ElevatedButton(
                         onPressed: () => isPast.value = false,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isPast.value ? Colors.white : Colors.blue,
-                          foregroundColor: isPast.value ? Colors.blue : Colors.white,
+                          backgroundColor:
+                              isPast.value ? Colors.white : Colors.blue,
+                          foregroundColor:
+                              isPast.value ? Colors.blue : Colors.white,
                           side: const BorderSide(color: Colors.blue),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: const Text("Upcoming Bookings"),
                       ),
@@ -63,10 +67,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       child: ElevatedButton(
                         onPressed: () => isPast.value = true,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isPast.value ? Colors.blue : Colors.white,
-                          foregroundColor: isPast.value ? Colors.white : Colors.blue,
+                          backgroundColor:
+                              isPast.value ? Colors.blue : Colors.white,
+                          foregroundColor:
+                              isPast.value ? Colors.white : Colors.blue,
                           side: const BorderSide(color: Colors.blue),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: const Text("Past Bookings"),
                       ),
@@ -84,12 +91,16 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               final now = DateTime.now();
               final bookings = bookingController.bookings.where((booking) {
                 DateTime? pickupDateTime;
-                if (booking.dateOfTravel != null && booking.bookingDetailPickupTime != null) {
+                if (booking.dateOfTravel != null &&
+                    booking.bookingDetailPickupTime != null) {
                   try {
-                    final timeParts = booking.bookingDetailPickupTime!.split(':');
+                    final timeParts =
+                        booking.bookingDetailPickupTime!.split(':');
                     if (timeParts.length == 2) {
-                      final hours = int.parse(timeParts[0].replaceAll(RegExp(r'[^0-9]'), ''));
-                      final minutes = int.parse(timeParts[1].replaceAll(RegExp(r'[^0-9]'), ''));
+                      final hours = int.parse(
+                          timeParts[0].replaceAll(RegExp(r'[^0-9]'), ''));
+                      final minutes = int.parse(
+                          timeParts[1].replaceAll(RegExp(r'[^0-9]'), ''));
                       pickupDateTime = DateTime(
                         booking.dateOfTravel!.year,
                         booking.dateOfTravel!.month,
@@ -110,11 +121,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
                 return isPast.value
                     ? pickupDateTime.isBefore(now)
-                    : pickupDateTime.isAfter(now) || pickupDateTime.isAtSameMomentAs(now);
+                    : pickupDateTime.isAfter(now) ||
+                        pickupDateTime.isAtSameMomentAs(now);
               }).toList();
 
               if (bookings.isEmpty) {
-                return Center(child: Text(isPast.value ? 'No past bookings found' : 'No upcoming bookings found'));
+                return Center(
+                    child: Text(isPast.value
+                        ? 'No past bookings found'
+                        : 'No upcoming bookings found'));
               }
 
               return ListView.builder(
@@ -122,7 +137,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                 itemCount: bookings.length,
                 itemBuilder: (context, index) => BookingCard(
                   booking: bookings[index],
-                  isPast: isPast.value, // Pass isPast to control cancel button visibility
+                  isPast: isPast
+                      .value, // Pass isPast to control cancel button visibility
                 ),
               );
             }),
@@ -135,7 +151,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
 
 class BookingCard extends StatelessWidget {
   final BookingDetails booking;
-  final bool isPast; // New parameter to determine if booking is past or upcoming
+  final bool
+      isPast; // New parameter to determine if booking is past or upcoming
 
   const BookingCard({super.key, required this.booking, required this.isPast});
 
@@ -152,7 +169,8 @@ class BookingCard extends StatelessWidget {
         ? booking.id!.substring(booking.id!.length - 8).toUpperCase()
         : 'N/A';
 
-    final imageUrl = booking.serviceId?.serviceImage != null && booking.serviceId!.serviceImage!.isNotEmpty
+    final imageUrl = booking.serviceId?.serviceImage != null &&
+            booking.serviceId!.serviceImage!.isNotEmpty
         ? booking.serviceId!.serviceImage![0]
         : 'https://via.placeholder.com/50';
 
@@ -179,7 +197,8 @@ class BookingCard extends StatelessWidget {
                   child: Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.error),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -189,18 +208,21 @@ class BookingCard extends StatelessWidget {
                     children: [
                       Text(
                         booking.serviceId?.serviceName ?? 'Booking Service',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       Text(
                         'ID: $bookingId • Order #${booking.orderNo ?? 'N/A'}',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),
                 ),
                 Text(
                   booking.dateOfTravel != null
-                      ? DateFormat('EEE, dd MMM yyyy').format(booking.dateOfTravel!)
+                      ? DateFormat('EEE, dd MMM yyyy')
+                          .format(booking.dateOfTravel!)
                       : 'Booking Date',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
@@ -213,13 +235,15 @@ class BookingCard extends StatelessWidget {
             const SizedBox(height: 4),
             _infoRow("Drop Location", booking.dropLocation ?? 'N/A'),
             const SizedBox(height: 4),
-            _infoRow("Distance", "${booking.distance?.toStringAsFixed(1) ?? '0.0'} km"),
+            _infoRow("Distance",
+                "${booking.distance?.toStringAsFixed(1) ?? '0.0'} km"),
             const Divider(height: 24),
 
             /// Date + Amount + OTP
             _infoRow("Pick up Date & Time", formattedDateTime),
             const SizedBox(height: 4),
-            _infoRow("Total Amount", '£${booking.grandTotal?.toStringAsFixed(2) ?? '0.00'}'),
+            _infoRow("Total Amount",
+                '£${booking.grandTotal?.toStringAsFixed(2) ?? '0.00'}'),
             const SizedBox(height: 4),
             _infoRow("OTP", booking.otp?.toString() ?? 'N/A'),
             const SizedBox(height: 16),
@@ -237,11 +261,15 @@ class BookingCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                   ),
                 ),
-                if (!isPast && booking.id != null) // Show cancel button only for upcoming bookings
+                if (!isPast &&
+                    booking.id !=
+                        null) // Show cancel button only for upcoming bookings
                   const SizedBox(width: 8),
                 if (!isPast && booking.id != null)
                   ElevatedButton.icon(
@@ -253,8 +281,10 @@ class BookingCard extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                     ),
                   ),
               ],
