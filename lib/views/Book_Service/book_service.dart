@@ -123,7 +123,8 @@ class _BookServicesState extends State<BookServices> {
 
       if (pickedTime != null) {
         setState(() {
-          pickupDateController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+          pickupDateController.text =
+              DateFormat('dd-MM-yyyy').format(pickedDate);
           pickupTimeController.text = pickedTime.format(context);
         });
       }
@@ -134,9 +135,13 @@ class _BookServicesState extends State<BookServices> {
     String pickup = _fromLocationController.text.trim();
     String drop = _toLocationController.text.trim();
 
-    if (pickup.isEmpty || drop.isEmpty || _fromPlaceId == null || _toPlaceId == null) {
+    if (pickup.isEmpty ||
+        drop.isEmpty ||
+        _fromPlaceId == null ||
+        _toPlaceId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please set valid pickup and delivery locations")),
+        const SnackBar(
+            content: Text("Please set valid pickup and delivery locations")),
       );
       return;
     }
@@ -152,7 +157,9 @@ class _BookServicesState extends State<BookServices> {
     if (!fromCityValid || !toCityValid) {
       String unavailableCities = '';
       if (!fromCityValid) unavailableCities += '$fromCity';
-      if (!toCityValid) unavailableCities += (unavailableCities.isNotEmpty ? ', $toCity' : toCity);
+      if (!toCityValid)
+        unavailableCities +=
+            (unavailableCities.isNotEmpty ? ', $toCity' : toCity);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -163,7 +170,8 @@ class _BookServicesState extends State<BookServices> {
       return;
     }
 
-    double? distanceMiles = await cityFetchController.calculateDistanceMiles(_fromPlaceId!, _toPlaceId!);
+    double? distanceMiles = await cityFetchController.calculateDistanceMiles(
+        _fromPlaceId!, _toPlaceId!);
     if (distanceMiles != null) {
       if (distanceMiles == -1) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -175,7 +183,8 @@ class _BookServicesState extends State<BookServices> {
         );
       } else {
         double minDistance = double.tryParse(widget.minDistance) ?? 0;
-        double maxDistance = double.tryParse(widget.maxDistsnce) ?? double.infinity;
+        double maxDistance =
+            double.tryParse(widget.maxDistsnce) ?? double.infinity;
 
         if (distanceMiles < minDistance || distanceMiles > maxDistance) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -189,7 +198,8 @@ class _BookServicesState extends State<BookServices> {
         } else {
           setState(() {
             distanceRange = '${distanceMiles.toStringAsFixed(1)} miles';
-            availableFrom = "${formatDateTime(widget.fromDate)} - ${formatDateTime(widget.todate)}";
+            availableFrom =
+                "${formatDateTime(widget.fromDate)} - ${formatDateTime(widget.todate)}";
           });
 
           try {
@@ -220,7 +230,8 @@ class _BookServicesState extends State<BookServices> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to calculate distance. Please try again.")),
+        const SnackBar(
+            content: Text("Failed to calculate distance. Please try again.")),
       );
     }
   }
@@ -247,7 +258,8 @@ class _BookServicesState extends State<BookServices> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.lightBlue[100],
-        title: const Text('All Service Areas', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('All Service Areas',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         content: SizedBox(
           width: double.maxFinite,
           child: SingleChildScrollView(
@@ -259,7 +271,9 @@ class _BookServicesState extends State<BookServices> {
                 spacing: 8.0,
                 runSpacing: 8.0,
                 alignment: WrapAlignment.center,
-                children: cities.map((city) => _buildCityTile(city, context)).toList(),
+                children: cities
+                    .map((city) => _buildCityTile(city, context))
+                    .toList(),
               ),
             ),
           ),
@@ -270,7 +284,8 @@ class _BookServicesState extends State<BookServices> {
               foregroundColor: Colors.white,
               backgroundColor: Colors.green,
               padding: const EdgeInsets.symmetric(vertical: 16.0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0)),
             ),
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
@@ -283,7 +298,8 @@ class _BookServicesState extends State<BookServices> {
   Widget _buildCityTile(String city, BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.28),
+      constraints:
+          BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.28),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(4.0),
@@ -291,7 +307,8 @@ class _BookServicesState extends State<BookServices> {
       ),
       child: Text(
         city,
-        style: const TextStyle(fontSize: 14, color: Colors.grey, overflow: TextOverflow.ellipsis),
+        style: const TextStyle(
+            fontSize: 14, color: Colors.grey, overflow: TextOverflow.ellipsis),
         maxLines: 4,
         softWrap: true,
       ),
@@ -299,7 +316,8 @@ class _BookServicesState extends State<BookServices> {
   }
 
   Widget _buildSuggestions(bool isFromField) {
-    if ((isFromField && !_showFromSuggestions) || (!isFromField && !_showToSuggestions)) {
+    if ((isFromField && !_showFromSuggestions) ||
+        (!isFromField && !_showToSuggestions)) {
       return const SizedBox.shrink();
     }
     return Container(
@@ -308,23 +326,30 @@ class _BookServicesState extends State<BookServices> {
         color: Colors.white,
         border: Border.all(color: Colors.grey[300]!),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [BoxShadow(color: Colors.grey, blurRadius: 4, offset: Offset(0, 2))],
+        boxShadow: const [
+          BoxShadow(color: Colors.grey, blurRadius: 4, offset: Offset(0, 2))
+        ],
       ),
       child: Obx(() => ListView.builder(
             shrinkWrap: true,
             itemCount: cityFetchController.placeList.length,
             itemBuilder: (context, index) {
               return ListTile(
-                title: Text(cityFetchController.placeList[index]['description']),
+                title:
+                    Text(cityFetchController.placeList[index]['description']),
                 onTap: () {
                   setState(() {
                     if (isFromField) {
-                      _fromLocationController.text = cityFetchController.placeList[index]['description'];
-                      _fromPlaceId = cityFetchController.placeList[index]['place_id'];
+                      _fromLocationController.text =
+                          cityFetchController.placeList[index]['description'];
+                      _fromPlaceId =
+                          cityFetchController.placeList[index]['place_id'];
                       _showFromSuggestions = false;
                     } else {
-                      _toLocationController.text = cityFetchController.placeList[index]['description'];
-                      _toPlaceId = cityFetchController.placeList[index]['place_id'];
+                      _toLocationController.text =
+                          cityFetchController.placeList[index]['description'];
+                      _toPlaceId =
+                          cityFetchController.placeList[index]['place_id'];
                       _showToSuggestions = false;
                     }
                     cityFetchController.clearSearch();
@@ -346,7 +371,8 @@ class _BookServicesState extends State<BookServices> {
         centerTitle: true,
         title: const Text(
           'Your Service',
-          style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -359,7 +385,10 @@ class _BookServicesState extends State<BookServices> {
             children: [
               const Text(
                 'Set Delivery Location',
-                style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Container(
@@ -374,36 +403,51 @@ class _BookServicesState extends State<BookServices> {
                   children: [
                     const Text(
                       'Service Availability Information',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue),
                     ),
                     const SizedBox(height: 10),
-                    Text('• Distance Range: ${widget.minDistance} - ${widget.maxDistsnce}',
-                        style: const TextStyle(fontSize: 14, color: Colors.blue)),
-                    Text('• Available From: ${formatDateTime(widget.fromDate)} - ${formatDateTime(widget.todate)}',
-                        style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                    Text(
+                        '• Distance Range: ${widget.minDistance} - ${widget.maxDistsnce}',
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.blue)),
+                    Text(
+                        '• Available From: ${formatDateTime(widget.fromDate)} - ${formatDateTime(widget.todate)}',
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.blue)),
                     Text('• Maximum Capacity: ${widget.capacity}',
-                        style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.blue)),
                     if (widget.vehicleTypes != null)
                       Text('• Vehicle Types: ${widget.vehicleTypes}',
-                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.blue)),
                     if (widget.packageOptions != null)
                       Text('• Package Options: ${widget.packageOptions}',
-                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.blue)),
                     if (widget.carriageTypes != null)
                       Text('• Carriage Types: ${widget.carriageTypes}',
-                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.blue)),
                     if (widget.horseTypes != null)
                       Text('• Horse Types: ${widget.horseTypes}',
-                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.blue)),
                     if (widget.vehicleType != null)
                       Text('• Vehicle Type: ${widget.vehicleType}',
-                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.blue)),
                     if (widget.makeModel != null)
                       Text('• Make/Model: ${widget.makeModel}',
-                          style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.blue)),
                     Row(
                       children: [
-                        const Text('• Service Areas: +', style: TextStyle(fontSize: 14, color: Colors.blue)),
+                        const Text('• Service Areas: +',
+                            style: TextStyle(fontSize: 14, color: Colors.blue)),
                         GestureDetector(
                           onTap: _showCityDialog,
                           child: Row(
@@ -412,9 +456,12 @@ class _BookServicesState extends State<BookServices> {
                               Text(
                                 '${getCityList(widget.ServiceCities).length} cities',
                                 style: const TextStyle(
-                                    fontSize: 14, color: Colors.green, decoration: TextDecoration.underline),
+                                    fontSize: 14,
+                                    color: Colors.green,
+                                    decoration: TextDecoration.underline),
                               ),
-                              const Icon(Icons.location_on, color: Colors.green),
+                              const Icon(Icons.location_on,
+                                  color: Colors.green),
                               const SizedBox(width: 4.0),
                             ],
                           ),
@@ -425,7 +472,8 @@ class _BookServicesState extends State<BookServices> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text('From:', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              const Text('From:',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Signup_textfilled(
                 length: 100,
@@ -437,7 +485,8 @@ class _BookServicesState extends State<BookServices> {
               ),
               _buildSuggestions(true),
               const SizedBox(height: 20),
-              const Text('To:', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              const Text('To:',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Signup_textfilled(
                 length: 100,
@@ -449,7 +498,8 @@ class _BookServicesState extends State<BookServices> {
               ),
               _buildSuggestions(false),
               const SizedBox(height: 20),
-              const Text('Pickup Date and Time:', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              const Text('Pickup Date and Time:',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Row(
                 children: [
@@ -458,16 +508,20 @@ class _BookServicesState extends State<BookServices> {
                       controller: pickupDateController,
                       readOnly: true,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
                         hintText: "dd-mm-yyyy",
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.black, width: 2),
+                          borderSide:
+                              const BorderSide(color: Colors.black, width: 2),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.green, width: 3),
+                          borderSide:
+                              const BorderSide(color: Colors.green, width: 3),
                         ),
                       ),
                       onTap: _selectDateTime,
@@ -479,16 +533,20 @@ class _BookServicesState extends State<BookServices> {
                       controller: pickupTimeController,
                       readOnly: true,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
                         hintText: "--:--",
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.black, width: 2),
+                          borderSide:
+                              const BorderSide(color: Colors.black, width: 2),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.green, width: 3),
+                          borderSide:
+                              const BorderSide(color: Colors.green, width: 3),
                         ),
                       ),
                       onTap: _selectDateTime,
@@ -503,10 +561,13 @@ class _BookServicesState extends State<BookServices> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isFormValid ? Colors.blue : Colors.grey,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  child: const Text('Calculate Distance', style: TextStyle(fontSize: 16)),
+                  child: const Text('Calculate Distance',
+                      style: TextStyle(fontSize: 16)),
                 ),
               ),
               const SizedBox(height: 20),
