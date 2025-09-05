@@ -3,86 +3,213 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/category_sub_model.da
 import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
 import 'package:hire_any_thing/data/services/api_service.dart';
 
+
 class AllServicesController extends GetxController {
   var isLoading = true.obs;
-  var services = <Datum>[].obs; // Use Datum directly from FilterModel
+  var isLoadingMore = false.obs;
+
+
+  // Updated to handle all 6 categories
+  var services = <Datum>[].obs;
+  var coachServices = <Datum>[].obs;
   var funeralServices = <Datum>[].obs;
   var horseServices = <Datum>[].obs;
   var chauffeurServices = <Datum>[].obs;
+  var boatServices = <Datum>[].obs;
+  var minibusServices = <Datum>[].obs;
+
 
   var categories = <String>[].obs;
   var subcategories = <String>[].obs;
+
 
   var selectedCategory = Rxn<String>();
   var selectedSubcategory = Rxn<String>();
   var selectedSubcategoryId = Rxn<String>();
 
+
   final String apiUrl = "https://stag-api.hireanything.com/user/global-filter";
 
-  var subcategoryMap = <String, List<Model1>>{}.obs; // Store mapping globally
+
+  var subcategoryMap = <String, List<Model1>>{}.obs;
+
+
+  // Pagination variables
+  var currentPage = 1.obs;
+  var hasMoreData = true.obs;
+  var itemsPerPage = 50.obs;
+
 
   final ApiService _apiService = ApiService();
+
 
   @override
   void onInit() {
     super.onInit();
-    fetchServices();
+    fetchAllServices();
   }
 
-  Future<void> fetchServices() async {
-    try {
-      isLoading(true);
-      final response = await _apiService.postApi(
-        apiUrl,
-        {
-          "categoryId": "676ac544234968d45b494992", // Default to Passenger Transport
-          "subCategoryId": "",
-          "minBudget": null,
-          "maxBudget": null,
-        },
-      );
 
-      if (response != null) {
-        final data = FilterModel.fromJson(response);
-        if (data.success == true && data.data.isNotEmpty) {
-          services.value = data.data;
-          print("Total services fetched: ${services.length}");
-          // Separate services by _sourceModel
-          funeralServices.value = services.where((service) => service.sourceModel == "funeral").toList();
-          horseServices.value = services.where((service) => service.sourceModel == "horse").toList();
-          chauffeurServices.value = services.where((service) => service.sourceModel == "chauffeur").toList();
-          print("Funeral: ${funeralServices.length}, Horse: ${horseServices.length}, Chauffeur: ${chauffeurServices.length}");
-          extractCategories();
-        } else {
-          print("API response is empty or unsuccessful");
-        }
+  Future<void> fetchAllServices({bool loadMore = false}) async {
+    try {
+      if (!loadMore) {
+        isLoading(true);
+        currentPage.value = 1;
+        services.clear();
+        _clearAllCategoryServices();
       } else {
-        print("API response is null");
-        throw Exception("Failed to load services");
+        if (!hasMoreData.value || isLoadingMore.value) return;
+        isLoadingMore(true);
+        currentPage.value++;
       }
+
+
+      await _fetchWithMultipleApproaches(loadMore);
     } catch (e, stackTrace) {
-      print("Error fetching services: $e, StackTrace: $stackTrace");
+      hasMoreData.value = false;
       Get.snackbar("Error", "Failed to load services: $e");
     } finally {
-      isLoading(false);
+      if (loadMore) {
+        isLoadingMore(false);
+      } else {
+        isLoading(false);
+      }
     }
   }
+
+
+  Future<void> _fetchWithMultipleApproaches(bool loadMore) async {
+    List<Map<String, dynamic>> approaches = [
+      // Approach 1: No category filter (get all)
+      {
+        "categoryId": "",
+        "subCategoryId": "",
+        "minBudget": null,
+        "maxBudget": null,
+        "page": currentPage.value,
+        "limit": itemsPerPage.value,
+      },
+      // Approach 2: Null category filter
+      {
+        "categoryId": null,
+        "subCategoryId": null,
+        "minBudget": null,
+        "maxBudget": null,
+        "page": currentPage.value,
+        "limit": itemsPerPage.value,
+      },
+      // Approach 3: Remove category filter entirely
+      {
+        "subCategoryId": "",
+        "minBudget": null,
+        "maxBudget": null,
+        "page": currentPage.value,
+        "limit": itemsPerPage.value,
+      },
+    ];
+
+
+    for (var approach in approaches) {
+      try {
+        final response = await _apiService.postApi(apiUrl, approach);
+
+
+        if (response != null) {
+          final data = FilterModel.fromJson(response);
+          if (data.success == true && data.data.isNotEmpty) {
+
+
+            if (loadMore) {
+              var newServices = data.data
+                  .where((newService) => !services.any(
+                      (existingService) => existingService.id == newService.id))
+                  .toList();
+              services.addAll(newServices);
+            } else {
+              services.value = data.data;
+            }
+
+
+            hasMoreData.value = data.data.length >= itemsPerPage.value;
+            _categorizeAllServices();
+
+
+            if (!loadMore) {
+              extractCategories();
+            }
+            return;
+          }
+        }
+      } catch (e) {
+        continue;
+      }
+    }
+
+
+    hasMoreData.value = false;
+    if (!loadMore) {
+      throw Exception("Failed to load services with any approach");
+    }
+  }
+
+
+  void _clearAllCategoryServices() {
+    coachServices.clear();
+    funeralServices.clear();
+    horseServices.clear();
+    chauffeurServices.clear();
+    boatServices.clear();
+    minibusServices.clear();
+  }
+
+
+  void _categorizeAllServices() {
+    coachServices.value =
+        services.where((service) => service.sourceModel == "coach").toList();
+    funeralServices.value =
+        services.where((service) => service.sourceModel == "funeral").toList();
+    horseServices.value =
+        services.where((service) => service.sourceModel == "horse").toList();
+    chauffeurServices.value = services
+        .where((service) => service.sourceModel == "chauffeur")
+        .toList();
+    boatServices.value =
+        services.where((service) => service.sourceModel == "boat").toList();
+    minibusServices.value =
+        services.where((service) => service.sourceModel == "minibus").toList();
+
+
+  }
+
+
+  Future<void> loadMoreServices() async {
+    if (hasMoreData.value && !isLoadingMore.value) {
+      await fetchAllServices(loadMore: true);
+    }
+  }
+
 
   void extractCategories() {
     var categorySet = <String>{};
-    subcategoryMap.clear(); // Reset subcategory mapping
+    subcategoryMap.clear();
+
 
     for (var service in services) {
       String categoryName = service.categoryId?.categoryName ?? "Unknown";
-      String subcategoryName = service.subcategoryId?.subcategoryName ?? "Unknown";
+      String subcategoryName =
+          service.subcategoryId?.subcategoryName ?? "Unknown";
+
 
       categorySet.add(categoryName);
-      subcategoryMap.putIfAbsent(categoryName, () => []).add(Model1(subcategoryName: subcategoryName));
+      subcategoryMap
+          .putIfAbsent(categoryName, () => [])
+          .add(Model1(subcategoryName: subcategoryName));
     }
 
+
     categories.value = categorySet.toList();
-    print("Categories extracted: $categories");
   }
+
 
   Future<void> applyFilter({
     String? categoryId,
@@ -93,6 +220,10 @@ class AllServicesController extends GetxController {
   }) async {
     try {
       isLoading(true);
+      currentPage.value = 1;
+      services.clear();
+      _clearAllCategoryServices();
+
 
       double? minBudget;
       double? maxBudget;
@@ -107,45 +238,137 @@ class AllServicesController extends GetxController {
         }
       }
 
-      final response = await _apiService.postApi(
-        apiUrl,
-        {
-          "categoryId": categoryId ?? "676ac544234968d45b494992",
-          "subCategoryId": subCategoryId ?? "",
-          "minBudget": minBudget,
-          "maxBudget": maxBudget,
-        },
-      );
 
-      if (response != null) {
-        final data = FilterModel.fromJson(response);
-        if (data.success == true && data.data.isNotEmpty) {
-          services.value = data.data;
-          funeralServices.value = services.where((service) => service.sourceModel == "funeral").toList();
-          horseServices.value = services.where((service) => service.sourceModel == "horse").toList();
-          chauffeurServices.value = services.where((service) => service.sourceModel == "chauffeur").toList();
-          print("Filtered - Funeral: ${funeralServices.length}, Horse: ${horseServices.length}, Chauffeur: ${chauffeurServices.length}");
-        } else {
-          print("API Error: Response is empty or unsuccessful");
-          throw Exception("Failed to apply filters");
-        }
-      } else {
-        print("API Error: Response is null");
-        throw Exception("Failed to apply filters");
-      }
+      await _fetchAllFilteredServices(
+        categoryId: categoryId,
+        subCategoryId: subCategoryId ?? "",
+        minBudget: minBudget,
+        maxBudget: maxBudget,
+      );
     } catch (e) {
-      print("Error applying filter: $e");
       Get.snackbar("Error", "Failed to apply filters: $e");
     } finally {
       isLoading(false);
     }
   }
 
+
+  Future<void> _fetchAllFilteredServices({
+    String? categoryId,
+    required String subCategoryId,
+    double? minBudget,
+    double? maxBudget,
+  }) async {
+    int page = 1;
+    bool hasMore = true;
+    List<Datum> allFilteredServices = [];
+
+
+    while (hasMore && page <= 10) {
+      try {
+        final requestPayload = {
+          if (categoryId != null && categoryId.isNotEmpty)
+            "categoryId": categoryId,
+          "subCategoryId": subCategoryId,
+          "minBudget": minBudget,
+          "maxBudget": maxBudget,
+          "page": page,
+          "limit": itemsPerPage.value,
+        };
+
+
+
+
+        final response = await _apiService.postApi(apiUrl, requestPayload);
+
+
+        if (response != null) {
+          final data = FilterModel.fromJson(response);
+          if (data.success == true && data.data.isNotEmpty) {
+            var newServices = data.data
+                .where((newService) => !allFilteredServices.any(
+                    (existingService) => existingService.id == newService.id))
+                .toList();
+
+
+            allFilteredServices.addAll(newServices);
+            hasMore = data.data.length >= itemsPerPage.value;
+            page++;
+
+
+          } else {
+            hasMore = false;
+          }
+        } else {
+          hasMore = false;
+        }
+      } catch (e) {
+        hasMore = false;
+      }
+    }
+
+
+    services.value = allFilteredServices;
+    _categorizeAllServices();
+  }
+
+
   void clearFilters() {
     selectedCategory.value = null;
     selectedSubcategory.value = null;
     selectedSubcategoryId.value = null;
     services.clear();
-    fetchServices(); // Re-fetch with default Passenger Transport
+    _clearAllCategoryServices();
+    currentPage.value = 1;
+    hasMoreData.value = true;
+    fetchAllServices();
+  }
+
+
+  // Essential method to get services by category
+  List<Datum> getServicesByCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'coach':
+        return coachServices;
+      case 'funeral':
+        return funeralServices;
+      case 'horse':
+        return horseServices;
+      case 'chauffeur':
+        return chauffeurServices;
+      case 'boat':
+        return boatServices;
+      case 'minibus':
+        return minibusServices;
+      default:
+        return [];
+    }
+  }
+
+
+  // Essential method to get display name
+  String getCategoryDisplayName(String sourceModel) {
+    switch (sourceModel.toLowerCase()) {
+      case 'coach':
+        return 'Coach Hire Services';
+      case 'funeral':
+        return 'Funeral Car Services';
+      case 'horse':
+        return 'Horse and Carriage Services';
+      case 'chauffeur':
+        return 'Chauffeur Services';
+      case 'boat':
+        return 'Boat Hire Services';
+      case 'minibus':
+        return 'Minibus Hire Services';
+      default:
+        return '${sourceModel.capitalize} Services';
+    }
+  }
+
+
+  // For backward compatibility
+  Future<void> fetchServices() async {
+    await fetchAllServices();
   }
 }
