@@ -336,7 +336,6 @@ class PricingOptionsWidget extends StatelessWidget {
         _buildRateColumn("Half Day", service.pricing!.halfDayRate),
         _buildRateColumn("Full Day", service.pricing!.fullDayRate),
       ]));
-      print('ye ???');
     } else if (service.pricingDetails != null &&
         _hasAnyRate(
             service.pricingDetails!.hourlyRate,
@@ -347,7 +346,6 @@ class PricingOptionsWidget extends StatelessWidget {
         _buildRateColumn("Half Day", service.pricingDetails!.halfDayRate),
         _buildRateColumn("Full Day", service.pricingDetails!.fullDayRate),
       ]));
-      print('ye ??');
     } else if (_hasAnyRate(
         service.hourlyRate, service.halfDayRate, service.fullDayRate)) {
       pricingRows.add(_buildRateRow([
@@ -356,7 +354,6 @@ class PricingOptionsWidget extends StatelessWidget {
         _buildRateColumn("Full Day", service.fullDayRate),
       ]));
     }
-    print('pricingRows anc: $pricingRows');
 
     return pricingRows.isEmpty ? [_noPricingWidget()] : pricingRows;
   }

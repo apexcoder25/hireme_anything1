@@ -129,14 +129,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
 
     String serviceName;
 
-    if (service.serviceType == "limousine" || service.serviceType == "horse") {
-      serviceName = service.serviceName2 ?? 'Unnamed Service';
-    } else if (service.serviceType == "coach" ||
-        service.serviceType == "chauffeur") {
-      serviceName = service.listingTitle ?? 'Unnamed Service';
-    } else {
-      serviceName = service.serviceName2 ?? 'Unnamed Service';
-    }
+    serviceName =
+        service.serviceName2 ?? service.listingTitle ?? 'Unnamed Service';
 
     print("Service Name Debug: $serviceName for type: ${service.serviceType}");
 
