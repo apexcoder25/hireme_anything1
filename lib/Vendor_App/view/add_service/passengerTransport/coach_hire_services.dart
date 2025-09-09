@@ -17,6 +17,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/up
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/constants_file/uk_cities.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
+import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -46,14 +47,50 @@ class _CoachHireServiceState extends State<CoachHireService> {
   final CityFetchController cityFetchController =
       Get.put(CityFetchController());
 
-  // Section 1: Business Information
-  TextEditingController serviceNameController = TextEditingController();
-  TextEditingController basePostcodeController = TextEditingController();
-  TextEditingController locationRadiusController = TextEditingController();
-  bool _isSubmitting = false;
+  // Form Controllers
+  final TextEditingController serviceNameController = TextEditingController();
+  final TextEditingController basePostcodeController = TextEditingController();
+  final TextEditingController locationRadiusController =
+      TextEditingController();
+  final TextEditingController makeModelController = TextEditingController();
+  final TextEditingController yearController = TextEditingController();
+  final TextEditingController capacityController = TextEditingController();
+  final TextEditingController fleetSizeController = TextEditingController();
+  final TextEditingController hourlyRateController = TextEditingController();
+  final TextEditingController halfDayRateController = TextEditingController();
+  final TextEditingController fullDayRateController = TextEditingController();
+  final TextEditingController multiDayRateController = TextEditingController();
+  final TextEditingController mileageAllowanceController =
+      TextEditingController();
+  final TextEditingController additionalMileageFeeController =
+      TextEditingController();
 
-  // Section 2: Services Provided
-  Map<String, bool> servicesProvided = {
+  // Price Controllers for Events & Extras
+  final TextEditingController weddingDecorPriceController =
+      TextEditingController();
+  final TextEditingController partyLightingPriceController =
+      TextEditingController();
+  final TextEditingController champagnePackagesPriceController =
+      TextEditingController();
+  final TextEditingController photographyPackagesPriceController =
+      TextEditingController();
+
+  // Price Controllers for Accessibility & Special Services
+  final TextEditingController wheelchairAccessPriceController =
+      TextEditingController();
+  final TextEditingController childCarSeatsPriceController =
+      TextEditingController();
+  final TextEditingController petFriendlyPriceController =
+      TextEditingController();
+  final TextEditingController disabledAccessRampPriceController =
+      TextEditingController();
+  final TextEditingController seniorFriendlyPriceController =
+      TextEditingController();
+  final TextEditingController strollerBuggyStoragePriceController =
+      TextEditingController();
+
+  // Features Maps
+  final Map<String, bool> servicesProvided = {
     'School Trips': false,
     'Corporate Transport': false,
     'Private Group Tours': false,
@@ -64,10 +101,8 @@ class _CoachHireServiceState extends State<CoachHireService> {
     'Accessible Coach Hire': false,
     'Other': false,
   };
-  TextEditingController otherServiceController = TextEditingController();
 
-  // Section 3: Booking Types
-  Map<String, bool> bookingTypes = {
+  final Map<String, bool> bookingTypes = {
     'One Way': false,
     'Return': false,
     'Hourly Hire': false,
@@ -75,72 +110,32 @@ class _CoachHireServiceState extends State<CoachHireService> {
     'Contractual': false,
   };
 
-  // Section 4: Fleet Information
-  TextEditingController makeModelController = TextEditingController();
-  TextEditingController yearController = TextEditingController();
-  TextEditingController capacityController = TextEditingController();
-  Map<String, bool> onboardFacilities = {
+  final Map<String, bool> onboardFacilities = {
     'Wheelchair Accessible': false,
     'Luggage Space': false,
   };
-  TextEditingController fleetSizeController = TextEditingController();
 
-  // Section 5: Rates
-  TextEditingController hourlyRateController = TextEditingController();
-  TextEditingController halfDayRateController = TextEditingController();
-  TextEditingController fullDayRateController = TextEditingController();
-  TextEditingController multiDayRateController = TextEditingController();
-  bool depositRequired = false;
-  TextEditingController mileageAllowanceController = TextEditingController();
-  TextEditingController additionalMileageFeeController =
-      TextEditingController();
-
-  // Section 6: Coverage & Availability
-  RxList<String> areasCovered = <String>[].obs;
-  String? serviceStatus;
-  Rx<DateTime> fromDate = DateTime.now().obs;
-  Rx<DateTime> toDate = DateTime.now().obs;
-
-  // Section 7: Features, Benefits & Extra Services
-  Map<String, bool> comfortLuxury = {
+  final Map<String, bool> comfortLuxury = {
     'Leather Interior': false,
     'Air Conditioning': false,
     'In-Car Entertainment': false,
     'Red Carpet Service': false,
   };
-  TextEditingController leatherInteriorPriceController =
-      TextEditingController();
-  TextEditingController airConditioningPriceController =
-      TextEditingController();
-  TextEditingController inCarEntertainmentPriceController =
-      TextEditingController();
-  TextEditingController redCarpetServicePriceController =
-      TextEditingController();
 
-  Map<String, bool> wifiAccess = {
+  final Map<String, bool> wifiAccess = {
     'Wi-Fi Access': false,
     'Complimentary Drinks': false,
     'Bluetooth/USB': false,
   };
-  TextEditingController wifiAccessPriceController = TextEditingController();
-  TextEditingController complimentaryDrinksPriceController =
-      TextEditingController();
-  TextEditingController bluetoothUSBPriceController = TextEditingController();
 
-  Map<String, bool> eventsExtras = {
+  final Map<String, bool> eventsExtras = {
     'Wedding Décor (ribbons, flowers)': false,
     'Party Lighting System': false,
     'Champagne Packages': false,
     'Photography Packages': false,
   };
-  TextEditingController weddingDecorPriceController = TextEditingController();
-  TextEditingController partyLightingPriceController = TextEditingController();
-  TextEditingController champagnePackagesPriceController =
-      TextEditingController();
-  TextEditingController photographyPackagesPriceController =
-      TextEditingController();
 
-  Map<String, bool> accessibilitySpecial = {
+  final Map<String, bool> accessibilitySpecial = {
     'Wheelchair Access': false,
     'Child Car Seats': false,
     'Pet-Friendly Service': false,
@@ -148,71 +143,42 @@ class _CoachHireServiceState extends State<CoachHireService> {
     'Senior-Friendly Assistance': false,
     'Stroller / Buggy Storage': false,
   };
-  TextEditingController wheelchairAccessPriceController =
-      TextEditingController();
-  TextEditingController childCarSeatsPriceController = TextEditingController();
-  TextEditingController petFriendlyPriceController = TextEditingController();
-  TextEditingController disabledAccessRampPriceController =
-      TextEditingController();
-  TextEditingController seniorFriendlyPriceController = TextEditingController();
-  TextEditingController strollerBuggyStoragePriceController =
-      TextEditingController();
 
-  Map<String, bool> securityCompliance = {
+  final Map<String, bool> securityCompliance = {
     'Vehicle Tracking / GPS': false,
     'CCTV Fitted': false,
     'Public Liability Insurance': false,
     'Safety-Certified Drivers (DBS Checked)': false,
   };
 
-  // Section 8: Operating Hours
-  bool available24_7 = false;
-  TextEditingController specificOperatingTimesController =
-      TextEditingController();
-
-  // Section 9: Driver Details
-  Map<String, bool> driverDetails = {
+  final Map<String, bool> driverDetails = {
     'Fully Licensed': false,
     'DBS Checked': false,
     'Wear Uniforms': false,
   };
-  TextEditingController languagesSpokenController = TextEditingController();
 
-  // Section 10: Cancellation Policy
+  // Other variables
+  final RxList<String> areasCovered = <String>[].obs;
+  final Rx<DateTime> firstRegistrationDate = DateTime.now().obs;
+  String? serviceStatus;
   String? cancellationPolicy;
+  bool available24_7 = false;
+  bool depositRequired = false;
+  bool _isSubmitting = false;
+  String? vendorId;
 
-  // Section 11: Licensing & Documents
-  TextEditingController psvOperatorLicenceNumberController =
-      TextEditingController();
-  TextEditingController licensingAuthorityController = TextEditingController();
-  TextEditingController publicLiabilityInsuranceProviderController =
-      TextEditingController();
-  TextEditingController policyNumberExpiryDateController =
-      TextEditingController();
-  RxList<String> psvOperatorLicencePaths = <String>[].obs;
-  RxList<String> publicLiabilityPaths = <String>[].obs;
-  RxList<String> driverLicencePaths = <String>[].obs;
-  RxList<String> vehicleMotInsurancePaths = <String>[].obs;
-  RxList<String> vehicleImagesPaths = <String>[].obs;
-  bool psvOperatorLicenceEnabled = false;
-  bool publicLiabilityEnabled = false;
-  bool driverLicenceEnabled = false;
-  bool vehicleMotInsuranceEnabled = false;
-
-  // Section 12: Business Profile & Promotion
-  TextEditingController promotionalListingDescriptionController =
-      TextEditingController();
-  TextEditingController serviceHighlightsController = TextEditingController();
-  bool brandingLogoRemove = false;
-
-  // Section 13: Declaration
+  // Declaration flags
   bool agreeTerms = false;
   bool noContactDetails = false;
   bool agreeCookies = false;
   bool agreePrivacy = false;
   bool agreeCancellation = false;
 
-  String? vendorId;
+  final Map<String, String> cancellationPolicyMap = {
+    'Flexible-Full refund if canceled 48+ hours in advance': 'FLEXIBLE',
+    'Moderate-Full refund if canceled 72+ hours in advance': 'MODERATE',
+    'Strict-Full refund if canceled 7+ days in advance': 'STRICT',
+  };
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -222,17 +188,59 @@ class _CoachHireServiceState extends State<CoachHireService> {
     _loadVendorId();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (fromDate.value.isBefore(DateTime.now()))
-        fromDate.value = DateTime.now();
-      if (toDate.value.isBefore(DateTime.now())) toDate.value = DateTime.now();
-      calendarController.fromDate.value = fromDate.value;
-      calendarController.toDate.value = toDate.value;
+      if (calendarController.fromDate.value.isBefore(DateTime.now())) {
+        calendarController.fromDate.value = DateTime.now();
+      }
+      if (calendarController.toDate.value.isBefore(DateTime.now())) {
+        calendarController.toDate.value =
+            DateTime.now().add(const Duration(days: 7));
+      }
     });
 
     hourlyRateController.addListener(() {
       calendarController
           .setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
     });
+  }
+
+  @override
+  void dispose() {
+    // Dispose all controllers
+    serviceNameController.dispose();
+    basePostcodeController.dispose();
+    locationRadiusController.dispose();
+    makeModelController.dispose();
+    yearController.dispose();
+    capacityController.dispose();
+    fleetSizeController.dispose();
+    hourlyRateController.dispose();
+    halfDayRateController.dispose();
+    fullDayRateController.dispose();
+    multiDayRateController.dispose();
+    mileageAllowanceController.dispose();
+    additionalMileageFeeController.dispose();
+
+    // Dispose price controllers
+    weddingDecorPriceController.dispose();
+    partyLightingPriceController.dispose();
+    champagnePackagesPriceController.dispose();
+    photographyPackagesPriceController.dispose();
+    wheelchairAccessPriceController.dispose();
+    childCarSeatsPriceController.dispose();
+    petFriendlyPriceController.dispose();
+    disabledAccessRampPriceController.dispose();
+    seniorFriendlyPriceController.dispose();
+    strollerBuggyStoragePriceController.dispose();
+
+    // Clear lists
+    areasCovered.clear();
+
+    super.dispose();
+  }
+
+  Future<void> _loadVendorId() async {
+    vendorId = await SessionVendorSideManager().getVendorId();
+    setState(() {});
   }
 
   String mapCancellationPolicy(String? policy) {
@@ -248,121 +256,48 @@ class _CoachHireServiceState extends State<CoachHireService> {
     }
   }
 
-  @override
-  void dispose() {
-    serviceNameController.dispose();
-    imageController.dispose();
-    couponController.dispose();    
-    basePostcodeController.dispose();
-    locationRadiusController.dispose();
-    otherServiceController.dispose();
-    makeModelController.dispose();
-    yearController.dispose();
-    capacityController.dispose();
-    fleetSizeController.dispose();
-    hourlyRateController.dispose();
-    halfDayRateController.dispose();
-    fullDayRateController.dispose();
-    multiDayRateController.dispose();
-    mileageAllowanceController.dispose();
-    additionalMileageFeeController.dispose();
-    specificOperatingTimesController.dispose();
-    languagesSpokenController.dispose();
-    psvOperatorLicenceNumberController.dispose();
-    licensingAuthorityController.dispose();
-    publicLiabilityInsuranceProviderController.dispose();
-    policyNumberExpiryDateController.dispose();
-    promotionalListingDescriptionController.dispose();
-    serviceHighlightsController.dispose();
-    leatherInteriorPriceController.dispose();
-    airConditioningPriceController.dispose();
-    inCarEntertainmentPriceController.dispose();
-    redCarpetServicePriceController.dispose();
-    wifiAccessPriceController.dispose();
-    complimentaryDrinksPriceController.dispose();
-    bluetoothUSBPriceController.dispose();
-    weddingDecorPriceController.dispose();
-    partyLightingPriceController.dispose();
-    champagnePackagesPriceController.dispose();
-    photographyPackagesPriceController.dispose();
-    wheelchairAccessPriceController.dispose();
-    childCarSeatsPriceController.dispose();
-    petFriendlyPriceController.dispose();
-    disabledAccessRampPriceController.dispose();
-    seniorFriendlyPriceController.dispose();
-    strollerBuggyStoragePriceController.dispose();
-    hourlyRateController.removeListener(() {});
-    super.dispose();
-  }
-
-  Future<void> _loadVendorId() async {
-    vendorId = await SessionVendorSideManager().getVendorId();
-    setState(() {});
-  }
-
   void _submitForm() async {
-    // Prevent duplicate submissions
     if (_isSubmitting) return;
 
     setState(() {
       _isSubmitting = true;
     });
 
-    // Validation checks with early returns — make sure to set _isSubmitting = false inside setState
-    if (!servicesProvided.values.any((v) => v)) {
+    if (!_formKey.currentState!.validate()) {
       Get.snackbar(
-        "Missing Information",
-        "Please select at least one service.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+          "Validation Error", "Please fill all required fields correctly.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       setState(() {
         _isSubmitting = false;
       });
       return;
     }
+
+   
 
     if (areasCovered.isEmpty) {
       Get.snackbar(
-        "Missing Information",
-        "At least one area covered is required.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+          "Missing Information", "At least one area covered is required.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       setState(() {
         _isSubmitting = false;
       });
       return;
     }
-
-    // if (vehicleImagesPaths.length < 3) {
-    //   Get.snackbar(
-    //     "Missing Information",
-    //     "At least 3 vehicle images are required.",
-    //     snackPosition: SnackPosition.BOTTOM,
-    //     backgroundColor: Colors.redAccent,
-    //     colorText: Colors.white,
-    //   );
-    //   setState(() {
-    //     _isSubmitting = false;
-    //   });
-    //   return;
-    // }
 
     if (!agreeTerms ||
         !noContactDetails ||
         !agreeCookies ||
         !agreePrivacy ||
         !agreeCancellation) {
-      Get.snackbar(
-        "Missing Information",
-        "Please agree to all declarations.",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Missing Information", "Please agree to all declarations.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
       setState(() {
         _isSubmitting = false;
       });
@@ -373,56 +308,42 @@ class _CoachHireServiceState extends State<CoachHireService> {
       "vendorId": vendorId,
       "categoryId": widget.CategoryId,
       "subcategoryId": widget.SubCategoryId,
-      "listingTitle":
-          serviceNameController.text.trim(), // Changed from service_name
-      "service_status": serviceStatus, // Add this field
+      "service_name": serviceNameController.text.trim(),
+      "listingTitle": serviceNameController.text.trim(),
+      "service_status": serviceStatus ?? "open",
       "basePostcode": basePostcodeController.text.trim(),
       "locationRadius": locationRadiusController.text.trim(),
       "servicesProvided": servicesProvided,
-      "booking_date_from":
-          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-      "booking_date_to":
-          DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
-      "special_price_days": [], // Add this field
-      "offering_price": 0, // Add this field
-      "areasCovered": areasCovered.toList(),
       "bookingTypes": bookingTypes,
-
-      // Fix fleet info structure
+      "onboardFacilities": onboardFacilities,
+      "driverDetails": driverDetails,
       "fleetInfo": {
         "makeAndModel": makeModelController.text.trim(),
         "capacity": capacityController.text.trim(),
-        "firstRegistered": yearController.text.trim(),
-        'seats': fleetSizeController.text.trim(),
-        'luggageCapacity': capacityController.text.trim(),
+        "firstRegistered": firstRegistrationDate.value.toIso8601String(),
+        "seats": fleetSizeController.text.trim(),
+        "luggageCapacity": capacityController.text.trim(),
       },
-
-      // Fix pricing structure
       "pricingDetails": {
-        // Changed from rates
         "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
         "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
         "fullDayRate": double.tryParse(fullDayRateController.text.trim()) ?? 0,
+        "multiDayRate":
+            double.tryParse(multiDayRateController.text.trim()) ?? 0,
         "additionalMileageFee":
             double.tryParse(additionalMileageFeeController.text.trim()) ?? 0,
         "mileageLimit": mileageAllowanceController.text.trim(),
+        "depositRequired": depositRequired,
       },
-
-      // Map your features to the expected structure
       "comfort": {
         "leatherInterior": comfortLuxury["Leather Interior"] ?? false,
         "wifiAccess": wifiAccess["Wi-Fi Access"] ?? false,
         "airConditioning": comfortLuxury["Air Conditioning"] ?? false,
-        "complimentaryDrinks": {
-          "available": wifiAccess["Complimentary Drinks"] ?? false,
-          "details": ""
-        },
+        "complimentaryDrinks": wifiAccess["Complimentary Drinks"] ?? false,
         "inCarEntertainment": comfortLuxury["In-Car Entertainment"] ?? false,
         "bluetoothUsb": wifiAccess["Bluetooth/USB"] ?? false,
         "redCarpetService": comfortLuxury["Red Carpet Service"] ?? false,
-        "onboardRestroom": false, // Add if you have this field
       },
-
       "events": {
         "weddingDecor":
             eventsExtras["Wedding Décor (ribbons, flowers)"] ?? false,
@@ -439,7 +360,6 @@ class _CoachHireServiceState extends State<CoachHireService> {
             double.tryParse(photographyPackagesPriceController.text.trim()) ??
                 0,
       },
-
       "accessibility": {
         "wheelchairAccessVehicle":
             accessibilitySpecial["Wheelchair Access"] ?? false,
@@ -466,165 +386,169 @@ class _CoachHireServiceState extends State<CoachHireService> {
             double.tryParse(strollerBuggyStoragePriceController.text.trim()) ??
                 0,
       },
-
       "security": {
         "vehicleTrackingGps":
-            securityCompliance["Vehicle Tracking/GPS"] ?? false,
+            securityCompliance["Vehicle Tracking / GPS"] ?? false,
         "cctvFitted": securityCompliance["CCTV Fitted"] ?? false,
         "publicLiabilityInsurance":
             securityCompliance["Public Liability Insurance"] ?? false,
         "safetyCertifiedDrivers":
-            securityCompliance["Safety-Certified Drivers"] ?? false,
+            securityCompliance["Safety-Certified Drivers (DBS Checked)"] ??
+                false,
       },
-
-      "service_image": vehicleImagesPaths,
+      "areasCovered": areasCovered.toList(),
+      "available24_7": available24_7,
+      "booking_date_from": calendarController.fromDate.value != null
+          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+              .format(calendarController.fromDate.value)
+          : "",
+      "booking_date_to": calendarController.toDate.value != null
+          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+              .format(calendarController.toDate.value)
+          : "",
+      "special_price_days": calendarController.specialPrices
+          .map((e) => {
+                "date": e['date'] != null
+                    ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime)
+                    : "",
+                "price": e['price'] as double? ?? 0
+              })
+          .toList(),
+      "service_image": imageController.uploadedUrls.isNotEmpty
+          ? imageController.uploadedUrls
+          : [],
+      "coupons": couponController.coupons
+          .map((coupon) => {
+                "coupon_code": coupon['coupon_code'] ?? "",
+                "discount_type": coupon['discount_type'] ?? "",
+                "discount_value": coupon['discount_value'] ?? 0,
+                "usage_limit": coupon['usage_limit'] ?? 0,
+                "current_usage_count": coupon['current_usage_count'] ?? 0,
+                "expiry_date": coupon['expiry_date'] != null &&
+                        coupon['expiry_date'].toString().isNotEmpty
+                    ? DateFormat('yyyy-MM-dd').format(
+                        DateTime.parse(coupon['expiry_date'].toString()))
+                    : "",
+                "is_global": coupon['is_global'] ?? false
+              })
+          .toList(),
       "cancellation_policy_type": mapCancellationPolicy(cancellationPolicy),
-      "coupons": [],
+      "agreeTerms": agreeTerms,
+      "noContactDetails": noContactDetails,
+      "agreeCookies": agreeCookies,
+      "agreePrivacy": agreePrivacy,
+      "agreeCancellation": agreeCancellation,
     };
 
     final api = AddVendorServiceApi();
-
     try {
       final isAdded = await api.addServiceVendor(data, 'coach');
       if (isAdded) {
-        setState(() {
-          _isSubmitting = false;
-        });
+        Get.snackbar('Success', 'Service added successfully!',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white);
         Get.to(() => HomePageAddService());
       } else {
-        setState(() {
-          _isSubmitting = false;
-        });
-        Get.snackbar(
-          'Error',
-          'Add Service Failed. Please try again.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-        );
+        Get.snackbar('Error', 'Add Service Failed. Please try again.',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
       }
     } catch (e) {
-      print("API Error: $e");
+      Get.snackbar('Error', 'Server error: $e',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
+    } finally {
       setState(() {
         _isSubmitting = false;
       });
-      Get.snackbar(
-        'Error',
-        'Server error: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+      try {
+        final ServiceController controller = Get.find<ServiceController>();
+        controller.fetchServices();
+      } catch (e) {
+        print("Error refreshing services: $e");
+      }
     }
   }
 
-  Widget _buildDocumentUploadSection(
-      String title, RxList<String> documentPaths, bool isRequired) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("$title${isRequired ? ' *' : ''}",
-            style: const TextStyle(color: Colors.black, fontSize: 16)),
-        const SizedBox(height: 16),
-        Obx(() => Wrap(
-              spacing: 8.0,
-              children: List.generate(documentPaths.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: const Icon(Icons.insert_drive_file,
-                            size: 40, color: Colors.grey),
-                      ),
-                      Positioned(
-                        top: 2,
-                        right: 2,
-                        child: GestureDetector(
-                          onTap: () {
-                            documentPaths.removeAt(index);
-                          },
-                          child: const Icon(Icons.cancel,
-                              color: Colors.redAccent, size: 20),
-                        ),
-                      ),
-                    ],
+  void _showSetPriceDialog(DateTime date) {
+    final TextEditingController priceController = TextEditingController();
+    priceController.text =
+        (calendarController.getPriceForDate(date)?.toString() ??
+            calendarController.defaultPrice.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+            'Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
+        content: TextField(
+          controller: priceController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Hourly Rate (£)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final price = double.tryParse(priceController.text) ?? 0.0;
+              if (price >= 0) {
+                calendarController.setSpecialPrice(date, price);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarCell(DateTime day, bool isClickable) {
+    return Obx(() {
+      final double price = calendarController.getPriceForDate(day);
+      return Container(
+        margin: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8.0),
+          color: isClickable ? Colors.white : Colors.grey.withOpacity(0.3),
+        ),
+        child: InkWell(
+          onTap: isClickable ? () => _showSetPriceDialog(day) : null,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  DateFormat('d').format(day),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isClickable ? Colors.black : Colors.grey,
                   ),
-                );
-              }),
-            )),
-        const SizedBox(height: 10),
-        GestureDetector(
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.camera_alt),
-                    title: const Text('Take a Photo'),
-                    onTap: () async {
-                      await imageController.pickImages(true);
-                      if (imageController.selectedImages.isNotEmpty) {
-                        documentPaths.add(imageController.selectedImages.last);
-                        imageController.selectedImages.removeLast();
-                      }
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.photo_library),
-                    title: const Text('Choose from Gallery'),
-                    onTap: () async {
-                      await imageController.pickImages(false);
-                      if (imageController.selectedImages.isNotEmpty) {
-                        documentPaths.add(imageController.selectedImages.last);
-                        imageController.selectedImages.removeLast();
-                      }
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-          child: DottedBorder(
-            color: Colors.black,
-            strokeWidth: 2,
-            dashPattern: const [5, 5],
-            child: Container(
-              height: 100,
-              width: double.infinity,
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.cloud_upload, color: Colors.grey, size: 30),
-                    SizedBox(height: 8),
-                    Text(
-                      'Click to upload PDF, PNG, JPG (max 5MB)',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w700),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
                 ),
-              ),
+                Text(
+                  '£${price.toStringAsFixed(2)}/hr',
+                  style: TextStyle(
+                    fontSize: 7,
+                    color: isClickable ? Colors.red : Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: 20),
-      ],
-    );
+      );
+    });
   }
 
   Widget _buildCitySelection(String title, RxList<String> selectedCities) {
@@ -646,21 +570,17 @@ class _CoachHireServiceState extends State<CoachHireService> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.yellow[700],
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  selectedCities.clear();
-                },
+                onPressed: () => selectedCities.clear(),
                 child: const Text('DESELECT ALL'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
@@ -725,8 +645,6 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                 deleteIcon: const Icon(Icons.close, size: 18),
                                 onDeleted: () => selectedCities.remove(city),
                                 backgroundColor: Colors.grey[200],
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
                               ))
                           .toList(),
                     ),
@@ -735,177 +653,80 @@ class _CoachHireServiceState extends State<CoachHireService> {
     );
   }
 
-  Widget _buildDatePicker(
-      BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
+  Widget _buildDatePicker(String label, Rx<DateTime> date, bool isFromDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$label Date and Time',
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-        ),
+        Text('$label Date and Time',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: date.value,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2099, 12, 31),
-                  );
-                  if (pickedDate != null) {
-                    final TimeOfDay? pickedTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.fromDateTime(date.value),
-                    );
-                    if (pickedTime != null) {
-                      final newDateTime = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
-                      if (newDateTime.isBefore(DateTime.now())) {
-                        Get.snackbar(
-                          "Invalid Date",
-                          "Please select a date and time in the future.",
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.redAccent,
-                          colorText: Colors.white,
-                        );
-                        return;
-                      }
-                      date.value = newDateTime;
-                      if (isFromDate) {
-                        calendarController.fromDate.value = date.value;
-                        calendarController.updateDateRange(
-                          calendarController.fromDate.value,
-                          calendarController.toDate.value,
-                        );
-                      } else {
-                        calendarController.toDate.value = date.value;
-                        calendarController.updateDateRange(
-                          calendarController.fromDate.value,
-                          calendarController.toDate.value,
-                        );
-                      }
-                    }
-                  }
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        DateFormat('dd/MM/yyyy HH:mm').format(date.value),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const Icon(Icons.calendar_today, color: Colors.grey),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  void _showSetPriceDialog(DateTime date) {
-    final TextEditingController priceController = TextEditingController();
-    priceController.text =
-        (calendarController.getPriceForDate(date)?.toString() ??
-            calendarController.defaultPrice.toString());
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-            'Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
-        content: TextField(
-          controller: priceController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            labelText: 'Hourly Rate (£)',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final price = double.tryParse(priceController.text) ?? 0.0;
-              if (price >= 0) {
-                calendarController.setSpecialPrice(date, price);
-                Navigator.pop(context);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Please enter a valid price (≥ 0)')),
+        GestureDetector(
+          onTap: () async {
+            final DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: date.value,
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2099, 12, 31),
+            );
+            if (pickedDate != null) {
+              final TimeOfDay? pickedTime = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.fromDateTime(date.value),
+              );
+              if (pickedTime != null) {
+                final newDateTime = DateTime(
+                  pickedDate.year,
+                  pickedDate.month,
+                  pickedDate.day,
+                  pickedTime.hour,
+                  pickedTime.minute,
                 );
+                if (newDateTime.isBefore(DateTime.now())) {
+                  Get.snackbar(
+                    "Invalid Date",
+                    "Please select a date and time in the future.",
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.redAccent,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+                date.value = newDateTime;
+                if (isFromDate) {
+                  calendarController.fromDate.value = date.value;
+                  calendarController.updateDateRange(
+                    calendarController.fromDate.value,
+                    calendarController.toDate.value,
+                  );
+                } else {
+                  calendarController.toDate.value = date.value;
+                  calendarController.updateDateRange(
+                    calendarController.fromDate.value,
+                    calendarController.toDate.value,
+                  );
+                }
               }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCalendarCell(DateTime day, bool isClickable) {
-    return Obx(() {
-      final double price = calendarController.getPriceForDate(day);
-      return Container(
-        margin: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8.0),
-          color: isClickable ? Colors.white : Colors.grey.withOpacity(0.3),
-        ),
-        child: InkWell(
-          onTap: isClickable ? () => _showSetPriceDialog(day) : null,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  DateFormat('d').format(day),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isClickable ? Colors.black : Colors.grey,
-                  ),
-                ),
-                Text(
-                  '£${price.toStringAsFixed(2)}/hr',
-                  style: TextStyle(
-                    fontSize: 7,
-                    color: isClickable
-                        ? (price > 0 ? Colors.red : Colors.red)
-                        : Colors.grey,
-                  ),
-                ),
+                Text(DateFormat('dd/MM/yyyy HH:mm').format(date.value),
+                    style: const TextStyle(fontSize: 16)),
+                const Icon(Icons.calendar_today, color: Colors.grey),
               ],
             ),
           ),
         ),
-      );
-    });
+        const SizedBox(height: 20),
+      ],
+    );
   }
 
   @override
@@ -934,413 +755,295 @@ class _CoachHireServiceState extends State<CoachHireService> {
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Form(
-              autovalidateMode: AutovalidateMode.disabled,
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Coach Hire Form',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  // Section 1: Business Information
+                  const Text('LISTING TITLE',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Service Name',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('LISTING TITLE *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: serviceNameController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter Service Name",
-                    ),
+                  Signup_textfilled(
+                    length: 50,
+                    textcont: serviceNameController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter Listing Title",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Listing Title is required';
+                      }
+                      return null;
+                    },
                   ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Services Provided',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Base Location Postcode *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: servicesProvided.keys
-                          .map((service) => ChoiceChip(
-                                label: Text(service),
-                                selected: servicesProvided[service]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    servicesProvided[service] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: basePostcodeController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter postcode",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Base Location is required';
+                      }
+                      return null;
+                    },
                   ),
-                  if (servicesProvided['Other']!) ...[
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Signup_textfilled(
-                        length: 100,
-                        textcont: otherServiceController,
-                        textfilled_height: 17,
-                        textfilled_weight: 1,
-                        keytype: TextInputType.text,
-                        hinttext: "Please specify other service",
-                      ),
-                    ),
-                  ],
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Base Postcode',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Location Radius *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: basePostcodeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter postcode",
-                    ),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: locationRadiusController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter location radius in miles",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Location radius is required';
+                      }
+                      return null;
+                    },
                   ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Location Radius (in miles) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+
+                  // Section 2: Fleet Information
+                  const Text('Fleet Information (For This Vehicle Only)',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: locationRadiusController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter Radius",
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Booking Types',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Make & Model *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: bookingTypes.keys
-                          .map((type) => ChoiceChip(
-                                label: Text(type),
-                                selected: bookingTypes[type]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    bookingTypes[type] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Fleet Information (For This Vehicle Only)',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Make & Model',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: makeModelController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter make and model",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Year',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 4,
-                      textcont: yearController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter year",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Capacity',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 3,
-                      textcont: capacityController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter fleet capacity",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Onboard Facilities',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: onboardFacilities.keys
-                          .map((facility) => ChoiceChip(
-                                label: Text(facility),
-                                selected: onboardFacilities[facility]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    onboardFacilities[facility] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
+                  Signup_textfilled(
+                    length: 50,
+                    textcont: makeModelController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter make and model",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Make & Model is required';
+                      }
+                      return null;
+                    },
                   ),
 
                   const SizedBox(height: 10),
-                  const Text(
-                    'Number of Seats',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Number of Seats *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: fleetSizeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter number of Seats",
-                    ),
+                  Signup_textfilled(
+                    length: 2,
+                    textcont: fleetSizeController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter number of seats",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Number of Seats is required';
+                      }
+                      return null;
+                    },
                   ),
+
+                  const SizedBox(height: 10),
+                  const Text('Luggage Capacity *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 2,
+                    textcont: capacityController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Luggage capacity in liters",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Luggage Capacity is required';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+                  _buildDatePicker(
+                      'First Registration', firstRegistrationDate, true),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Rates (from)',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  // Section 3: Pricing Details
+                  const Text('Pricing Details (Day Hire Model)',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+
+                  const Text('Hourly Rate (£) *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Set your base rates for different time periods.',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: hourlyRateController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "enter hourly rate",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Hourly Rate is required';
+                      }
+                      return null;
+                    },
                   ),
+
                   const SizedBox(height: 10),
-                  const Text(
-                    'Hourly Rate (£)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  const Text('Half Day Rate (£) *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: halfDayRateController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "enter half day rate",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Half Day Rate is required';
+                      }
+                      return null;
+                    },
                   ),
+
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: hourlyRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter hourly rate",
-                    ),
+                  const Text('Full-Day Rate (10 hour hire/200 miles) (£) *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: fullDayRateController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter day rate",
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
+                    ],
                   ),
+
                   const SizedBox(height: 10),
-                  const Text(
-                    'Half-Day Rate (£)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Additional Mileage Fee (£ per mile) *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: halfDayRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter half-day rate",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Full-Day Rate (£)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: fullDayRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter full-day rate",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Multi-Day/Contract Rate (£ per day)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: multiDayRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter multi-day rate",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Deposit Required',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Yes',
-                          value: depositRequired,
-                          onChanged: (value) {
-                            setState(() {
-                              depositRequired = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'No',
-                          value: !depositRequired,
-                          onChanged: (value) {
-                            setState(() {
-                              depositRequired = !value!;
-                            });
-                          },
-                        ),
-                      ),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: additionalMileageFeeController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter extra mileage charge",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Extra Mileage Charge is required';
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
                     ],
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Mileage Allowance (miles included)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Mileage Limit *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: mileageAllowanceController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter included miles",
-                    ),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: mileageAllowanceController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Current value: 100 miles",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Mileage Limit is required';
+                      }
+                      return null;
+                    },
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Additional Mileage Fee (£ per mile)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: additionalMileageFeeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter fee per mile",
-                    ),
-                  ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Coverage & Availability',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+
+                  // Section 4: Coverage & Availability
+                  const Text('Coverage & Availability',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   _buildCitySelection('Areas Covered', areasCovered),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Service Status',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Service Status *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select Service Status",
-                      items: ['Open', 'Close'],
-                      selectedValue: serviceStatus,
-                      onChanged: (value) {
-                        setState(() {
-                          serviceStatus = value;
-                        });
-                      },
-                    ),
+                  CustomDropdown(
+                    hintText: "Select Service Status",
+                    items: ['open', 'close'],
+                    selectedValue: serviceStatus,
+                    onChanged: (value) {
+                      setState(() {
+                        serviceStatus = value;
+                      });
+                    },
                   ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Service Availability Period',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+
+                  // Section 5: Service Availability Period
+                  const Text('Service Availability Period',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 5),
                   const Text(
-                    'Select the period during which your service will be available',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
+                      'Select the Period during which your service will be available',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w300,
+                          color: Color.fromARGB(255, 109, 104, 104))),
                   const SizedBox(height: 20),
-                  Obx(() => _buildDatePicker(context, "From", fromDate, true)),
-                  Obx(() => _buildDatePicker(context, "To", toDate, false)),
+
+                  Obx(() => _buildDatePicker(
+                      "From", calendarController.fromDate, true)),
+                  Obx(() =>
+                      _buildDatePicker("To", calendarController.toDate, false)),
+
                   const SizedBox(height: 10),
                   Obx(() {
                     DateTime focusedDay = calendarController.fromDate.value;
@@ -1372,20 +1075,19 @@ class _CoachHireServiceState extends State<CoachHireService> {
                       ),
                     );
                   }),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Special Prices Summary',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Special Prices Summary',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 150,
                     child: calendarController.specialPrices.length == 0
-                        ? Center(
-                            child: Text(
-                            'No special prices set yet',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
-                          ))
+                        ? const Center(
+                            child: Text('No special prices set yet',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black)))
                         : Obx(() => ListView.builder(
                               shrinkWrap: true,
                               itemCount:
@@ -1408,28 +1110,23 @@ class _CoachHireServiceState extends State<CoachHireService> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        DateFormat('EEE, d MMM yyyy')
-                                            .format(date),
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
+                                          DateFormat('EEE, d MMM yyyy')
+                                              .format(date),
+                                          style: const TextStyle(fontSize: 16)),
                                       Row(
                                         children: [
                                           Text(
-                                            '£${price.toStringAsFixed(2)}/hr',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: price > 0
-                                                  ? Colors.black
-                                                  : Colors.red,
-                                            ),
-                                          ),
+                                              '£${price.toStringAsFixed(2)}/hr',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: price > 0
+                                                      ? Colors.black
+                                                      : Colors.red)),
                                           IconButton(
                                             icon: const Icon(Icons.delete,
                                                 color: Colors.red),
-                                            onPressed: () {
-                                              calendarController
-                                                  .deleteSpecialPrice(date);
-                                            },
+                                            onPressed: () => calendarController
+                                                .deleteSpecialPrice(date),
                                           ),
                                         ],
                                       ),
@@ -1439,918 +1136,401 @@ class _CoachHireServiceState extends State<CoachHireService> {
                               },
                             )),
                   ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Features, Benefits & Extra Services',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+
+                  // Section 6: Features, Benefits & Extras
+                  const Text('Features, Benefits & Extras',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Comfort & Luxury',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Comfort & Luxury',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: comfortLuxury.keys.map((feature) {
-                        bool isSelected = comfortLuxury[feature]!;
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
+                  Wrap(
+                    spacing: 10,
+                    children: comfortLuxury.keys
+                        .map((feature) => ChoiceChip(
                               label: Text(feature),
-                              selected: isSelected,
+                              selected: comfortLuxury[feature]!,
                               onSelected: (selected) {
                                 setState(() {
                                   comfortLuxury[feature] = selected;
                                 });
                               },
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Wi-Fi Access',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: wifiAccess.keys.map((feature) {
-                        bool isSelected = wifiAccess[feature]!;
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
-                              label: Text(feature),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  wifiAccess[feature] = selected;
-                                });
-                              },
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Events & Extras',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: eventsExtras.keys.map((extra) {
-                        bool isSelected = eventsExtras[extra]!;
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
-                              label: Text(extra),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  eventsExtras[extra] = selected;
-                                });
-                              },
-                            ),
-                            if (isSelected &&
-                                extra == 'Wedding Décor (ribbons, flowers)')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: weddingDecorPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected && extra == 'Party Lighting System')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: partyLightingPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected && extra == 'Champagne Packages')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: champagnePackagesPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected && extra == 'Photography Packages')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: photographyPackagesPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Accessibility & Special Services',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: accessibilitySpecial.keys.map((service) {
-                        bool isSelected = accessibilitySpecial[service]!;
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
-                              label: Text(service),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  accessibilitySpecial[service] = selected;
-                                });
-                              },
-                            ),
-                            if (isSelected && service == 'Wheelchair Access')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: wheelchairAccessPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected && service == 'Child Car Seats')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: childCarSeatsPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected && service == 'Pet-Friendly Service')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: petFriendlyPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected && service == 'Disabled-Access Ramp')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: disabledAccessRampPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected &&
-                                service == 'Senior-Friendly Assistance')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: seniorFriendlyPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                            if (isSelected &&
-                                service == 'Stroller / Buggy Storage')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: strollerBuggyStoragePriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp(r'^\d*\.?\d{0,2}$'))
-                                  ],
-                                ),
-                              ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Security & Compliance',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: securityCompliance.keys
-                          .map((compliance) => ChoiceChip(
-                                label: Text(compliance),
-                                selected: securityCompliance[compliance]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    securityCompliance[compliance] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Operating Hours',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Available 24/7',
-                          value: available24_7,
-                          onChanged: (value) {
-                            setState(() {
-                              available24_7 = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Specific Operating Times',
-                          value: !available24_7,
-                          onChanged: (value) {
-                            setState(() {
-                              available24_7 = !value!;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (!available24_7) ...[
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Signup_textfilled(
-                        length: 50,
-                        textcont: specificOperatingTimesController,
-                        textfilled_height: 17,
-                        textfilled_weight: 1,
-                        keytype: TextInputType.text,
-                        hinttext: "e.g., Mon-Fri 9am-6pm",
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Driver Details',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: driverDetails.keys
-                          .map((detail) => ChoiceChip(
-                                label: Text(detail),
-                                selected: driverDetails[detail]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    driverDetails[detail] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Languages Spoken',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: languagesSpokenController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter languages spoken",
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Cancellation Policy',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  // Around line 1157 in your code, change:
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select a Cancellation Policy",
-                      items: ['FLEXIBLE', 'MODERATE', 'STRICT'],
-                      selectedValue: cancellationPolicy,
-                      onChanged: (value) {
-                        setState(() {
-                          cancellationPolicy = value;
-                        });
-                      },
-                    ),
+                            ))
+                        .toList(),
                   ),
 
                   const SizedBox(height: 20),
-                  const Text(
-                    'Licensing & Documents',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Events & Extras',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'PSV Operator Licence Number',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: psvOperatorLicenceNumberController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter PSV operator licence number",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Licensing Authority',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: licensingAuthorityController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter licensing authority",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Public Liability Insurance Provider',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: publicLiabilityInsuranceProviderController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter insurance provider",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Policy Number and Expiry Date',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: policyNumberExpiryDateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter policy number and expiry date",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: psvOperatorLicenceEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            psvOperatorLicenceEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("PSV Operator Licence"),
-                      const SizedBox(width: 20),
-                      if (psvOperatorLicenceEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: psvOperatorLicenceEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              psvOperatorLicenceEnabled = value!;
-                              psvOperatorLicencePaths.clear();
-                            });
-                          },
-                        ),
-                      if (psvOperatorLicenceEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (psvOperatorLicenceEnabled)
-                    _buildDocumentUploadSection(
-                        "PSV Operator Licence", psvOperatorLicencePaths, true),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: publicLiabilityEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            publicLiabilityEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("Public Liability Insurance"),
-                      const SizedBox(width: 20),
-                      if (publicLiabilityEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: publicLiabilityEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              publicLiabilityEnabled = value!;
-                              publicLiabilityPaths.clear();
-                            });
-                          },
-                        ),
-                      if (publicLiabilityEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (publicLiabilityEnabled)
-                    _buildDocumentUploadSection("Public Liability Insurance",
-                        publicLiabilityPaths, true),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: driverLicenceEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            driverLicenceEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("Driver Licences And DBS"),
-                      const SizedBox(width: 20),
-                      if (driverLicenceEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: driverLicenceEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              driverLicenceEnabled = value!;
-                              driverLicencePaths.clear();
-                            });
-                          },
-                        ),
-                      if (driverLicenceEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (driverLicenceEnabled)
-                    _buildDocumentUploadSection(
-                        "Driver Licences And DBS", driverLicencePaths, true),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: vehicleMotInsuranceEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            vehicleMotInsuranceEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("Vehicle MOT And Insurance"),
-                      const SizedBox(width: 20),
-                      if (vehicleMotInsuranceEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: vehicleMotInsuranceEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              vehicleMotInsuranceEnabled = value!;
-                              vehicleMotInsurancePaths.clear();
-                            });
-                          },
-                        ),
-                      if (vehicleMotInsuranceEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (vehicleMotInsuranceEnabled)
-                    _buildDocumentUploadSection("Vehicle MOT And Insurance",
-                        vehicleMotInsurancePaths, true),
-                  const Text(
-                    'Vehicle Images (Upload minimum 3 images)',
-                    style: TextStyle(color: Colors.black87, fontSize: 16),
-                  ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Center(
-                      child: Obx(() => Wrap(
-                            spacing: 8.0,
-                            runSpacing: 4.0,
-                            children: List.generate(vehicleImagesPaths.length,
-                                (index) {
-                              return Stack(
-                                children: [
-                                  Image.file(
-                                    File(vehicleImagesPaths[index]),
-                                    fit: BoxFit.cover,
-                                    height: 60,
-                                    width: 60,
-                                  ),
-                                  Positioned(
-                                    top: 2,
-                                    right: 2,
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          imageController.removeImage(index),
-                                      child: const Icon(Icons.close,
-                                          color: Colors.redAccent),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }),
-                          )),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Vehicle Images Upload Section
-                  Container(
-                    height: 120,
-                    child: vehicleImagesPaths.isEmpty
-                        ? GestureDetector(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (context) {
-                                  return Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      ListTile(
-                                        leading: const Icon(Icons.camera),
-                                        title: const Text('Take a Photo'),
-                                        onTap: () async {
-                                          await imageController
-                                              .pickImages(true);
-                                          if (imageController
-                                              .selectedImages.isNotEmpty) {
-                                            setState(() {
-                                              vehicleImagesPaths.addAll(
-                                                  imageController
-                                                      .selectedImages);
-                                            });
-                                            imageController.selectedImages
-                                                .clear();
-                                          }
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                      ListTile(
-                                        leading:
-                                            const Icon(Icons.photo_library),
-                                        title:
-                                            const Text('Choose from Gallery'),
-                                        onTap: () async {
-                                          await imageController
-                                              .pickImages(false);
-                                          if (imageController
-                                              .selectedImages.isNotEmpty) {
-                                            setState(() {
-                                              vehicleImagesPaths.addAll(
-                                                  imageController
-                                                      .selectedImages);
-                                            });
-                                            imageController.selectedImages
-                                                .clear();
-                                          }
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.add_photo_alternate,
-                                      size: 40, color: Colors.grey),
-                                  Text('Add Vehicle Images',
-                                      style: TextStyle(color: Colors.grey)),
-                                ],
-                              ),
-                            ),
-                          )
-                        : ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: vehicleImagesPaths.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == vehicleImagesPaths.length) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      builder: (context) {
-                                        return Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            ListTile(
-                                              leading: const Icon(Icons.camera),
-                                              title: const Text('Take a Photo'),
-                                              onTap: () async {
-                                                await imageController
-                                                    .pickImages(true);
-                                                if (imageController
-                                                    .selectedImages
-                                                    .isNotEmpty) {
-                                                  setState(() {
-                                                    vehicleImagesPaths.addAll(
-                                                        imageController
-                                                            .selectedImages);
-                                                  });
-                                                  imageController.selectedImages
-                                                      .clear();
-                                                }
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ListTile(
-                                              leading: const Icon(
-                                                  Icons.photo_library),
-                                              title: const Text(
-                                                  'Choose from Gallery'),
-                                              onTap: () async {
-                                                await imageController
-                                                    .pickImages(false);
-                                                if (imageController
-                                                    .selectedImages
-                                                    .isNotEmpty) {
-                                                  setState(() {
-                                                    vehicleImagesPaths.addAll(
-                                                        imageController
-                                                            .selectedImages);
-                                                  });
-                                                  imageController.selectedImages
-                                                      .clear();
-                                                }
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 100,
-                                    margin: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.add,
-                                        size: 40, color: Colors.grey),
-                                  ),
-                                );
-                              }
-
-                              return Container(
-                                width: 100,
-                                margin: const EdgeInsets.all(4),
-                                child: Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(
-                                        File(vehicleImagesPaths[index]),
-                                        width: 100,
-                                        height: 100,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 2,
-                                      right: 2,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            vehicleImagesPaths
-                                                .removeAt(index); 
-                                          });
-                                        },
-                                        child: Container(
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
+                  Wrap(
+                    spacing: 10,
+                    children: eventsExtras.keys.map((extra) {
+                      bool isSelected = eventsExtras[extra]!;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ChoiceChip(
+                            label: Text(extra),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                eventsExtras[extra] = selected;
+                              });
                             },
                           ),
+                          if (isSelected) const SizedBox(width: 10),
+                          if (isSelected &&
+                              extra == 'Wedding Décor (ribbons, flowers)')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: weddingDecorPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected && extra == 'Champagne Packages')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: champagnePackagesPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected && extra == 'Party Lighting System')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: partyLightingPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected && extra == 'Photography Packages')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: photographyPackagesPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                        ],
+                      );
+                    }).toList(),
                   ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Business Profile & Promotion',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Accessibility & Special Services',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Promotional Listing Description (Max 100 words. This will be displayed on your profile)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  Wrap(
+                    spacing: 10,
+                    children: accessibilitySpecial.keys.map((service) {
+                      bool isSelected = accessibilitySpecial[service]!;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ChoiceChip(
+                            label: Text(service),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                accessibilitySpecial[service] = selected;
+                              });
+                            },
+                          ),
+                          if (isSelected) const SizedBox(width: 10),
+                          if (isSelected && service == 'Wheelchair Access')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: wheelchairAccessPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected && service == 'Pet-Friendly Service')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: petFriendlyPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected &&
+                              service == 'Senior-Friendly Assistance')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: seniorFriendlyPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected && service == 'Child Car Seats')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: childCarSeatsPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected && service == 'Disabled-Access Ramp')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: disabledAccessRampPriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                          if (isSelected &&
+                              service == 'Stroller / Buggy Storage')
+                            SizedBox(
+                              width: 80,
+                              child: Signup_textfilled(
+                                length: 10,
+                                textcont: strollerBuggyStoragePriceController,
+                                textfilled_height: 17,
+                                textfilled_weight: 1,
+                                keytype: TextInputType.number,
+                                hinttext: "Price (£)",
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'^\d*\.?\d{0,2}$'))
+                                ],
+                              ),
+                            ),
+                        ],
+                      );
+                    }).toList(),
                   ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 100,
-                      textcont: promotionalListingDescriptionController,
-                      textfilled_height: 10,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter description",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Service Highlights',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 100,
-                      textcont: serviceHighlightsController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext:
-                          "What makes your coach hire service reliable or premium?",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Branding Logo Remove',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select",
-                      items: ['Yes', 'No'],
-                      selectedValue: brandingLogoRemove ? 'Yes' : 'No',
-                      onChanged: (value) {
-                        setState(() {
-                          brandingLogoRemove = value == 'Yes';
-                        });
-                      },
-                    ),
-                  ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Coupons / Discounts',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  const Text('Security & Compliance',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    children: securityCompliance.keys
+                        .map((compliance) => ChoiceChip(
+                              label: Text(compliance),
+                              selected: securityCompliance[compliance]!,
+                              onSelected: (selected) {
+                                setState(() {
+                                  securityCompliance[compliance] = selected;
+                                });
+                              },
+                            ))
+                        .toList(),
                   ),
+
+                  const SizedBox(height: 20),
+                  const Text('Cancellation Policy *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  CustomDropdown(
+                    hintText: "Select a Cancellation Policy",
+                    items: cancellationPolicyMap.keys.toList(),
+                    selectedValue: cancellationPolicyMap.entries
+                        .firstWhere(
+                            (entry) => entry.value == cancellationPolicy,
+                            orElse: () => const MapEntry("", ""))
+                        .key,
+                    onChanged: (value) {
+                      setState(() {
+                        cancellationPolicy = cancellationPolicyMap[value] ?? "";
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Section 7: Photo and Media
+                  const Text('Photo and Media',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  const Text("Vehicle Images * (Upload minimum 3 images)",
+                      style: TextStyle(color: Colors.black87, fontSize: 16)),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Obx(() => Wrap(
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children: List.generate(
+                              imageController.selectedImages.length, (index) {
+                            return Stack(
+                              children: [
+                                Image.file(
+                                  File(imageController.selectedImages[index]),
+                                  fit: BoxFit.cover,
+                                  height: 60,
+                                  width: 60,
+                                ),
+                                Positioned(
+                                  top: 2,
+                                  right: 2,
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        imageController.removeImage(index),
+                                    child: const Icon(Icons.close,
+                                        color: Colors.redAccent),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        )),
+                  ),
+
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              ListTile(
+                                leading: const Icon(Icons.camera),
+                                title: const Text('Take a Photo'),
+                                onTap: () {
+                                  imageController.pickImages(true);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.photo_library),
+                                title: const Text('Choose from Gallery'),
+                                onTap: () {
+                                  imageController.pickImages(false);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: DottedBorder(
+                      color: Colors.black,
+                      strokeWidth: 2,
+                      dashPattern: const [5, 5],
+                      child: Container(
+                        height: 150,
+                        width: double.infinity,
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.cloud_upload_outlined,
+                                  size: 40, color: Colors.grey),
+                              Text(
+                                "Click to upload PNG, JPG (max 5MB)",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Section 8: Coupons / Discounts
+                  const Text("Coupons / Discounts",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: w * 0.45,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () => Get.dialog(AddCouponDialog()),
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                                (states) => Colors.green),
-                      ),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green),
                       child: const Text("Add Coupon",
                           style: TextStyle(color: Colors.white)),
                     ),
@@ -2359,106 +1539,88 @@ class _CoachHireServiceState extends State<CoachHireService> {
                   Obx(() => couponController.coupons.isEmpty
                       ? const SizedBox.shrink()
                       : CouponList()),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Declaration & Agreement',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+
+                  // Section 9: Declaration & Agreement
+                  const Text('Declaration & Agreement',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  CustomCheckbox(
+                    title:
+                        'I confirm that all information provided is accurate and current. *',
+                    value: agreeTerms,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeTerms = value!;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'I agree to the Terms and Conditions',
-                      value: agreeTerms,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeTerms = value!;
-                        });
-                      },
-                    ),
+                  CustomCheckbox(
+                    title:
+                        'I have not shared any contact details (Email, Phone, Skype, Website, etc.). *',
+                    value: noContactDetails,
+                    onChanged: (value) {
+                      setState(() {
+                        noContactDetails = value!;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title:
-                          'I have not shared any contact details (Email, Phone, Skype, Website, etc.)',
-                      value: noContactDetails,
-                      onChanged: (value) {
-                        setState(() {
-                          noContactDetails = value!;
-                        });
-                      },
-                    ),
+                  CustomCheckbox(
+                    title: 'I agree to the Cookies Policy. *',
+                    value: agreeCookies,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeCookies = value!;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'I agree to the Cookies Policy',
-                      value: agreeCookies,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeCookies = value!;
-                        });
-                      },
-                    ),
+                  CustomCheckbox(
+                    title: 'I agree to the Privacy Policy. *',
+                    value: agreePrivacy,
+                    onChanged: (value) {
+                      setState(() {
+                        agreePrivacy = value!;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'I agree to the Privacy Policy',
-                      value: agreePrivacy,
-                      onChanged: (value) {
-                        setState(() {
-                          agreePrivacy = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'I agree to the Cancellation Fee Policy',
-                      value: agreeCancellation,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeCancellation = value!;
-                        });
-                      },
-                    ),
+                  CustomCheckbox(
+                    title: 'I agree to the Cancellation Fee Policy. *',
+                    value: agreeCancellation,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeCancellation = value!;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
                   Text(
                       'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
+
                   const SizedBox(height: 20),
+
+                  // Submit Button
                   Container(
                     width: w,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isSubmitting
-                          ? null
-                          : () {
-                              _submitForm();
-                            },
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                                (states) => Colors.green),
-                      ),
+                      onPressed: _isSubmitting ? null : _submitForm,
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green),
                       child: _isSubmitting
                           ? const SizedBox(
                               height: 24,
                               width: 24,
                               child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
-                              ),
+                                  color: Colors.white, strokeWidth: 2.5),
                             )
                           : const Text(
-                              "Save and Submit",
+                              "Submit",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
