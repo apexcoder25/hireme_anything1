@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'dart:math' as math;
+import 'dart:convert';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/cutom_widgets/signup_textfilled.dart';
 import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
@@ -10,6 +13,8 @@ import 'package:hire_any_thing/Vendor_App/uiltis/custom_dropdown.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/controller/add_vendor_services_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupon_list.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupondialog.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/constants_file/uk_cities.dart';
@@ -18,8 +23,6 @@ import 'package:hire_any_thing/data/getx_controller/vender_side/service_controll
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'dart:math' as math;
-import 'dart:convert';
 
 class FuneralCarHireService extends StatefulWidget {
   final Rxn<String> Category;
@@ -46,13 +49,42 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
   final CityFetchController cityFetchController =
       Get.put(CityFetchController());
 
-  // Section 1: Business & Contact Information
-  TextEditingController serviceNameController = TextEditingController();
-  TextEditingController basePostcodeController = TextEditingController();
-  TextEditingController locationRadiusController = TextEditingController();
+  // Form Controllers
+  final TextEditingController serviceNameController = TextEditingController();
+  final TextEditingController basePostcodeController = TextEditingController();
+  final TextEditingController locationRadiusController =
+      TextEditingController();
+  final TextEditingController makeModelController = TextEditingController();
+  final TextEditingController luggageCapacityController =
+      TextEditingController();
+  final TextEditingController numberOfSeatsController = TextEditingController();
+  final TextEditingController yearController = TextEditingController();
+  final TextEditingController dayRateController = TextEditingController();
+  final TextEditingController mileageLimitController = TextEditingController();
+  final TextEditingController extraMileageChargeController =
+      TextEditingController();
+  final TextEditingController hourlyRateController = TextEditingController();
+  final TextEditingController halfDayRateController = TextEditingController();
+  final TextEditingController uniqueServiceController = TextEditingController();
+  final TextEditingController promotionalDescriptionController =
+      TextEditingController();
 
-  // Section 2: Funeral Transport Services Offered
-  Map<String, bool> vehicleTypes = {
+  // Accessibility Price Controllers
+  final TextEditingController wheelchairAccessPriceController =
+      TextEditingController();
+  final TextEditingController visualHearingSupportPriceController =
+      TextEditingController();
+  final TextEditingController languageTranslationPriceController =
+      TextEditingController();
+  final TextEditingController careAttendantPriceController =
+      TextEditingController();
+  final TextEditingController boardingAssistancePriceController =
+      TextEditingController();
+  final TextEditingController priorityServicePriceController =
+      TextEditingController();
+
+  // Features Maps
+  final Map<String, bool> vehicleTypes = {
     'Traditional Black Hearse': false,
     'Horse-Drawn Carriage (White/Black)': false,
     'Limousine (Mourner Cars)': false,
@@ -60,36 +92,8 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
     'Motorcycle Hearse': false,
     'Specialty Vehicles': false,
   };
-  TextEditingController otherVehicleController = TextEditingController();
-  TextEditingController fleetSizeController = TextEditingController();
 
-  // Section 3: Fleet Information
-  TextEditingController vehicleTypeController = TextEditingController();
-  TextEditingController makeModelController = TextEditingController();
-  TextEditingController luggageCapacityController = TextEditingController();
-  TextEditingController numberOfSeatController = TextEditingController();
-  TextEditingController yearController = TextEditingController();
-  TextEditingController notesController = TextEditingController();
-
-  // Section 4: Pricing Details
-  TextEditingController dayRateController = TextEditingController();
-  TextEditingController mileageLimitController = TextEditingController();
-  TextEditingController extraMileageChargeController = TextEditingController();
-  TextEditingController standardFuneralServiceController =
-      TextEditingController();
-  TextEditingController vipFuneralServiceController = TextEditingController();
-  TextEditingController hourlyRateController = TextEditingController();
-  TextEditingController halfDayRateController = TextEditingController();
-  bool fuelChargesIncluded = false;
-
-  // Section 5: Coverage & Availability
-  RxList<String> areasCovered = <String>[].obs;
-  String? serviceStatus;
-  Rx<DateTime> fromDate = DateTime.now().obs;
-  Rx<DateTime> toDate = DateTime.now().obs;
-
-  // Section 6: Accessibility And Special Services
-  Map<String, bool> accessibilitySpecial = {
+  final Map<String, bool> accessibilitySpecial = {
     'Wheelchair Accessible Vehicle': false,
     'Visual/Hearing Impaired Support': false,
     'Language Translation': false,
@@ -97,96 +101,62 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
     'Assistance with Boarding': false,
     'Priority Service for Elderly': false,
   };
-  TextEditingController wheelchairAccessPriceController =
-      TextEditingController();
-  TextEditingController visualHearingSupportPriceController =
-      TextEditingController();
-  TextEditingController languageTranslationPriceController =
-      TextEditingController();
-  TextEditingController careAttendantPriceController = TextEditingController();
-  TextEditingController boardingAssistancePriceController =
-      TextEditingController();
-  TextEditingController priorityServicePriceController =
-      TextEditingController();
 
-  // Section 7: Driver & Service Details
-  Map<String, bool> driverDetails = {
-    'Drivers in uniform and trained?': false,
-    'Drivers DBS checked and licensed?': false,
-    'Coordinate with funeral directors?': false,
-    'Support religious & non-religious funerals?': false,
+  final Map<String, bool> driverDetails = {
+    'Drivers are uniformed and professionally trained': false,
+    'Drivers are DBS checked and appropriately licensed': false,
+    'We coordinate with funeral directors': false,
+    'We support both religious & non-religious funerals': false,
   };
-  String? funeralServiceType;
-  Map<String, bool> additionalSupportServices = {
+
+  final Map<String, bool> additionalSupportServices = {
     'Funeral Escorts': false,
     'Floral Carriage': false,
     'Pallbearer Services': false,
     'Accessible Vehicles for Elderly/Mobility-Impaired Mourners': false,
-    'Customisation': false,
+    'Customisation Options': false,
   };
 
-  // Section 8: Licensing & Insurance
-  TextEditingController privateHireOperatorLicenceNumberController =
-      TextEditingController();
-  TextEditingController licensingAuthorityController = TextEditingController();
-  TextEditingController publicLiabilityInsuranceProviderController =
-      TextEditingController();
-  TextEditingController policyNumberController = TextEditingController();
-  TextEditingController policyExpiryDateController = TextEditingController();
-  RxList<String> operatorLicencePaths = <String>[].obs;
-  RxList<String> insuranceCertificatePaths = <String>[].obs;
-  RxList<String> driverLicencesPaths = <String>[].obs;
-  RxList<String> vehicleMotCertificatesPaths = <String>[].obs;
-  RxList<String> fleetPhotosPaths = <String>[].obs;
-  bool operatorLicenceEnabled = false;
-  bool insuranceCertificateEnabled = false;
-  bool driverLicencesEnabled = false;
-  bool vehicleMotCertificatesEnabled = false;
+  // Other variables
+  final RxList<String> areasCovered = <String>[].obs;
+  final RxList<String> fleetPhotosPaths = <String>[].obs;
+  final Rx<DateTime> firstRegistrationDate = DateTime.now().obs;
+  String? serviceStatus;
+  String? funeralServiceType;
+  String? cancellationPolicy;
+  bool _isSubmitting = false;
+  String? vendorId;
 
-  // Section 9: Business Highlights
-  TextEditingController uniqueServiceController = TextEditingController();
-  TextEditingController promotionalDescriptionController =
-      TextEditingController();
+  // Declaration flags
+  bool agreeTerms = false;
+  bool noContactDetails = false;
+  bool agreeCookies = false;
+  bool agreePrivacy = false;
+  bool agreeCancellation = false;
+
   final Map<String, String> cancellationPolicyMap = {
     'Flexible-Full refund if canceled 48+ hours in advance': "FLEXIBLE",
     'Moderate-Full refund if canceled 72+ hours in advance': "MODERATE",
     'Strict-Full refund if canceled 7+ days in advance': "STRICT",
   };
 
-  // Section 10: Declaration & Agreement
-  bool agreeTerms = false;
-  bool noContactDetails = false;
-  bool agreeCookies = false;
-  bool agreePrivacy = false;
-  bool agreeCancellation = false;
-  String? cancellationPolicy;
-
-  String? vendorId;
-  bool _isSubmitting = false;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-
     _loadVendorId();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final now = DateTime.now();
-
-      if (fromDate.value.isBefore(now)) {
-        fromDate.value = now;
+      if (calendarController.fromDate.value.isBefore(now)) {
+        calendarController.fromDate.value = now;
       }
-      if (toDate.value.isBefore(now)) {
-        toDate.value = now;
+      if (calendarController.toDate.value.isBefore(now)) {
+        calendarController.toDate.value = now.add(const Duration(days: 7));
       }
-
-      calendarController.fromDate.value = fromDate.value;
-      calendarController.toDate.value = toDate.value;
     });
 
-    // Add listener to hourlyRateController safely
     hourlyRateController.addListener(() {
       final price = double.tryParse(hourlyRateController.text) ?? 0.0;
       calendarController.setDefaultPrice(price);
@@ -195,40 +165,34 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
 
   @override
   void dispose() {
+    // Dispose all controllers
     serviceNameController.dispose();
     basePostcodeController.dispose();
     locationRadiusController.dispose();
-    imageController.dispose();
-    couponController.dispose();
-    otherVehicleController.dispose();
-    fleetSizeController.dispose();
-    vehicleTypeController.dispose();
     makeModelController.dispose();
     luggageCapacityController.dispose();
-    numberOfSeatController.dispose();
+    numberOfSeatsController.dispose();
     yearController.dispose();
-    notesController.dispose();
     dayRateController.dispose();
     mileageLimitController.dispose();
     extraMileageChargeController.dispose();
-    standardFuneralServiceController.dispose();
-    vipFuneralServiceController.dispose();
     hourlyRateController.dispose();
     halfDayRateController.dispose();
+    uniqueServiceController.dispose();
+    promotionalDescriptionController.dispose();
+
+    // Dispose accessibility price controllers
     wheelchairAccessPriceController.dispose();
     visualHearingSupportPriceController.dispose();
     languageTranslationPriceController.dispose();
     careAttendantPriceController.dispose();
     boardingAssistancePriceController.dispose();
     priorityServicePriceController.dispose();
-    privateHireOperatorLicenceNumberController.dispose();
-    licensingAuthorityController.dispose();
-    publicLiabilityInsuranceProviderController.dispose();
-    policyNumberController.dispose();
-    policyExpiryDateController.dispose();
-    uniqueServiceController.dispose();
-    promotionalDescriptionController.dispose();
-    hourlyRateController.removeListener(() {});
+
+    // Clear lists
+    areasCovered.clear();
+    fleetPhotosPaths.clear();
+
     super.dispose();
   }
 
@@ -238,6 +202,8 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
   }
 
   void _submitForm() async {
+    if (_isSubmitting) return;
+
     setState(() {
       _isSubmitting = true;
     });
@@ -250,16 +216,13 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
         _showError("Mileage limit must be at least 200 miles.");
         return;
       }
+      if (yearController.text.trim().isEmpty) {
+        yearController.text = DateTime.now().year.toString();
+      }
 
       // Validation for minimum images
       if (fleetPhotosPaths.length < 5) {
         _showError("At least 5 fleet photos are required.");
-        return;
-      }
-
-      // Vehicle type validation
-      if (!vehicleTypes.values.any((v) => v)) {
-        _showError("Please select at least one vehicle type.");
         return;
       }
 
@@ -285,7 +248,6 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
         return;
       }
 
-      // CORRECTED DATA STRUCTURE
       final data = {
         "vendorId": vendorId,
         "categoryId": widget.CategoryId,
@@ -295,7 +257,6 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
         // Base location info
         "basePostcode": basePostcodeController.text.trim(),
         "locationRadius": locationRadiusController.text.trim(),
-        "emergencyContactNumber": "",
 
         // Vehicle types - convert boolean map to array of selected strings
         "funeralVehicleTypes": vehicleTypes.entries
@@ -323,11 +284,17 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
               : halfDayRateController.text.trim(),
         },
 
-        // Booking availability dates
-        "booking_availability_date_from":
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-        "booking_availability_date_to":
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
+        // FIXED: Changed from booking_date_from/to to booking_availability_date_from/to
+        "booking_availability_date_from": calendarController.fromDate.value !=
+                null
+            ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(calendarController.fromDate.value)
+            : DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(DateTime.now()),
+        "booking_availability_date_to": calendarController.toDate.value != null
+            ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(calendarController.toDate.value)
+            : DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .format(DateTime.now().add(const Duration(days: 30))),
 
         // Special price days
         "special_price_days": calendarController.specialPrices
@@ -341,18 +308,22 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
         // Areas covered
         "areasCovered": areasCovered.toList(),
 
-        // Fleet details
+        // FIXED: Fleet details - make year required and not empty
         "fleetDetails": {
           "makeModel": makeModelController.text.trim().isEmpty
-              ? ""
+              ? "Unknown"
               : makeModelController.text.trim(),
           "year": yearController.text.trim().isEmpty
-              ? ""
+              ? DateTime.now()
+                  .year
+                  .toString() // FIXED: Provide default year if empty
               : yearController.text.trim(),
-          "seats": numberOfSeatController.text.trim().isEmpty
-              ? "4" 
-              : numberOfSeatController.text.trim(),
-          "luggageCapacity": 5, 
+          "seats": numberOfSeatsController.text.trim().isEmpty
+              ? "4"
+              : numberOfSeatsController.text.trim(),
+          "luggageCapacity":
+              int.tryParse(luggageCapacityController.text.trim()) ?? 5,
+          "firstRegistration": firstRegistrationDate.value.toIso8601String(),
         },
 
         // Accessibility services - convert boolean map to array of objects
@@ -366,19 +337,21 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
 
         // Driver details
         "driver_detail": {
-          "driversUniformed":
-              driverDetails['Drivers in uniform and trained?'] ?? true,
-          "driversDBSChecked":
-              driverDetails['Drivers DBS checked and licensed?'] ?? false,
+          "driversUniformed": driverDetails[
+                  'Drivers are uniformed and professionally trained'] ??
+              true,
+          "driversDBSChecked": driverDetails[
+                  'Drivers are DBS checked and appropriately licensed'] ??
+              false,
         },
 
-        // Service details - FIX: Convert additionalSupportServices to array of strings
+        // Service details
         "service_detail": {
           "worksWithFuneralDirectors":
-              driverDetails['Coordinate with funeral directors?'] ?? false,
-          "supportsAllFuneralTypes":
-              driverDetails['Support religious & non-religious funerals?'] ??
-                  false,
+              driverDetails['We coordinate with funeral directors'] ?? false,
+          "supportsAllFuneralTypes": driverDetails[
+                  'We support both religious & non-religious funerals'] ??
+              false,
           "additionalSupportServices": additionalSupportServices.entries
               .where((entry) => entry.value == true)
               .map((entry) => entry.key)
@@ -386,23 +359,7 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
           "funeralServiceType": funeralServiceType ?? "Religious",
         },
 
-        // Licensing details
-        "licensingDetails": {
-          "operatorLicenceNumber":
-              privateHireOperatorLicenceNumberController.text.trim(),
-          "licensingAuthority": licensingAuthorityController.text.trim(),
-        },
-
-        // Insurance details - FIX: Convert date format from DD-MM-YYYY to ISO
-        "insuranceDetails": {
-          "publicLiabilityInsuranceProvider":
-              publicLiabilityInsuranceProviderController.text.trim(),
-          "policyNumber": policyNumberController.text.trim(),
-          "policyExpiryDate":
-              _convertDateFormat(policyExpiryDateController.text.trim()),
-        },
-
-        // Service images - ensure at least 5
+        // FIXED: Changed from service_image to serviceImages (as expected by API)
         "serviceImages": fleetPhotosPaths.toList(),
 
         // Business profile
@@ -412,21 +369,30 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
               promotionalDescriptionController.text.trim(),
         },
 
-        // Funeral package options
-        "funeralPackageOptions": {
-          "standard":
-              double.tryParse(standardFuneralServiceController.text.trim()) ??
-                  0,
-          "vipExecutive":
-              double.tryParse(vipFuneralServiceController.text.trim()) ?? 0,
-        },
-
-        "service_status": "1",
+        "service_status": serviceStatus ?? "open",
         "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
 
-        // FIXED: Convert coupons properly
-        "coupons":
-            couponController.coupons.map((coupon) => Map.from(coupon)).toList(),
+        "coupons": couponController.coupons
+            .map((coupon) => {
+                  "coupon_code": coupon['coupon_code'] ?? "",
+                  "discount_type": coupon['discount_type'] ?? "",
+                  "discount_value": coupon['discount_value'] ?? 0,
+                  "usage_limit": coupon['usage_limit'] ?? 0,
+                  "current_usage_count": coupon['current_usage_count'] ?? 0,
+                  "expiry_date": coupon['expiry_date'] != null &&
+                          coupon['expiry_date'].toString().isNotEmpty
+                      ? DateFormat('yyyy-MM-dd').format(
+                          DateTime.parse(coupon['expiry_date'].toString()))
+                      : "",
+                  "is_global": coupon['is_global'] ?? false
+                })
+            .toList(),
+
+        "agreeTerms": agreeTerms,
+        "noContactDetails": noContactDetails,
+        "agreeCookies": agreeCookies,
+        "agreePrivacy": agreePrivacy,
+        "agreeCancellation": agreeCancellation,
       };
 
       print("Submitting data: ${json.encode(data)}");
@@ -462,7 +428,6 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
     }
   }
 
-// Helper method for error display
   void _showError(String message) {
     setState(() {
       _isSubmitting = false;
@@ -473,30 +438,6 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
         colorText: Colors.white);
   }
 
-// Helper method to convert date format from DD-MM-YYYY to ISO
-  String _convertDateFormat(String dateString) {
-    try {
-      if (dateString.isEmpty) return "";
-
-      // Convert DD-MM-YYYY to ISO format
-      final parts = dateString.split('-');
-      if (parts.length == 3) {
-        final day = int.parse(parts[0]);
-        final month = int.parse(parts[1]);
-        final year = int.parse(parts[2]);
-
-        // Create DateTime and convert to ISO
-        final dateTime = DateTime(year, month, day);
-        return DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(dateTime);
-      }
-      return dateString;
-    } catch (e) {
-      print("Date conversion error: $e");
-      return dateString;
-    }
-  }
-
-// Helper method to get accessibility service prices
   double _getAccessibilityPrice(String serviceType) {
     switch (serviceType) {
       case 'Wheelchair Accessible Vehicle':
@@ -522,111 +463,82 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
     }
   }
 
-  Widget _buildDocumentUploadSection(
-      String title, RxList<String> documentPaths, bool isRequired) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("$title${isRequired ? ' *' : ''}",
-            style: const TextStyle(color: Colors.black, fontSize: 16)),
-        const SizedBox(height: 16),
-        Obx(() => Wrap(
-              spacing: 8.0,
-              children: List.generate(documentPaths.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: const Icon(Icons.insert_drive_file,
-                            size: 40, color: Colors.grey),
-                      ),
-                      Positioned(
-                        top: 2,
-                        right: 2,
-                        child: GestureDetector(
-                          onTap: () => documentPaths.removeAt(index),
-                          child: const Icon(Icons.cancel,
-                              color: Colors.redAccent, size: 20),
-                        ),
-                      ),
-                    ],
+  void _showSetPriceDialog(DateTime date) {
+    final TextEditingController priceController = TextEditingController();
+    priceController.text =
+        (calendarController.getPriceForDate(date)?.toString() ??
+            calendarController.defaultPrice.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+            'Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
+        content: TextField(
+          controller: priceController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Hourly Rate (£)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final price = double.tryParse(priceController.text) ?? 0.0;
+              if (price >= 0) {
+                calendarController.setSpecialPrice(date, price);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarCell(DateTime day, bool isClickable) {
+    return Obx(() {
+      final double price = calendarController.getPriceForDate(day);
+      return Container(
+        margin: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8.0),
+          color: isClickable ? Colors.white : Colors.grey.withOpacity(0.3),
+        ),
+        child: InkWell(
+          onTap: isClickable ? () => _showSetPriceDialog(day) : null,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  DateFormat('d').format(day),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isClickable ? Colors.black : Colors.grey,
                   ),
-                );
-              }),
-            )),
-        const SizedBox(height: 10),
-        GestureDetector(
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.camera_alt),
-                    title: const Text('Take a Photo'),
-                    onTap: () async {
-                      await imageController.pickImages(true);
-                      if (imageController.selectedImages.isNotEmpty) {
-                        documentPaths.add(imageController.selectedImages.last);
-                        imageController.selectedImages.removeLast();
-                      }
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.photo_library),
-                    title: const Text('Choose from Gallery'),
-                    onTap: () async {
-                      await imageController.pickImages(false);
-                      if (imageController.selectedImages.isNotEmpty) {
-                        documentPaths.add(imageController.selectedImages.last);
-                        imageController.selectedImages.removeLast();
-                      }
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-          child: DottedBorder(
-            color: Colors.black,
-            strokeWidth: 2,
-            dashPattern: const [5, 5],
-            child: Container(
-              height: 100,
-              width: double.infinity,
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.cloud_upload, color: Colors.grey, size: 30),
-                    SizedBox(height: 8),
-                    Text(
-                      'Click to upload PDF, PNG, JPG (max 5MB)',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w700),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
                 ),
-              ),
+                Text(
+                  '£${price.toStringAsFixed(2)}/hr',
+                  style: TextStyle(
+                    fontSize: 7,
+                    color: isClickable ? Colors.red : Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: 20),
-      ],
-    );
+      );
+    });
   }
 
   Widget _buildCitySelection(String title, RxList<String> selectedCities) {
@@ -648,21 +560,17 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.yellow[700],
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: ElevatedButton(
-                onPressed: () {
-                  selectedCities.clear();
-                },
+                onPressed: () => selectedCities.clear(),
                 child: const Text('DESELECT ALL'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[300],
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
@@ -716,8 +624,6 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                                 deleteIcon: const Icon(Icons.close, size: 18),
                                 onDeleted: () => selectedCities.remove(city),
                                 backgroundColor: Colors.grey[200],
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
                               ))
                           .toList(),
                     ),
@@ -726,177 +632,80 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
     );
   }
 
-  Widget _buildDatePicker(
-      BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
+  Widget _buildDatePicker(String label, Rx<DateTime> date, bool isFromDate) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$label Date and Time',
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-        ),
+        Text('$label Date and Time',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: date.value,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2099, 12, 31),
-                  );
-                  if (pickedDate != null) {
-                    final TimeOfDay? pickedTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.fromDateTime(date.value),
-                    );
-                    if (pickedTime != null) {
-                      final newDateTime = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
-                      if (newDateTime.isBefore(DateTime.now())) {
-                        Get.snackbar(
-                          "Invalid Date",
-                          "Please select a date and time in the future.",
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.redAccent,
-                          colorText: Colors.white,
-                        );
-                        return;
-                      }
-                      date.value = newDateTime;
-                      if (isFromDate) {
-                        calendarController.fromDate.value = date.value;
-                        calendarController.updateDateRange(
-                          calendarController.fromDate.value,
-                          calendarController.toDate.value,
-                        );
-                      } else {
-                        calendarController.toDate.value = date.value;
-                        calendarController.updateDateRange(
-                          calendarController.fromDate.value,
-                          calendarController.toDate.value,
-                        );
-                      }
-                    }
-                  }
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        DateFormat('dd/MM/yyyy HH:mm').format(date.value),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const Icon(Icons.calendar_today, color: Colors.grey),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  void _showSetPriceDialog(DateTime date) {
-    final TextEditingController priceController = TextEditingController();
-    priceController.text =
-        (calendarController.getPriceForDate(date)?.toString() ??
-            calendarController.defaultPrice.toString());
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-            'Set Special Price for ${DateFormat('dd/MM/yyyy').format(date)}'),
-        content: TextField(
-          controller: priceController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            labelText: 'Hourly Rate (£)',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final price = double.tryParse(priceController.text) ?? 0.0;
-              if (price >= 0) {
-                calendarController.setSpecialPrice(date, price);
-                Navigator.pop(context);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Please enter a valid price (≥ 0)')),
+        GestureDetector(
+          onTap: () async {
+            final DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: date.value,
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2099, 12, 31),
+            );
+            if (pickedDate != null) {
+              final TimeOfDay? pickedTime = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.fromDateTime(date.value),
+              );
+              if (pickedTime != null) {
+                final newDateTime = DateTime(
+                  pickedDate.year,
+                  pickedDate.month,
+                  pickedDate.day,
+                  pickedTime.hour,
+                  pickedTime.minute,
                 );
+                if (newDateTime.isBefore(DateTime.now())) {
+                  Get.snackbar(
+                    "Invalid Date",
+                    "Please select a date and time in the future.",
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.redAccent,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+                date.value = newDateTime;
+                if (isFromDate) {
+                  calendarController.fromDate.value = date.value;
+                  calendarController.updateDateRange(
+                    calendarController.fromDate.value,
+                    calendarController.toDate.value,
+                  );
+                } else {
+                  calendarController.toDate.value = date.value;
+                  calendarController.updateDateRange(
+                    calendarController.fromDate.value,
+                    calendarController.toDate.value,
+                  );
+                }
               }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCalendarCell(DateTime day, bool isClickable) {
-    return Obx(() {
-      final double price = calendarController.getPriceForDate(day);
-      return Container(
-        margin: const EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(8.0),
-          color: isClickable ? Colors.white : Colors.grey.withOpacity(0.3),
-        ),
-        child: InkWell(
-          onTap: isClickable ? () => _showSetPriceDialog(day) : null,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  DateFormat('d').format(day),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isClickable ? Colors.black : Colors.grey,
-                  ),
-                ),
-                Text(
-                  '£${price.toStringAsFixed(2)}/hr',
-                  style: TextStyle(
-                    fontSize: 7,
-                    color: isClickable
-                        ? (price > 0 ? Colors.red : Colors.red)
-                        : Colors.grey,
-                  ),
-                ),
+                Text(DateFormat('dd/MM/yyyy HH:mm').format(date.value),
+                    style: const TextStyle(fontSize: 16)),
+                const Icon(Icons.calendar_today, color: Colors.grey),
               ],
             ),
           ),
         ),
-      );
-    });
+        const SizedBox(height: 20),
+      ],
+    );
   }
 
   @override
@@ -925,541 +734,302 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
           child: Padding(
             padding: const EdgeInsets.all(15.0),
             child: Form(
-              autovalidateMode: AutovalidateMode.disabled,
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Funeral Car Hire - Vendor Listing',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+                  // Section 1: Business Information
+                  const Text('SECTION 1: LISTING DETAILS',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'hireanything.com - Compassionate, Professional Transport Services',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
+                  const Text('LISTING TITLE *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Join our platform to offer dignified and reliable funeral car hire services to families and funeral planners across the UK.',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
+                  Signup_textfilled(
+                    length: 50,
+                    textcont: serviceNameController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter Listing Title",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Listing Title is required';
+                      }
+                      return null;
+                    },
                   ),
+
+                  const SizedBox(height: 20),
+                  const Text('Base Location Postcode *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: basePostcodeController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter postcode",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Base Location is required';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                  const Text('Location Radius *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: locationRadiusController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter location radius in miles",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Location radius is required';
+                      }
+                      return null;
+                    },
+                  ),
+
                   const SizedBox(height: 20),
 
-                  // SECTION 1: Business & Contact Information
-                  const Text(
-                    'SECTION 1: Business & Contact Information',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  // Section 2: Fleet Information
+                  const Text('SECTION 2: VEHICLE DETAILS',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Enter Service Name *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Make & Model *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: serviceNameController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter Service Name",
-                    ),
+                  Signup_textfilled(
+                    length: 50,
+                    textcont: makeModelController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter make and model",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Make & Model is required';
+                      }
+                      return null;
+                    },
                   ),
+
                   const SizedBox(height: 10),
-                  const Text(
-                    'Base Postcode *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Number of Seats *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: basePostcodeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter Postcode",
-                    ),
+                  Signup_textfilled(
+                    length: 2,
+                    textcont: numberOfSeatsController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter number of seats",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Number of Seats is required';
+                      }
+                      return null;
+                    },
                   ),
+
                   const SizedBox(height: 10),
-                  const Text(
-                    'Location Radius (in miles) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Luggage Capacity *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: locationRadiusController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter Radius (eg. 200 miles)",
-                    ),
+                  Signup_textfilled(
+                    length: 2,
+                    textcont: luggageCapacityController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Luggage capacity in liters",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Luggage Capacity is required';
+                      }
+                      return null;
+                    },
                   ),
+
+                  const SizedBox(height: 10),
+                  _buildDatePicker(
+                      'First Registration', firstRegistrationDate, true),
+
                   const SizedBox(height: 20),
 
-                  // SECTION 2: Funeral Transport Services Offered
-                  const Text(
-                    'SECTION 2: Funeral Transport Services Offered',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Types of Funeral Vehicles Available *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: vehicleTypes.keys
-                          .map((type) => ChoiceChip(
-                                label: Text(type),
-                                selected: vehicleTypes[type]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    vehicleTypes[type] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  if (vehicleTypes['Specialty Vehicles']!) ...[
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Signup_textfilled(
-                        length: 50,
-                        textcont: otherVehicleController,
-                        textfilled_height: 17,
-                        textfilled_weight: 1,
-                        keytype: TextInputType.text,
-                        hinttext: "Other (please specify)",
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Number of Vehicles in Fleet',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: fleetSizeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter number of vehicles",
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                  // Section 3: Pricing Details
+                  const Text('SECTION 3: Pricing Structure',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
 
-                  // SECTION 3: Fleet Information
-                  const Text(
-                    'Fleet Information',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Vehicle Type *',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Signup_textfilled(
-                                length: 50,
-                                textcont: vehicleTypeController,
-                                textfilled_height: 17,
-                                textfilled_weight: 1,
-                                keytype: TextInputType.text,
-                                hinttext: "Vehicle Type",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Make/Model *',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Signup_textfilled(
-                                length: 50,
-                                textcont: makeModelController,
-                                textfilled_height: 17,
-                                textfilled_weight: 1,
-                                keytype: TextInputType.text,
-                                hinttext: "Make/Model",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Luggage *',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Signup_textfilled(
-                                length: 50,
-                                textcont: luggageCapacityController,
-                                textfilled_height: 17,
-                                textfilled_weight: 1,
-                                keytype: TextInputType.text,
-                                hinttext: "Luggage Capacity",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  const Text('Day Rate (up to 10 hour hire) (£)*',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: dayRateController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter day rate",
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
                     ],
                   ),
+
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Seats *',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Signup_textfilled(
-                                length: 10,
-                                textcont: numberOfSeatController,
-                                textfilled_height: 17,
-                                textfilled_weight: 1,
-                                keytype: TextInputType.number,
-                                hinttext: "Number Of Seats",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Year *',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Signup_textfilled(
-                                length: 4,
-                                textcont: yearController,
-                                textfilled_height: 17,
-                                textfilled_weight: 1,
-                                keytype: TextInputType.number,
-                                hinttext: "Year",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Notes *',
-                              style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Signup_textfilled(
-                                length: 100,
-                                textcont: notesController,
-                                textfilled_height: 17,
-                                textfilled_weight: 1,
-                                keytype: TextInputType.text,
-                                hinttext: "Notes",
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  const Text('Mileage Limit *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: mileageLimitController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Minimum 200 miles",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Mileage Limit is required';
+                      }
+                      final limit = double.tryParse(value) ?? 0;
+                      if (limit < 200) {
+                        return 'Minimum 200 miles required';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+                  const Text('Extra Mileage Charge (£/mile) *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: extraMileageChargeController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "Enter extra mileage charge",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Extra Mileage Charge is required';
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d{0,2}$'))
                     ],
                   ),
+
+                  const SizedBox(height: 10),
+                  const Text('Hourly Rate (£) *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: hourlyRateController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "enter hourly rate",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Hourly Rate is required';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+                  const Text('Half Day (up to 5 hour hire) (£) *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 10,
+                    textcont: halfDayRateController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.number,
+                    hinttext: "enter half day rate",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Half Day Rate is required';
+                      }
+                      return null;
+                    },
+                  ),
+
                   const SizedBox(height: 20),
 
-                  // SECTION 4: Pricing Details
-                  const Text(
-                    'Pricing Details (Day Hire Model)',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Each partner must offer a day hire rate (standard: 10 hours/100 miles).',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Day Rate (10 hrs / 100 miles) (£) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: dayRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter day rate",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Mileage Limit (minimum 200 miles) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: mileageLimitController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter mileage limit",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Extra Mileage Charge (£/mile) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: extraMileageChargeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter extra mileage charge",
-                    ),
-                  ),
-                 
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Standard Funeral Service *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: standardFuneralServiceController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter standard funeral service",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'VIP Funeral Service *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: vipFuneralServiceController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter VIP funeral service",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Hourly Pricing Model',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Enter "starting from" prices',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Hourly Rate (£) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: hourlyRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter hourly rate",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Half-Day Rate (£) (5 hours) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: halfDayRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter half-day rate",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Fuel Charges Included?',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Yes',
-                          value: fuelChargesIncluded,
-                          onChanged: (value) {
-                            setState(() {
-                              fuelChargesIncluded = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'No',
-                          value: !fuelChargesIncluded,
-                          onChanged: (value) {
-                            setState(() {
-                              fuelChargesIncluded = !value!;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // SECTION 5: Coverage & Availability
-                  const Text(
-                    'Coverage & Availability',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  // Section 4: Coverage & Availability
+                  const Text('SECTION 4: Coverage & Availability',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   _buildCitySelection('Areas Covered', areasCovered),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Service Status *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select Service Status",
-                      items: ['Open', 'Close'],
-                      selectedValue: serviceStatus,
-                      onChanged: (value) {
-                        setState(() {
-                          serviceStatus = value;
-                        });
-                      },
-                    ),
-                  ),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Service Availability Period',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  const Text('Service Status *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  CustomDropdown(
+                    hintText: "Select Service Status",
+                    items: ['open', 'close'],
+                    selectedValue: serviceStatus,
+                    onChanged: (value) {
+                      setState(() {
+                        serviceStatus = value;
+                      });
+                    },
                   ),
+
+                  const SizedBox(height: 20),
+
+                  // Section 5: Service Availability Period
+                  const Text('Service Availability Period',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 5),
                   const Text(
-                    'Select the period during which your service will be available',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
+                      'Select the Period during which your service will be available',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w300,
+                          color: Color.fromARGB(255, 109, 104, 104))),
                   const SizedBox(height: 20),
-                  Obx(() => _buildDatePicker(context, "From", fromDate, true)),
-                  Obx(() => _buildDatePicker(context, "To", toDate, false)),
+
+                  Obx(() => _buildDatePicker(
+                      "From", calendarController.fromDate, true)),
+                  Obx(() =>
+                      _buildDatePicker("To", calendarController.toDate, false)),
+
                   const SizedBox(height: 10),
                   Obx(() {
                     DateTime focusedDay = calendarController.fromDate.value;
@@ -1491,20 +1061,19 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                       ),
                     );
                   }),
+
                   const SizedBox(height: 20),
-                  const Text(
-                    'Special Prices Summary',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                  const Text('Special Prices Summary',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 150,
                     child: calendarController.specialPrices.length == 0
-                        ? Center(
-                            child: Text(
-                            'No special prices set yet',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
-                          ))
+                        ? const Center(
+                            child: Text('No special prices set yet',
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black)))
                         : Obx(() => ListView.builder(
                               shrinkWrap: true,
                               itemCount:
@@ -1527,28 +1096,23 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        DateFormat('EEE, d MMM yyyy')
-                                            .format(date),
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
+                                          DateFormat('EEE, d MMM yyyy')
+                                              .format(date),
+                                          style: const TextStyle(fontSize: 16)),
                                       Row(
                                         children: [
                                           Text(
-                                            '£${price.toStringAsFixed(2)}/hr',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: price > 0
-                                                  ? Colors.black
-                                                  : Colors.red,
-                                            ),
-                                          ),
+                                              '£${price.toStringAsFixed(2)}/hr',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: price > 0
+                                                      ? Colors.black
+                                                      : Colors.red)),
                                           IconButton(
                                             icon: const Icon(Icons.delete,
                                                 color: Colors.red),
-                                            onPressed: () {
-                                              calendarController
-                                                  .deleteSpecialPrice(date);
-                                            },
+                                            onPressed: () => calendarController
+                                                .deleteSpecialPrice(date),
                                           ),
                                         ],
                                       ),
@@ -1558,620 +1122,18 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                               },
                             )),
                   ),
-                  const SizedBox(height: 20),
-
-                  // SECTION 6: Accessibility And Special Services
-                  const Text(
-                    'SECTION 3: Driver & Service Details',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Accessibility And Special Services *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: accessibilitySpecial.keys.map((service) {
-                        bool isSelected = accessibilitySpecial[service]!;
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ChoiceChip(
-                              label: Text(service),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  accessibilitySpecial[service] = selected;
-                                });
-                              },
-                            ),
-                            if (isSelected &&
-                                service == 'Wheelchair Accessible Vehicle')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: wheelchairAccessPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                ),
-                              ),
-                            if (isSelected &&
-                                service == 'Visual/Hearing Impaired Support')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: visualHearingSupportPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                ),
-                              ),
-                            if (isSelected && service == 'Language Translation')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: languageTranslationPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                ),
-                              ),
-                            if (isSelected &&
-                                service == 'Care/Attendant Assistance')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: careAttendantPriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                ),
-                              ),
-                            if (isSelected &&
-                                service == 'Assistance with Boarding')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: boardingAssistancePriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                ),
-                              ),
-                            if (isSelected &&
-                                service == 'Priority Service for Elderly')
-                              SizedBox(
-                                width: 80,
-                                child: Signup_textfilled(
-                                  length: 10,
-                                  textcont: priorityServicePriceController,
-                                  textfilled_height: 17,
-                                  textfilled_weight: 1,
-                                  keytype: TextInputType.number,
-                                  hinttext: "Price (£)",
-                                ),
-                              ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: driverDetails.keys
-                          .map((detail) => ChoiceChip(
-                                label: Text(detail),
-                                selected: driverDetails[detail]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    driverDetails[detail] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Funeral Service Type *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select Funeral Service Type",
-                      items: ['Non-Religious', 'Additional Support Services'],
-                      selectedValue: funeralServiceType,
-                      onChanged: (value) {
-                        setState(() {
-                          funeralServiceType = value;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Additional Support Services',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: additionalSupportServices.keys
-                          .map((service) => ChoiceChip(
-                                label: Text(service),
-                                selected: additionalSupportServices[service]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    additionalSupportServices[service] =
-                                        selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // SECTION 8: Licensing & Insurance
-                  const Text(
-                    'SECTION 4: Licensing & Insurance',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Private Hire/Operator Licence Number *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: privateHireOperatorLicenceNumberController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter licence number",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Licensing Authority *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: licensingAuthorityController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter licensing authority",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Public Liability Insurance Provider *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: publicLiabilityInsuranceProviderController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter insurance provider",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Policy Number *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: policyNumberController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter policy number",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Policy Expiry Date *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: policyExpiryDateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "dd-mm-yyyy",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: operatorLicenceEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            operatorLicenceEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("Operator Licence"),
-                      const SizedBox(width: 20),
-                      if (operatorLicenceEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: operatorLicenceEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              operatorLicenceEnabled = value!;
-                              operatorLicencePaths.clear();
-                            });
-                          },
-                        ),
-                      if (operatorLicenceEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (operatorLicenceEnabled)
-                    _buildDocumentUploadSection(
-                        "Operator Licence", operatorLicencePaths, true),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: insuranceCertificateEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            insuranceCertificateEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("Insurance Certificate"),
-                      const SizedBox(width: 20),
-                      if (insuranceCertificateEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: insuranceCertificateEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              insuranceCertificateEnabled = value!;
-                              insuranceCertificatePaths.clear();
-                            });
-                          },
-                        ),
-                      if (insuranceCertificateEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (insuranceCertificateEnabled)
-                    _buildDocumentUploadSection("Insurance Certificate",
-                        insuranceCertificatePaths, true),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: driverLicencesEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            driverLicencesEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("Driver Licences"),
-                      const SizedBox(width: 20),
-                      if (driverLicencesEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: driverLicencesEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              driverLicencesEnabled = value!;
-                              driverLicencesPaths.clear();
-                            });
-                          },
-                        ),
-                      if (driverLicencesEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (driverLicencesEnabled)
-                    _buildDocumentUploadSection(
-                        "Driver Licences", driverLicencesPaths, true),
-                  Row(
-                    children: [
-                      Radio<bool>(
-                        value: true,
-                        groupValue: vehicleMotCertificatesEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            vehicleMotCertificatesEnabled = value!;
-                          });
-                        },
-                      ),
-                      const Text("Vehicle MOT Certificates"),
-                      const SizedBox(width: 20),
-                      if (vehicleMotCertificatesEnabled)
-                        Radio<bool>(
-                          value: false,
-                          groupValue: vehicleMotCertificatesEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              vehicleMotCertificatesEnabled = value!;
-                              vehicleMotCertificatesPaths.clear();
-                            });
-                          },
-                        ),
-                      if (vehicleMotCertificatesEnabled) const Text("Deselect"),
-                    ],
-                  ),
-                  if (vehicleMotCertificatesEnabled)
-                    _buildDocumentUploadSection("Vehicle MOT Certificates",
-                        vehicleMotCertificatesPaths, true),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Updated header with requirement indicator
-                      Row(
-                        children: [
-                          const Text(
-                            'Fleet Photos',
-                            style:
-                                TextStyle(color: Colors.black87, fontSize: 16),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: fleetPhotosPaths.length >= 5
-                                  ? Colors.green
-                                  : Colors.orange,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${fleetPhotosPaths.length}/5 required',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Display uploaded images
-                      if (fleetPhotosPaths.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Center(
-                            child: Obx(() => Wrap(
-                                  spacing: 8.0,
-                                  runSpacing: 4.0,
-                                  children: List.generate(
-                                      fleetPhotosPaths.length, (index) {
-                                    return Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: _buildImageWidget(
-                                              fleetPhotosPaths[index]),
-                                        ),
-                                        Positioned(
-                                          top: 2,
-                                          right: 2,
-                                          child: GestureDetector(
-                                            onTap: () => imageController
-                                                .removeImage(index),
-                                            child: Container(
-                                              decoration: const BoxDecoration(
-                                                color: Colors.red,
-                                                shape: BoxShape.circle,
-                                              ),
-                                              child: const Icon(
-                                                Icons.close,
-                                                color: Colors.white,
-                                                size: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                                )),
-                          ),
-                        ),
-
-                      const SizedBox(height: 20),
-
-                      GestureDetector(
-                        onTap: fleetPhotosPaths.length >= 10
-                            ? null
-                            : () {
-                                if (fleetPhotosPaths.length >= 10) {
-                                  Get.snackbar(
-                                    'Limit Reached',
-                                    'Maximum 10 images allowed',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                    backgroundColor: Colors.orange,
-                                    colorText: Colors.white,
-                                  );
-                                  return;
-                                }
-                                _showImagePickerBottomSheet(context);
-                              },
-                        child: DottedBorder(
-                          color: fleetPhotosPaths.length >= 5
-                              ? Colors.green
-                              : (fleetPhotosPaths.length >= 10
-                                  ? Colors.grey
-                                  : Colors.black),
-                          strokeWidth: 2,
-                          dashPattern: const [5, 5],
-                          child: Container(
-                            height: 150,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: fleetPhotosPaths.length >= 10
-                                  ? Colors.grey.withOpacity(0.1)
-                                  : null,
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    fleetPhotosPaths.length >= 10
-                                        ? Icons.check_circle
-                                        : Icons.cloud_upload_outlined,
-                                    size: 40,
-                                    color: fleetPhotosPaths.length >= 5
-                                        ? Colors.green
-                                        : (fleetPhotosPaths.length >= 10
-                                            ? Colors.grey
-                                            : Colors.grey),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    fleetPhotosPaths.length >= 10
-                                        ? "Maximum images reached (10/10)"
-                                        : fleetPhotosPaths.length >= 5
-                                            ? "Minimum requirement met! Add more if needed"
-                                            : "Click to upload PNG, JPG (max 5MB)\nMinimum 5 images required",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: fleetPhotosPaths.length >= 5
-                                          ? Colors.green
-                                          : Colors.grey,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Error message if less than 5 images
-                      if (fleetPhotosPaths.length < 5)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            'Please upload at least ${5 - fleetPhotosPaths.length} more image(s)',
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
 
                   const SizedBox(height: 20),
-
-                  // SECTION 5: Business Highlights
-                  const Text(
-                    'SECTION 5: Business Highlights',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'What makes your service unique or premium?',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 100,
-                      textcont: uniqueServiceController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter unique service details",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Promotional Description (max 100 words)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 100,
-                      textcont: promotionalDescriptionController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter promotional description",
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // SECTION 6: Declaration & Agreement
-                  const Text(
-                    'SECTION 6: Declaration & Agreement',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Cancellation Policy *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
+                  const Text('Cancellation Policy *',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                   CustomDropdown(
                     hintText: "Select a Cancellation Policy",
                     items: cancellationPolicyMap.keys.toList(),
                     selectedValue: cancellationPolicyMap.entries
                         .firstWhere(
-                          (entry) => entry.value == cancellationPolicy,
-                          orElse: () => MapEntry("", ""),
-                        )
+                            (entry) => entry.value == cancellationPolicy,
+                            orElse: () => const MapEntry("", ""))
                         .key,
                     onChanged: (value) {
                       setState(() {
@@ -2180,101 +1142,392 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title:
-                          'I confirm that all information provided is accurate and current.',
-                      value: agreeTerms,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeTerms = value!;
-                        });
-                      },
-                    ),
+
+                  // Section 5: Service Details & Offerings
+                  const Text('SECTION 5: Service Details & Offerings',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Left Column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Driver & Service Standards
+                            Row(
+                              children: [
+                                const Text('Driver & Service Standards',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold)),
+                                const Text(' *',
+                                    style: TextStyle(color: Colors.red)),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            ...driverDetails.keys
+                                .map((detail) => CheckboxListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(detail),
+                                      value: driverDetails[detail],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          driverDetails[detail] =
+                                              value ?? false;
+                                        });
+                                      },
+                                    )),
+
+                            const SizedBox(height: 20),
+
+                            // Funeral Service Type
+                            Row(
+                              children: [
+                                const Text('Funeral Service Type',
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold)),
+                                const Text(' *',
+                                    style: TextStyle(color: Colors.red)),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            CustomDropdown(
+                              hintText: "Select a service type",
+                              items: [
+                                'Religious',
+                                'Non-Religious',
+                                'Both religious & non-religious'
+                              ],
+                              selectedValue: funeralServiceType,
+                              onChanged: (value) {
+                                setState(() {
+                                  funeralServiceType = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(width: 40),
+
+                      // Right Column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Additional Support Services (Optional)',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 10),
+                            ...additionalSupportServices.keys
+                                .map((service) => CheckboxListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(service),
+                                      value: additionalSupportServices[service],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          additionalSupportServices[service] =
+                                              value ?? false;
+                                        });
+                                      },
+                                    )),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Accessibility & Special Services
+                  Row(
+                    children: [
+                      const Text('Accessibility & Special Services',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                      const Text(' *', style: TextStyle(color: Colors.red)),
+                    ],
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title:
-                          'I have not shared any contact details (Email, Phone, Skype, Website etc.)',
-                      value: noContactDetails,
-                      onChanged: (value) {
-                        setState(() {
-                          noContactDetails = value!;
-                        });
-                      },
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 8,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 8,
+                    ),
+                    itemCount: accessibilitySpecial.length,
+                    itemBuilder: (context, index) {
+                      String key = accessibilitySpecial.keys.elementAt(index);
+                      return CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(key),
+                        value: accessibilitySpecial[key],
+                        onChanged: (value) {
+                          setState(() {
+                            accessibilitySpecial[key] = value ?? false;
+                          });
+                        },
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Section 6: Photo and Media
+                  const Text('SECTION 6: Photos & Media',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  const Text("Fleet Images * (Upload minimum 5 images)",
+                      style: TextStyle(color: Colors.black87, fontSize: 16)),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Obx(() => Wrap(
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children:
+                              List.generate(fleetPhotosPaths.length, (index) {
+                            return Stack(
+                              children: [
+                                Image.file(
+                                  File(fleetPhotosPaths[index]),
+                                  fit: BoxFit.cover,
+                                  height: 60,
+                                  width: 60,
+                                ),
+                                Positioned(
+                                  top: 2,
+                                  right: 2,
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        fleetPhotosPaths.removeAt(index),
+                                    child: const Icon(Icons.close,
+                                        color: Colors.redAccent),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        )),
+                  ),
+
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              ListTile(
+                                leading: const Icon(Icons.camera),
+                                title: const Text('Take a Photo'),
+                                onTap: () async {
+                                  await imageController.pickImages(true);
+                                  if (imageController
+                                      .selectedImages.isNotEmpty) {
+                                    fleetPhotosPaths
+                                        .addAll(imageController.selectedImages);
+                                    imageController.selectedImages.clear();
+                                  }
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.photo_library),
+                                title: const Text('Choose from Gallery'),
+                                onTap: () async {
+                                  await imageController.pickImages(false);
+                                  if (imageController
+                                      .selectedImages.isNotEmpty) {
+                                    fleetPhotosPaths
+                                        .addAll(imageController.selectedImages);
+                                    imageController.selectedImages.clear();
+                                  }
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: DottedBorder(
+                      color: Colors.black,
+                      strokeWidth: 2,
+                      dashPattern: const [5, 5],
+                      child: Container(
+                        height: 150,
+                        width: double.infinity,
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.cloud_upload_outlined,
+                                  size: 40, color: Colors.grey),
+                              Text(
+                                "Click to upload PNG, JPG (max 5MB)",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w700),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
+
+                  const SizedBox(height: 20),
+
+                  // Section 7: Business Highlights
+                  const Text('SECTION 7: Business Highlights',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'I agree to the Cookies Policy',
-                      value: agreeCookies,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeCookies = value!;
-                        });
-                      },
-                    ),
+                  const Text('What makes your service unique or premium?',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 100,
+                    textcont: uniqueServiceController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter unique service details",
                   ),
                   const SizedBox(height: 10),
+                  const Text('Promotional Description (max 100 words)',
+                      style:
+                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  Signup_textfilled(
+                    length: 100,
+                    textcont: promotionalDescriptionController,
+                    textfilled_height: 17,
+                    textfilled_weight: 1,
+                    keytype: TextInputType.text,
+                    hinttext: "Enter promotional description",
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Section 8: Coupons / Discounts
+                  const Text("Coupons / Discounts",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
                   SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'I agree to the Privacy Policy',
-                      value: agreePrivacy,
-                      onChanged: (value) {
-                        setState(() {
-                          agreePrivacy = value!;
-                        });
-                      },
+                    width: w * 0.45,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () => Get.dialog(AddCouponDialog()),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green),
+                      child: const Text("Add Coupon",
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'I agree to the Cancellation Fee Policy',
-                      value: agreeCancellation,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeCancellation = value!;
-                        });
-                      },
-                    ),
+                  const SizedBox(height: 20),
+                  Obx(() => couponController.coupons.isEmpty
+                      ? const SizedBox.shrink()
+                      : CouponList()),
+
+                  const SizedBox(height: 20),
+
+                  // Section 9: Declaration & Agreement
+                  const Text('Declaration & Agreement',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  CustomCheckbox(
+                    title:
+                        'I confirm that all information provided is accurate and current. *',
+                    value: agreeTerms,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeTerms = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  CustomCheckbox(
+                    title:
+                        'I have not shared any contact details (Email, Phone, Skype, Website, etc.). *',
+                    value: noContactDetails,
+                    onChanged: (value) {
+                      setState(() {
+                        noContactDetails = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  CustomCheckbox(
+                    title: 'I agree to the Cookies Policy. *',
+                    value: agreeCookies,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeCookies = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  CustomCheckbox(
+                    title: 'I agree to the Privacy Policy. *',
+                    value: agreePrivacy,
+                    onChanged: (value) {
+                      setState(() {
+                        agreePrivacy = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  CustomCheckbox(
+                    title: 'I agree to the Cancellation Fee Policy. *',
+                    value: agreeCancellation,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeCancellation = value!;
+                      });
+                    },
                   ),
                   const SizedBox(height: 20),
                   Text(
                       'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
+
                   const SizedBox(height: 20),
+
+                  // Submit Button
                   Container(
                     width: w,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isSubmitting
-                          ? null
-                          : () {
-                              _submitForm();
-                            },
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                                (states) => Colors.green),
-                      ),
+                      onPressed: _isSubmitting ? null : _submitForm,
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green),
                       child: _isSubmitting
                           ? const SizedBox(
                               height: 24,
                               width: 24,
                               child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
-                              ),
+                                  color: Colors.white, strokeWidth: 2.5),
                             )
                           : const Text(
-                              "Submit Funeral Service",
+                              "Submit",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
@@ -2290,113 +1543,5 @@ class _FuneralCarHireServiceState extends State<FuneralCarHireService> {
         ),
       ),
     );
-  }
-
-  // Helper method to build image widget (handles both File and URL)
-  Widget _buildImageWidget(String imagePath) {
-    if (imagePath.startsWith('http')) {
-      // Handle URL images
-      return Image.network(
-        imagePath,
-        fit: BoxFit.cover,
-        height: 60,
-        width: 60,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            height: 60,
-            width: 60,
-            color: Colors.grey[300],
-            child: const Center(
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          );
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            height: 60,
-            width: 60,
-            color: Colors.grey[300],
-            child: const Icon(Icons.error, color: Colors.red),
-          );
-        },
-      );
-    } else {
-      // Handle local file images
-      return Image.file(
-        File(imagePath),
-        fit: BoxFit.cover,
-        height: 60,
-        width: 60,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            height: 60,
-            width: 60,
-            color: Colors.grey[300],
-            child: const Icon(Icons.error, color: Colors.red),
-          );
-        },
-      );
-    }
-  }
-
-  void _showImagePickerBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.camera),
-                title: const Text('Take a Photo'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _pickImage(true);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from Gallery'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _pickImage(false);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.close),
-                title: const Text('Cancel'),
-                onTap: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-// Add this helper method for image picking
-  Future<void> _pickImage(bool isCamera) async {
-    try {
-      await imageController.pickImages(isCamera);
-
-      // Sync with fleetPhotosPaths
-      if (imageController.selectedImages.isNotEmpty) {
-        fleetPhotosPaths.addAll(imageController.selectedImages);
-        imageController.selectedImages.clear();
-      }
-    } catch (e) {
-      _showError('Error picking image: $e');
-    }
-  }
-
-// Update the remove image method
-  void _removeFleetImage(int index) {
-    if (index >= 0 && index < fleetPhotosPaths.length) {
-      fleetPhotosPaths.removeAt(index);
-      // Also remove from image controller if needed
-      imageController.removeImage(index);
-    }
   }
 }
