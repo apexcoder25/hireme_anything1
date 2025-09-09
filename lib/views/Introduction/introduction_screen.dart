@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hire_any_thing/Auth/agree.dart';
 import 'package:hire_any_thing/data/session_manage/session_user_side_manage.dart';
 import 'package:hire_any_thing/views/UserHomePage/user_home_page.dart';
 
@@ -15,9 +16,11 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
   final List<Map<String, dynamic>> slides = [
     {
-      'image': 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=75',
+      'image':
+          'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=75',
       'title': 'Expert Services at Your Fingertips',
-      'subtitle': 'Connect with verified professionals for all your service needs',
+      'subtitle':
+          'Connect with verified professionals for all your service needs',
       'features': [
         {'title': 'Flexible', 'subtitle': 'Available'},
         {'title': 'Best', 'subtitle': 'Quality'},
@@ -25,7 +28,8 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       ],
     },
     {
-      'image': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop',
       'title': 'Professional Tutoring',
       'subtitle': 'Expert tutors for all subjects and levels',
       'features': [
@@ -35,7 +39,8 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       ],
     },
     {
-      'image': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop',
+      'image':
+          'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop',
       'title': 'Reliable Transport',
       'subtitle': 'Professional transport for all your moving needs',
       'features': [
@@ -59,7 +64,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       });
     } else {
       _markOnboardingAsSeen(); // Mark onboarding as seen
-      Get.off(() => UserHomePageScreen());
+      Get.offAll(() => const Agree_screen());
     }
   }
 
@@ -125,7 +130,8 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: slides[index]['features']
                               .map<Widget>((feature) => Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
                                     child: FeatureBox(
                                       title: feature['title'],
                                       subtitle: feature['subtitle'],
