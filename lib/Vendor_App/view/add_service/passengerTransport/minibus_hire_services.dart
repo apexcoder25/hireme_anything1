@@ -43,176 +43,89 @@ class MinibusHireService extends StatefulWidget {
 class _MinibusHireServiceState extends State<MinibusHireService> {
   final ImageController imageController = Get.put(ImageController());
   final CouponController couponController = Get.put(CouponController());
-  final CalendarController calenderController = Get.put(CalendarController());
+  final CalendarController calendarController = Get.put(CalendarController());
   final CityFetchController cityFetchController =
       Get.put(CityFetchController());
 
-  // Section 1: Service Category
+  // Essential Controllers
   TextEditingController serviceNameController = TextEditingController();
-  Map<String, bool> serviceCategories = {
-    'Local Group Transport': false,
-    'Airport Transfers': false,
-    'School Trips': false,
-    'Corporate Transport': false,
-    'Event/Wedding Shuttles': false,
-    'Day Tours': false,
-    'Contract Hire': false,
-    'Accessible Minibus Hire': false,
-    'Other': false,
-  };
-  TextEditingController otherServiceCategoryController =
-      TextEditingController();
-
-  // Section 2: Fleet / Vehicle Details
   TextEditingController basePostcodeController = TextEditingController();
   TextEditingController locationRadiusController = TextEditingController();
   TextEditingController makeAndModelController = TextEditingController();
-  TextEditingController yearController = TextEditingController();
-  TextEditingController capacityController = TextEditingController();
-  TextEditingController notesController = TextEditingController();
-  TextEditingController availableMinibusesController = TextEditingController();
-  bool airConditioning = false;
-  bool wheelchairAccessible = false;
-  bool luggageSpace = false;
-  bool seatBeltsAllVehicles = false;
-  String foodDrinksAllowed = 'Select Option';
-  final Map<String, String> cancellationPolicyMap = {
-    'Flexible-Full refund if canceled 48+ hours in advance': 'FLEXIBLE',
-    'Moderate-Full refund if canceled 72+ hours in advance': 'MODERATE',
-    'Strict-Full refund if canceled 7+ days in advance': 'STRICT',
-  };
-
-  // Section 3: Booking Types
-  Map<String, bool> bookingTypes = {
-    'One Way': false,
-    'Return': false,
-    'Hourly Hire': false,
-    'Daily Long Term Hire': false,
-    'Contractual': false,
-  };
-
-  // Section 4: Pricing Structure
+  TextEditingController seatsController = TextEditingController();
+  TextEditingController luggageCapacityController = TextEditingController();
   TextEditingController hourlyRateController = TextEditingController();
   TextEditingController halfDayRateController = TextEditingController();
   TextEditingController fullDayRateController = TextEditingController();
-  TextEditingController mileageAllowanceController = TextEditingController();
-  TextEditingController additionalMileageFeeController =
-      TextEditingController();
+  TextEditingController mileageLimitController = TextEditingController();
+  TextEditingController extraMileageChargeController = TextEditingController();
 
-  // Section 5: Coverage & Availability
+  // State Variables
   RxList<String> areasCovered = <String>[].obs;
-  String? serviceStatus;
-  bool available24x7 = false;
-  TextEditingController operatingHoursController = TextEditingController();
+  RxList<String> minibusPhotosPaths = <String>[].obs;
+  Rx<DateTime> firstRegistrationDate = DateTime.now().obs;
   Rx<DateTime> fromDate = DateTime.now().obs;
   Rx<DateTime> toDate = DateTime.now().obs;
 
-  // Section 6: Documents Required
-  RxList<String> operatorLicencePaths = <String>[].obs;
-  RxList<String> driversLicencePaths = <String>[].obs;
-  RxList<String> publicLiabilityInsurancePaths = <String>[].obs;
-  RxList<String> vehicleInsuranceAndMOTsPaths = <String>[].obs;
-  RxList<String> dbsCertificatesPaths = <String>[].obs;
-  RxList<String> minibusPhotosPaths = <String>[].obs;
+  // Simple boolean variables for radio buttons
+  bool wheelchairAccessible = false;
+  bool airConditioning = false;
+  bool luggageSpace = false;
 
-  // Section 7: Driver Details
-  bool fullyLicensedInsured = false;
-  bool dbsChecked = false;
-  String dressCode = 'Formal';
+  // Other Variables
+  String? serviceStatus;
+  String? cancellationPolicy;
   String? vendorId;
+  bool _isSubmitting = false;
 
-  // Section 8: Cancellation Policy
-  String cancellationPolicy = 'Select a Cancellation Policy';
-
-  // Section 9: Licensing & Documents
-  TextEditingController privateHireOperatorLicenceNumberController =
-      TextEditingController();
-  TextEditingController licensingAuthorityController = TextEditingController();
-  TextEditingController publicLiabilityInsuranceProviderController =
-      TextEditingController();
-  TextEditingController policyNumberController = TextEditingController();
-  Rx<DateTime> expiryDate = DateTime.now().obs;
-
-  //sec 11 bussiness details
-
-  TextEditingController uniqueFeaturesController = TextEditingController();
-
-  //sec 12
-
+  // Declaration Flags
   bool agreeTerms = false;
   bool noContactDetails = false;
-  bool cookies = false;
-  bool ispvc = false;
+  bool agreeCookies = false;
+  bool agreePrivacy = false;
   bool agreeCancellation = false;
 
-  bool _isSubmitting = false;
+  final Map<String, String> cancellationPolicyMap = {
+    'Flexible-Full refund if canceled 48+ hours in advance': "FLEXIBLE",
+    'Moderate-Full refund if canceled 72+ hours in advance': "MODERATE",
+    'Strict-Full refund if canceled 7+ days in advance': "STRICT",
+  };
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-
     _loadVendorId();
 
-    // Listen to hourly rate changes
-    hourlyRateController.addListener(() {
-      double price = double.tryParse(hourlyRateController.text) ?? 0.0;
-      calenderController.setDefaultPrice(price);
-    });
-
-    // Defer setting dates and calendar controller values until after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final now = DateTime.now();
+      if (fromDate.value.isBefore(now)) fromDate.value = now;
+      if (toDate.value.isBefore(now)) toDate.value = now;
+      calendarController.fromDate.value = fromDate.value;
+      calendarController.toDate.value = toDate.value;
+    });
 
-      if (fromDate.value.isBefore(now)) {
-        fromDate.value = now;
-      }
-
-      if (toDate.value.isBefore(now)) {
-        toDate.value = now;
-      }
-
-      calenderController.fromDate.value = fromDate.value;
-      calenderController.toDate.value = toDate.value;
+    hourlyRateController.addListener(() {
+      calendarController
+          .setDefaultPrice(double.tryParse(hourlyRateController.text) ?? 0.0);
     });
   }
 
   @override
   void dispose() {
     serviceNameController.dispose();
-    otherServiceCategoryController.dispose();
     basePostcodeController.dispose();
-    imageController.dispose();
     locationRadiusController.dispose();
     makeAndModelController.dispose();
-    yearController.dispose();
-    capacityController.dispose();
-    notesController.dispose();
-    availableMinibusesController.dispose();
+    seatsController.dispose();
+    luggageCapacityController.dispose();
     hourlyRateController.dispose();
     halfDayRateController.dispose();
     fullDayRateController.dispose();
-    mileageAllowanceController.dispose();
-    additionalMileageFeeController.dispose();
-    operatingHoursController.dispose();
-    privateHireOperatorLicenceNumberController.dispose();
-    licensingAuthorityController.dispose();
-    publicLiabilityInsuranceProviderController.dispose();
-    policyNumberController.dispose();
+    mileageLimitController.dispose();
+    extraMileageChargeController.dispose();
     hourlyRateController.removeListener(() {});
-    imageController.selectedImages.clear();
-    imageController.uploadedUrls.clear();
-    operatorLicencePaths.clear();
-    driversLicencePaths.clear();
-    publicLiabilityInsurancePaths.clear();
-    vehicleInsuranceAndMOTsPaths.clear();
-    dbsCertificatesPaths.clear();
-    minibusPhotosPaths.clear();
-    couponController.coupons.clear();
-    calenderController.specialPrices.clear();
-    calenderController.visibleDates.clear();
-    uniqueFeaturesController.dispose();
     super.dispose();
   }
 
@@ -221,157 +134,28 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
     setState(() {});
   }
 
-  Future<bool> _uploadDocuments() async {
-    try {
-      imageController.selectedImages.clear();
-      imageController.uploadedUrls.clear();
-
-      if (operatorLicencePaths.isNotEmpty)
-        imageController.selectedImages.add(operatorLicencePaths.first);
-      if (driversLicencePaths.isNotEmpty)
-        imageController.selectedImages.add(driversLicencePaths.first);
-      if (publicLiabilityInsurancePaths.isNotEmpty)
-        imageController.selectedImages.add(publicLiabilityInsurancePaths.first);
-      if (vehicleInsuranceAndMOTsPaths.isNotEmpty)
-        imageController.selectedImages.add(vehicleInsuranceAndMOTsPaths.first);
-      if (dbsCertificatesPaths.isNotEmpty)
-        imageController.selectedImages.add(dbsCertificatesPaths.first);
-      if (minibusPhotosPaths.isNotEmpty)
-        imageController.selectedImages.addAll(minibusPhotosPaths);
-
-      for (var path in imageController.selectedImages) {
-        await imageController.uploadToCloudinary(path);
-      }
-
-      int requiredDocs = 0;
-      if (operatorLicencePaths.isNotEmpty) requiredDocs++;
-      if (driversLicencePaths.isNotEmpty) requiredDocs++;
-      if (publicLiabilityInsurancePaths.isNotEmpty) requiredDocs++;
-      if (vehicleInsuranceAndMOTsPaths.isNotEmpty) requiredDocs++;
-      if (dbsCertificatesPaths.isNotEmpty) requiredDocs++;
-      int additionalPhotos = minibusPhotosPaths.length;
-
-      // if (imageController.uploadedUrls.length !=
-      //     (requiredDocs + additionalPhotos)) {
-      //   Get.snackbar(
-      //     "Upload Error",
-      //     "One or more documents failed to upload.",
-      //     snackPosition: SnackPosition.BOTTOM,
-      //     backgroundColor: Colors.redAccent,
-      //     colorText: Colors.white,
-      //     duration: const Duration(seconds: 3),
-      //   );
-      //   return false;
-      // }
-
-      return true;
-    } catch (e) {
-      Get.snackbar(
-        "Upload Error",
-        "Failed to upload documents: $e",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-      return false;
-    }
-  }
-
   void _submitForm() async {
     if (!_formKey.currentState!.validate()) {
-      Get.snackbar(
-          "Validation Error", "Please fill all required fields correctly.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    if (!serviceCategories.values.any((v) => v)) {
-      Get.snackbar(
-          "Missing Information", "Please select at least one service category.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
+      _showError("Please fill all required fields correctly.");
       return;
     }
 
     if (areasCovered.isEmpty) {
-      Get.snackbar(
-          "Missing Information", "At least one area covered is required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    final hourlyRate = double.tryParse(hourlyRateController.text.trim()) ?? 0;
-    final halfDayRate = double.tryParse(halfDayRateController.text.trim()) ?? 0;
-    final fullDayRate = double.tryParse(fullDayRateController.text.trim()) ?? 0;
-    final mileageAllowance =
-        double.tryParse(mileageAllowanceController.text.trim()) ?? 0;
-    final additionalMileageFee =
-        double.tryParse(additionalMileageFeeController.text.trim()) ?? 0;
-
-    if (hourlyRate == 0 && halfDayRate == 0 && fullDayRate == 0) {
-      Get.snackbar("Missing Information", "At least one rate must be provided.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
+      _showError("At least one area covered is required.");
       return;
     }
 
     if (minibusPhotosPaths.length < 3) {
-      Get.snackbar(
-          "Missing Information", "At least 3 minibus photos are required.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
+      _showError("At least 3 minibus photos are required.");
       return;
     }
 
-    // Add validation for agreement checkboxes
-    if (!agreeTerms) {
-      Get.snackbar(
-          "Missing Agreement", "Please agree to the Terms and Conditions.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    if (!noContactDetails) {
-      Get.snackbar("Missing Agreement",
-          "Please confirm you have not shared contact details.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    if (!cookies) {
-      Get.snackbar("Missing Agreement", "Please agree to the Cookies Policy.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    if (!ispvc) {
-      Get.snackbar("Missing Agreement", "Please agree to the Privacy Policy.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-      return;
-    }
-
-    if (!agreeCancellation) {
-      Get.snackbar(
-          "Missing Agreement", "Please agree to the Cancellation Fee Policy.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
+    if (!agreeTerms ||
+        !noContactDetails ||
+        !agreeCookies ||
+        !agreePrivacy ||
+        !agreeCancellation) {
+      _showError("Please agree to all declarations.");
       return;
     }
 
@@ -379,232 +163,333 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
       _isSubmitting = true;
     });
 
+    // FIXED: Clean data structure using UI controllers
+    final data = {
+      "vendorId": vendorId,
+      "categoryId": widget.CategoryId,
+      "subcategoryId": widget.SubCategoryId,
+      "listingTitle": serviceNameController.text.trim(),
+      "basePostcode": basePostcodeController.text.trim(),
+      "locationRadius": int.tryParse(locationRadiusController.text.trim()) ?? 5,
+
+      // FIXED: Fleet info object as required by API
+      "fleetInfo": {
+        "makeAndModel": makeAndModelController.text.trim(),
+        "seats": int.tryParse(seatsController.text.trim()) ?? 1,
+        "luggageCapacity":
+            int.tryParse(luggageCapacityController.text.trim()) ?? 1,
+        "firstRegistered":
+            DateFormat("yyyy-MM-dd").format(firstRegistrationDate.value),
+        "wheelchairAccessible": wheelchairAccessible,
+        "airConditioning": airConditioning,
+        "luggageSpace": luggageSpace,
+      },
+
+      // FIXED: MiniBusRates object as required by API
+      "miniBusRates": {
+        "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0.0,
+        "halfDayRate":
+            double.tryParse(halfDayRateController.text.trim()) ?? 0.0,
+        "fullDayRate":
+            double.tryParse(fullDayRateController.text.trim()) ?? 0.0,
+        "additionalMileageFee":
+            double.tryParse(extraMileageChargeController.text.trim()) ?? 0.0,
+        "mileageLimit": int.tryParse(mileageLimitController.text.trim()) ?? 200,
+      },
+
+      "coverage": {
+        "areasCovered": areasCovered.toList(),
+        "serviceStatus": serviceStatus ?? "open",
+        "fromDate":
+            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
+        "toDate":
+            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
+      },
+
+      "special_price_days": calendarController.specialPrices
+          .map((entry) => {
+                "date": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                    .format(entry['date']),
+                "price": entry['price']
+              })
+          .toList(),
+
+      "serviceImages": minibusPhotosPaths.toList(),
+      "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
+
+      "coupons": couponController.coupons
+          .map((coupon) => {
+                "coupon_code": coupon['coupon_code'] ?? "",
+                "discount_type": coupon['discount_type'] ?? "",
+                "discount_value": coupon['discount_value'] ?? 0,
+                "usage_limit": coupon['usage_limit'] ?? 0,
+                "current_usage_count": coupon['current_usage_count'] ?? 0,
+                "expiry_date": coupon['expiry_date'] != null &&
+                        coupon['expiry_date'].toString().isNotEmpty
+                    ? DateFormat('yyyy-MM-dd').format(
+                        DateTime.parse(coupon['expiry_date'].toString()))
+                    : "",
+                "is_global": coupon['is_global'] ?? false
+              })
+          .toList(),
+
+      "declaration": {
+        "agreeTerms": agreeTerms,
+        "noContactDetails": noContactDetails,
+        "agreeCookies": agreeCookies,
+        "agreePrivacy": agreePrivacy,
+        "agreeCancellation": agreeCancellation,
+      },
+    };
+
+    final api = AddVendorServiceApi();
     try {
-      final documentsUploaded = await _uploadDocuments();
-      if (!documentsUploaded) {
-        // Reset button state on document upload failure
+      final isAdded = await api.addServiceVendor(data, 'minibus');
+      if (isAdded) {
         setState(() {
           _isSubmitting = false;
         });
-        return;
-      }
-
-      // Helper function to safely get image URL from uploadedUrls
-      String getImageUrl(int index) {
-        if (imageController.uploadedUrls.length > index) {
-          return imageController.uploadedUrls[index];
-        }
-        return "";
-      }
-
-      // Helper function to safely get multiple image URLs
-      List<String> getMinibusPhotos() {
-        final documentsCount = operatorLicencePaths.length +
-            driversLicencePaths.length +
-            publicLiabilityInsurancePaths.length +
-            vehicleInsuranceAndMOTsPaths.length +
-            dbsCertificatesPaths.length;
-
-        if (imageController.uploadedUrls.length > documentsCount) {
-          return imageController.uploadedUrls.sublist(documentsCount);
-        }
-        return [];
-      }
-
-      // Calculate indices for document images
-      int operatorLicenceIndex = 0;
-      int driversLicenceIndex = operatorLicencePaths.isNotEmpty ? 1 : 0;
-      int publicLiabilityIndex =
-          operatorLicencePaths.length + driversLicencePaths.length;
-      int vehicleInsuranceIndex = operatorLicencePaths.length +
-          driversLicencePaths.length +
-          publicLiabilityInsurancePaths.length;
-      int dbsCertificatesIndex = operatorLicencePaths.length +
-          driversLicencePaths.length +
-          publicLiabilityInsurancePaths.length +
-          vehicleInsuranceAndMOTsPaths.length;
-
-      final data = {
-        "categoryId": widget.CategoryId,
-        "subcategoryId": widget.SubCategoryId,
-        "vendorId": vendorId,
-        "listingTitle": serviceNameController.text.trim(),
-        "service_status": serviceStatus ?? "open",
-        "booking_date_from":
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-        "booking_date_to":
-            DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
-        "special_price_days": calenderController.specialPrices
-            .map((e) => {
-                  "date": e['date'] != null
-                      ? DateFormat('yyyy-MM-dd').format(e['date'] as DateTime)
-                      : "",
-                  "price": e['price'] as double? ?? 0
-                })
-            .toList(),
-        "offering_price": 0,
-        "basePostcode": basePostcodeController.text.trim(),
-        "locationRadius": int.parse(locationRadiusController.text.trim()),
-        "areasCovered": areasCovered.toList(),
-        "fleetInfo": {
-          "makeAndModel": makeAndModelController.text.trim(),
-          "capacity": capacityController.text.trim(),
-          "firstRegistered": "${yearController.text.trim()}-01-01",
-          "wheelchairAccessible": wheelchairAccessible,
-          "wheelchairAccessiblePrice": 0,
-          "airConditioning": airConditioning,
-          "luggageSpace": luggageSpace,
-          "fleetSize": availableMinibusesController.text.trim(),
-          "notes": notesController.text.trim(),
-        },
-        "miniBusRates": {
-          "hourlyRate": hourlyRate,
-          "halfDayRate": halfDayRate,
-          "fullDayRate": fullDayRate,
-          "additionalMileageFee": additionalMileageFee,
-          "mileageLimit": int.parse(mileageAllowanceController.text.trim()),
-        },
-        "service_image": getMinibusPhotos(),
-        "cancellation_policy_type": cancellationPolicy ?? "FLEXIBLE",
-        "coupons": couponController.coupons
-            .map((coupon) => {
-                  "coupon_code": coupon['coupon_code'] ?? "",
-                  "discount_type": coupon['discount_type'] ?? "",
-                  "discount_value": coupon['discount_value'] ?? 0,
-                  "usage_limit": coupon['usage_limit'] ?? 0,
-                  "current_usage_count": coupon['current_usage_count'] ?? 0,
-                  "expiry_date": coupon['expiry_date'] != null &&
-                          coupon['expiry_date'].toString().isNotEmpty
-                      ? DateFormat('yyyy-MM-dd').format(
-                          DateTime.parse(coupon['expiry_date'].toString()))
-                      : "",
-                  "is_global": coupon['is_global'] ?? false
-                })
-            .toList(),
-
-        // Additional data
-        "serviceCategories": {
-          ...serviceCategories,
-          "otherSpecified": serviceCategories['Other'] == true
-              ? otherServiceCategoryController.text.trim()
-              : ""
-        },
-        "bookingTypes": bookingTypes,
-        "comfortPolicy": {
-          "seatBeltsAllVehicles": seatBeltsAllVehicles,
-          "foodDrinksAllowed": foodDrinksAllowed,
-        },
-        "coverageAvailability": {
-          "areasCovered": areasCovered.toList(),
-          "serviceStatus": serviceStatus ?? "open",
-          "fromDate":
-              DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-          "toDate":
-              DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
-          "operatingHours":
-              available24x7 ? "24x7" : operatingHoursController.text.trim(),
-        },
-        "driverDetails": {
-          "fullyLicensedInsured": fullyLicensedInsured,
-          "dbsChecked": dbsChecked,
-          "dressCode": dressCode,
-        },
-        "licensingDocuments": {
-          "privateHireOperatorLicenceNumber":
-              privateHireOperatorLicenceNumberController.text.trim(),
-          "licensingAuthority": licensingAuthorityController.text.trim(),
-          "publicLiabilityInsuranceProvider":
-              publicLiabilityInsuranceProviderController.text.trim(),
-          "policyNumber": policyNumberController.text.trim(),
-          "expiryDate": DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-              .format(expiryDate.value),
-        },
-        "documents": {
-          "operatorLicence": {
-            "isAttached": operatorLicencePaths.isNotEmpty,
-            "image": operatorLicencePaths.isNotEmpty
-                ? getImageUrl(operatorLicenceIndex)
-                : ""
-          },
-          "driversLicence": {
-            "isAttached": driversLicencePaths.isNotEmpty,
-            "image": driversLicencePaths.isNotEmpty
-                ? getImageUrl(driversLicenceIndex)
-                : ""
-          },
-          "publicLiabilityInsurance": {
-            "isAttached": publicLiabilityInsurancePaths.isNotEmpty,
-            "image": publicLiabilityInsurancePaths.isNotEmpty
-                ? getImageUrl(publicLiabilityIndex)
-                : ""
-          },
-          "vehicleInsuranceAndMOTs": {
-            "isAttached": vehicleInsuranceAndMOTsPaths.isNotEmpty,
-            "image": vehicleInsuranceAndMOTsPaths.isNotEmpty
-                ? getImageUrl(vehicleInsuranceIndex)
-                : ""
-          },
-          "dbsCertificates": {
-            "isAttached": dbsCertificatesPaths.isNotEmpty,
-            "image": dbsCertificatesPaths.isNotEmpty
-                ? getImageUrl(dbsCertificatesIndex)
-                : ""
-          },
-          "minibusPhotos": {
-            "isAttached": minibusPhotosPaths.isNotEmpty,
-            "images": getMinibusPhotos()
-          },
-        },
-        "serviceAvailability": {
-          "fromDate":
-              DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(fromDate.value),
-          "toDate":
-              DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(toDate.value),
-        },
-        "uniqueFeatures": uniqueFeaturesController.text.trim(),
-      };
-
-      final api = AddVendorServiceApi();
-      final isAdded = await api.addServiceVendor(data, 'minibus');
-
-      if (isAdded) {
-        // Success - navigate to next page
         Get.to(() => HomePageAddService());
-
-        // Show success message
-        Get.snackbar('Success', 'Service added successfully!',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green,
-            colorText: Colors.white);
-
-        final ServiceController controller = Get.find<ServiceController>();
-        controller.fetchServices();
       } else {
-        Get.snackbar('Error', 'Add Service Failed. Please try again.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white);
+        _showError('Add Service Failed. Please try again.');
       }
     } catch (e) {
       print("API Error: $e");
-      Get.snackbar('Error', 'Server error: ${e.toString()}',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
+      _showError('Server error: $e');
     } finally {
       if (mounted) {
         setState(() {
           _isSubmitting = false;
         });
       }
+      final ServiceController controller = Get.find<ServiceController>();
+      controller.fetchServices();
     }
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _isSubmitting = false;
+    });
+    Get.snackbar('Error', message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white);
+  }
+
+  Widget _buildCitySelection(String title, RxList<String> selectedCities) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$title *',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  selectedCities.clear();
+                  selectedCities.addAll(Cities.ukCities);
+                },
+                child: const Text('SELECT ALL'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.yellow[700],
+                  foregroundColor: Colors.black,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () => selectedCities.clear(),
+                child: const Text('DESELECT ALL'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Obx(() => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+              ),
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: Cities.ukCities.map((city) {
+                  return FilterChip(
+                    label: Text(city),
+                    selected: selectedCities.contains(city),
+                    onSelected: (bool value) {
+                      if (value && !selectedCities.contains(city)) {
+                        selectedCities.add(city);
+                      } else if (!value) {
+                        selectedCities.remove(city);
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
+            )),
+        const SizedBox(height: 10),
+        Obx(() => Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              constraints: const BoxConstraints(minHeight: 50),
+              child: selectedCities.isEmpty
+                  ? const Text('No cities selected',
+                      style: TextStyle(color: Colors.grey, fontSize: 16))
+                  : Wrap(
+                      spacing: 8.0,
+                      runSpacing: 4.0,
+                      children: selectedCities
+                          .map((city) => Chip(
+                                label: Text(city,
+                                    style: const TextStyle(fontSize: 14)),
+                                deleteIcon: const Icon(Icons.close, size: 18),
+                                onDeleted: () => selectedCities.remove(city),
+                                backgroundColor: Colors.grey[200],
+                              ))
+                          .toList(),
+                    ),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildDatePicker(
+      BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label Date and Time *',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: () async {
+            final DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: date.value,
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2099, 12, 31),
+            );
+            if (pickedDate != null) {
+              final TimeOfDay? pickedTime = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.fromDateTime(date.value),
+              );
+              if (pickedTime != null) {
+                final newDateTime = DateTime(
+                  pickedDate.year,
+                  pickedDate.month,
+                  pickedDate.day,
+                  pickedTime.hour,
+                  pickedTime.minute,
+                );
+                if (newDateTime.isBefore(DateTime.now())) {
+                  Get.snackbar(
+                    "Invalid Date",
+                    "Please select a date and time in the future.",
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.redAccent,
+                    colorText: Colors.white,
+                  );
+                  return;
+                }
+                date.value = newDateTime;
+                if (isFromDate) {
+                  calendarController.fromDate.value = date.value;
+                  calendarController.updateDateRange(
+                    calendarController.fromDate.value,
+                    calendarController.toDate.value,
+                  );
+                } else {
+                  calendarController.toDate.value = date.value;
+                  calendarController.updateDateRange(
+                    calendarController.fromDate.value,
+                    calendarController.toDate.value,
+                  );
+                }
+              }
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(DateFormat('dd/MM/yyyy HH:mm').format(date.value),
+                    style: const TextStyle(fontSize: 16)),
+                const Icon(Icons.calendar_today, color: Colors.grey),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildDatePickerr(String label, Rx<DateTime> date, bool isFromDate) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('$label Date',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: () async {
+            final DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: date.value,
+              firstDate: DateTime(1990),
+              lastDate: DateTime.now(),
+            );
+            if (pickedDate != null) {
+              date.value = pickedDate;
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(DateFormat('dd/MM/yyyy').format(date.value),
+                    style: const TextStyle(fontSize: 16)),
+                const Icon(Icons.calendar_today, color: Colors.grey),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
   }
 
   void _showSetPriceDialog(DateTime date) {
     final TextEditingController priceController = TextEditingController();
     priceController.text =
-        (calenderController.getPriceForDate(date)?.toString() ??
-            calenderController.defaultPrice.toString());
+        (calendarController.getPriceForDate(date)?.toString() ??
+            calendarController.defaultPrice.toString());
 
     showDialog(
       context: context,
@@ -628,13 +513,8 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
             onPressed: () {
               final price = double.tryParse(priceController.text) ?? 0.0;
               if (price >= 0) {
-                calenderController.setSpecialPrice(date, price);
+                calendarController.setSpecialPrice(date, price);
                 Navigator.pop(context);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Please enter a valid price (≥ 0)')),
-                );
               }
             },
             child: const Text('Save'),
@@ -646,7 +526,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
 
   Widget _buildCalendarCell(DateTime day, bool isClickable) {
     return Obx(() {
-      final double price = calenderController.getPriceForDate(day);
+      final double price = calendarController.getPriceForDate(day);
       return Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
@@ -672,9 +552,7 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
                   '£${price.toStringAsFixed(2)}/hr',
                   style: TextStyle(
                     fontSize: 7,
-                    color: isClickable
-                        ? (price > 0 ? Colors.red : Colors.red)
-                        : Colors.grey,
+                    color: isClickable ? Colors.red : Colors.grey,
                   ),
                 ),
               ],
@@ -685,1387 +563,562 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
     });
   }
 
-  Widget _buildDocumentUploadSection(
-      String title, RxList<String> documentPaths, bool isRequired) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "$title${isRequired ? ' *' : ''}",
-          style: const TextStyle(color: Colors.black, fontSize: 16),
-        ),
-        const SizedBox(height: 16),
-        Obx(() => Wrap(
-              spacing: 8.0,
-              children: List.generate(documentPaths.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: const Icon(Icons.insert_drive_file,
-                            size: 40, color: Colors.grey),
-                      ),
-                      Positioned(
-                        top: 2,
-                        right: 2,
-                        child: GestureDetector(
-                          onTap: () {
-                            documentPaths.removeAt(index);
-                          },
-                          child: const Icon(Icons.cancel,
-                              color: Colors.redAccent, size: 20),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            )),
-        const SizedBox(height: 10),
-        GestureDetector(
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.camera_alt),
-                    title: const Text('Take a Photo'),
-                    onTap: () async {
-                      await imageController.pickImages(true);
-                      if (imageController.selectedImages.isNotEmpty) {
-                        documentPaths.add(imageController.selectedImages.last);
-                        imageController.selectedImages.removeLast();
-                      }
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.photo_library),
-                    title: const Text('Choose from Gallery'),
-                    onTap: () async {
-                      await imageController.pickImages(false);
-                      if (imageController.selectedImages.isNotEmpty) {
-                        documentPaths.add(imageController.selectedImages.last);
-                        imageController.selectedImages.removeLast();
-                      }
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-          child: DottedBorder(
-            color: Colors.black,
-            strokeWidth: 2,
-            dashPattern: const [5, 5],
-            child: Container(
-              height: 100,
-              width: double.infinity,
-              child: const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.cloud_upload, color: Colors.grey, size: 30),
-                    SizedBox(height: 8),
-                    Text(
-                      'Click to upload PDF, PNG, JPG (max 5MB)',
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w700),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
-  Widget _buildCitySelection(String title, RxList<String> selectedCities) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$title *',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  selectedCities.clear();
-                  selectedCities.addAll(Cities.ukCities);
-                  setState(() {});
-                },
-                child: const Text('SELECT ALL'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow[700],
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  selectedCities.clear();
-                  setState(() {});
-                },
-                child: const Text('DESELECT ALL'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              hint: const Text('Search by post code or city name...'),
-              value: null,
-              items: Cities.ukCities.map((String city) {
-                return DropdownMenuItem<String>(
-                  value: city,
-                  child: StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return Row(
-                        children: [
-                          Checkbox(
-                            value: selectedCities.contains(city),
-                            onChanged: (bool? value) {
-                              setState(() {
-                                if (value == true &&
-                                    !selectedCities.contains(city)) {
-                                  selectedCities.add(city);
-                                } else if (value == false &&
-                                    selectedCities.contains(city)) {
-                                  selectedCities.remove(city);
-                                }
-                              });
-                            },
-                          ),
-                          Expanded(child: Text(city)),
-                        ],
-                      );
-                    },
-                  ),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  cityFetchController.onTextChanged(newValue);
-                  if (!selectedCities.contains(newValue)) {
-                    selectedCities.add(newValue);
-                    setState(() {});
-                  }
-                }
-              },
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Obx(() => Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              constraints: const BoxConstraints(minHeight: 50),
-              child: selectedCities.isEmpty
-                  ? const Text('No cities selected',
-                      style: TextStyle(color: Colors.grey, fontSize: 16))
-                  : Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
-                      children: selectedCities
-                          .map((city) => Chip(
-                                label: Text(city,
-                                    style: const TextStyle(fontSize: 14)),
-                                deleteIcon: const Icon(Icons.close, size: 18),
-                                onDeleted: () {
-                                  setState(() {
-                                    selectedCities.remove(city);
-                                  });
-                                },
-                                backgroundColor: Colors.grey[200],
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                              ))
-                          .toList(),
-                    ),
-            )),
-      ],
-    );
-  }
-
-  Widget _buildDatePicker(
-      BuildContext context, String label, Rx<DateTime> date, bool isFromDate) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '$label Date and Time',
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: date.value,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2099, 12, 31),
-                  );
-                  if (pickedDate != null) {
-                    final TimeOfDay? pickedTime = await showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.fromDateTime(date.value),
-                    );
-                    if (pickedTime != null) {
-                      final newDateTime = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
-                      if (newDateTime.isBefore(DateTime.now())) {
-                        Get.snackbar(
-                          "Invalid Date",
-                          "Please select a date and time in the future.",
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.redAccent,
-                          colorText: Colors.white,
-                        );
-                        return;
-                      }
-                      date.value = newDateTime;
-                      if (isFromDate) {
-                        calenderController.fromDate.value = date.value;
-                        calenderController.updateDateRange(
-                          calenderController.fromDate.value,
-                          calenderController.toDate.value,
-                        );
-                      } else {
-                        calenderController.toDate.value = date.value;
-                        calenderController.updateDateRange(
-                          calenderController.fromDate.value,
-                          calenderController.toDate.value,
-                        );
-                      }
-                    }
-                  }
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        DateFormat('dd/MM/yyyy HH:mm').format(date.value),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const Icon(Icons.calendar_today, color: Colors.grey),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     return Scaffold(
-        backgroundColor: colors.scaffold_background_color,
-        appBar: AppBar(
-          backgroundColor: colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: Obx(() => Text(
-                'Add ${widget.SubCategory.value ?? ''} Service',
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: colors.black),
-              )),
-          leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back, color: colors.black),
-          ),
+      backgroundColor: colors.scaffold_background_color,
+      appBar: AppBar(
+        backgroundColor: colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: Obx(() => Text(
+              'Add ${widget.SubCategory.value ?? ''} Service',
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: colors.black),
+            )),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: colors.black),
         ),
-        body: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: Padding(
-            // Ensure padding is correctly set here
-            padding: const EdgeInsets.all(15.0), // Explicit padding value
-            child: Form(
-              autovalidateMode: AutovalidateMode.disabled,
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Section 1: Service Category
-                  const Text(
-                    'Minibus Hire Form',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Service Name *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: serviceNameController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter service name",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Service Name is required';
-                        }
-                        return null;
-                      },
+      ),
+      body: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // SECTION 1: LISTING DETAILS
+                const Text('SECTION 1: LISTING DETAILS',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                const Text('LISTING TITLE *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 50,
+                  textcont: serviceNameController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.text,
+                  hinttext: "Enter Listing Title",
+                ),
+
+                const SizedBox(height: 20),
+                const Text('Base Location Postcode *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 10,
+                  textcont: basePostcodeController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.text,
+                  hinttext: "Enter postcode",
+                ),
+
+                const SizedBox(height: 20),
+                const Text('Location Radius *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 10,
+                  textcont: locationRadiusController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Enter location radius in miles",
+                ),
+
+                const SizedBox(height: 20),
+
+                // SECTION 2: VEHICLE DETAILS
+                const Text('SECTION 2: VEHICLE DETAILS',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                const Text('Make & Model *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 50,
+                  textcont: makeAndModelController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.text,
+                  hinttext: "Enter make and model",
+                ),
+
+                const SizedBox(height: 10),
+                const Text('Number of Seats *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 2,
+                  textcont: seatsController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Enter number of seats",
+                ),
+
+                const SizedBox(height: 10),
+                const Text('Luggage Capacity *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 2,
+                  textcont: luggageCapacityController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Luggage capacity in liters",
+                ),
+
+                const SizedBox(height: 10),
+                _buildDatePickerr(
+                    'First Registration', firstRegistrationDate, true),
+
+                const SizedBox(height: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('Wheelchair Accessible',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(' *', style: TextStyle(color: Colors.red)),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Services Offered *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: serviceCategories.keys
-                          .map((category) => ChoiceChip(
-                                label: Text(category),
-                                selected: serviceCategories[category]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    serviceCategories[category] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  if (serviceCategories['Other']!) ...[
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Signup_textfilled(
-                        length: 100,
-                        textcont: otherServiceCategoryController,
-                        textfilled_height: 17,
-                        textfilled_weight: 1,
-                        keytype: TextInputType.text,
-                        hinttext: "Specify other service categories",
-                        validator: (value) {
-                          if (serviceCategories['Other']! &&
-                              (value == null || value.isEmpty)) {
-                            return 'Please specify other service categories';
-                          }
-                          return null;
-                        },
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            title: Text('Yes'),
+                            value: true,
+                            groupValue: wheelchairAccessible,
+                            onChanged: (val) {
+                              setState(() {
+                                wheelchairAccessible = val ?? false;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            title: Text('No'),
+                            value: false,
+                            groupValue: wheelchairAccessible,
+                            onChanged: (val) {
+                              setState(() {
+                                wheelchairAccessible = val ?? false;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Base Postcode *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: basePostcodeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter postcode",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Base Postcode is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Location Radius *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: locationRadiusController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter Location Radius (in miles)",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return ' Location Radius is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+                ),
 
-                  // Section 2: Fleet / Vehicle Details
-                  const Text(
-                    'Fleet Information (For This Vehicle Only)',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Make & Model *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: makeAndModelController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter make and model",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Make & Model is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Year *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 4,
-                      textcont: yearController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter year",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Year is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Capacity *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 3,
-                      textcont: capacityController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter capacity",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Capacity is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Air Conditioning *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Yes',
-                          value: airConditioning,
-                          onChanged: (value) {
-                            setState(() {
-                              airConditioning = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'No',
-                          value: !airConditioning,
-                          onChanged: (value) {
-                            setState(() {
-                              airConditioning = !value!;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Wheelchair Accessible *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Yes',
-                          value: wheelchairAccessible,
-                          onChanged: (value) {
-                            setState(() {
-                              wheelchairAccessible = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'No',
-                          value: !wheelchairAccessible,
-                          onChanged: (value) {
-                            setState(() {
-                              wheelchairAccessible = !value!;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Luggage Space *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Yes',
-                          value: luggageSpace,
-                          onChanged: (value) {
-                            setState(() {
-                              luggageSpace = value!;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'No',
-                          value: !luggageSpace,
-                          onChanged: (value) {
-                            setState(() {
-                              luggageSpace = !value!;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Notes',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 200,
-                      textcont: notesController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter notes",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Available Minibuses',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: availableMinibusesController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter fleet size",
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 3: Booking Types
-                  const Text(
-                    'Booking Types',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Wrap(
-                      spacing: 10,
-                      children: bookingTypes.keys
-                          .map((type) => ChoiceChip(
-                                label: Text(type),
-                                selected: bookingTypes[type]!,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    bookingTypes[type] = selected;
-                                  });
-                                },
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 4: Pricing Structure
-                  const Text(
-                    'Rates',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Set your standard rates and mileage terms.',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Hourly Rate (£) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: hourlyRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter hourly rate",
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d{0,2}$'))
+                const SizedBox(height: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('Air Conditioning',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(' *', style: TextStyle(color: Colors.red)),
                       ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Hourly Rate is required';
-                        }
-                        return null;
-                      },
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Half-Day Rate (£) * (Up to 4 hours)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: halfDayRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter half-day rate",
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d{0,2}$'))
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Half-Day Rate is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Full-Day Rate (£) * (Up to 10 hours)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: fullDayRateController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter full-day rate",
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d{0,2}$'))
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Full-Day Rate is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Mileage Allowance (included miles) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 5,
-                      textcont: mileageAllowanceController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter included mileage",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Mileage Allowance is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Additional Mileage Fee (£ per mile) *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 10,
-                      textcont: additionalMileageFeeController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.number,
-                      hinttext: "Enter fee per mile",
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d{0,2}$'))
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Additional Mileage Fee is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 5: Vehicle Comfort & Policy
-                  const Text(
-                    'Vehicle Comfort & Policy',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'Seat Belts in All Vehicles',
-                      value: seatBeltsAllVehicles,
-                      onChanged: (value) {
-                        setState(() {
-                          seatBeltsAllVehicles = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Are Food & Drinks Allowed? *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select Option",
-                      items: ['Yes', 'No', 'Select Option'],
-                      selectedValue: foodDrinksAllowed,
-                      onChanged: (value) {
-                        setState(() {
-                          foodDrinksAllowed = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 6: Coverage & Availability
-                  const Text(
-                    'Coverage & Availability',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildCitySelection('Areas Covered', areasCovered),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Service Status *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select Service Status",
-                      items: ['Open', 'Close'],
-                      selectedValue: serviceStatus,
-                      onChanged: (value) {
-                        setState(() {
-                          serviceStatus = value;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Operating Hours',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomCheckbox(
-                          title: 'Available 24x7',
-                          value: available24x7,
-                          onChanged: (value) {
-                            setState(() {
-                              available24x7 = value!;
-                            });
-                          },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            title: Text('Yes'),
+                            value: true,
+                            groupValue: airConditioning,
+                            onChanged: (val) {
+                              setState(() {
+                                airConditioning = val ?? false;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  if (!available24x7) ...[
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Specific Operating Hours *',
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Signup_textfilled(
-                        length: 50,
-                        textcont: operatingHoursController,
-                        textfilled_height: 17,
-                        textfilled_weight: 1,
-                        keytype: TextInputType.text,
-                        hinttext: "e.g., Mon-Fri 8am-6pm",
-                        validator: (value) {
-                          if (!available24x7 &&
-                              (value == null || value.isEmpty)) {
-                            return 'Specific Operating Hours are required';
-                          }
-                          return null;
-                        },
-                      ),
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            title: Text('No'),
+                            value: false,
+                            groupValue: airConditioning,
+                            onChanged: (val) {
+                              setState(() {
+                                airConditioning = val ?? false;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Service Availability Period',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
+                ),
+
+                const SizedBox(height: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('Luggage Space',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(' *', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            title: Text('Yes'),
+                            value: true,
+                            groupValue: luggageSpace,
+                            onChanged: (val) {
+                              setState(() {
+                                luggageSpace = val ?? false;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<bool>(
+                            title: Text('No'),
+                            value: false,
+                            groupValue: luggageSpace,
+                            onChanged: (val) {
+                              setState(() {
+                                luggageSpace = val ?? false;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // SECTION 4: PRICING
+                const Text('Rates',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                const Text('Hourly Rate (£) *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 10,
+                  textcont: hourlyRateController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Enter hourly rate",
+                ),
+
+                const SizedBox(height: 10),
+                const Text('Half Day Rate (£) *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 10,
+                  textcont: halfDayRateController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Enter half day rate",
+                ),
+
+                const SizedBox(height: 10),
+                const Text('Full Day Rate (£) *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 10,
+                  textcont: fullDayRateController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Enter full day rate",
+                ),
+
+                const SizedBox(height: 10),
+                const Text('Mileage Limit *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 10,
+                  textcont: mileageLimitController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Minimum 200 miles",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Mileage Limit is required';
+                    }
+                    final limit = double.tryParse(value) ?? 0;
+                    if (limit < 200) {
+                      return 'Minimum 200 miles required';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 10),
+                const Text('Extra Mileage Charge (£/mile) *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Signup_textfilled(
+                  length: 10,
+                  textcont: extraMileageChargeController,
+                  textfilled_height: 17,
+                  textfilled_weight: 1,
+                  keytype: TextInputType.number,
+                  hinttext: "Enter extra mileage charge",
+                ),
+
+                const SizedBox(height: 20),
+
+                // SECTION 5: Coverage & Availability
+                const Text('Coverage & Availability',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                _buildCitySelection('Areas Covered', areasCovered),
+
+                const SizedBox(height: 20),
+                const Text('Service Status *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                CustomDropdown(
+                  hintText: "Select Service Status",
+                  items: ['open', 'close'],
+                  selectedValue: serviceStatus,
+                  onChanged: (value) {
+                    setState(() {
+                      serviceStatus = value;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Service Availability Period
+                const Text('Service Availability Period',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 5),
+                const Text(
                     'Select the Period during which your service will be available',
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w300,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
-                  const SizedBox(height: 20),
-                  Obx(() => _buildDatePicker(
-                      context, "From", calenderController.fromDate, true)),
-                  Obx(() => _buildDatePicker(
-                      context, "To", calenderController.toDate, false)),
-                  const SizedBox(height: 10),
-                  Obx(() => TableCalendar(
-                        onDaySelected: (selectedDay, focusedDay) {
-                          if (calenderController.visibleDates
-                              .any((d) => isSameDay(d, selectedDay))) {
-                            _showSetPriceDialog(selectedDay);
-                          }
-                        },
-                        focusedDay: calenderController.fromDate.value,
-                        firstDay: DateTime.now(),
-                        lastDay: DateTime.utc(2099, 12, 31),
-                        calendarFormat: CalendarFormat.month,
-                        availableGestures: AvailableGestures.none,
-                        headerStyle:
-                            const HeaderStyle(formatButtonVisible: false),
-                        calendarBuilders: CalendarBuilders(
-                          defaultBuilder: (context, day, focusedDay) {
-                            if (calenderController.visibleDates
-                                .any((d) => isSameDay(d, day))) {
-                              return _buildCalendarCell(day, true);
-                            }
-                            return _buildCalendarCell(day, false);
-                          },
-                        ),
-                      )),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Special Prices Summary',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 150,
-                    child: calenderController.specialPrices.length == 0
-                        ? Center(
-                            child: Text(
-                            'No special prices set yet',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
-                          ))
-                        : Obx(() => ListView.builder(
-                              shrinkWrap: true,
-                              itemCount:
-                                  calenderController.specialPrices.length,
-                              itemBuilder: (context, index) {
-                                final entry =
-                                    calenderController.specialPrices[index];
-                                final date = entry['date'] as DateTime;
-                                final price = entry['price'] as double;
-                                return Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      vertical: 4, horizontal: 16),
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
+                        color: Color.fromARGB(255, 109, 104, 104))),
+                const SizedBox(height: 20),
+
+                Obx(() => _buildDatePicker(context, "From", fromDate, true)),
+                Obx(() => _buildDatePicker(context, "To", toDate, false)),
+
+                const SizedBox(height: 10),
+                Obx(() {
+                  DateTime focusedDay = calendarController.fromDate.value;
+                  if (focusedDay.isBefore(DateTime.now())) {
+                    focusedDay = DateTime.now();
+                  }
+                  return TableCalendar(
+                    onDaySelected: (selectedDay, focusedDay) {
+                      if (calendarController.visibleDates
+                          .any((d) => isSameDay(d, selectedDay))) {
+                        _showSetPriceDialog(selectedDay);
+                      }
+                    },
+                    focusedDay: focusedDay,
+                    firstDay: DateTime.now(),
+                    lastDay: DateTime.utc(2099, 12, 31),
+                    calendarFormat: CalendarFormat.month,
+                    availableGestures: AvailableGestures.none,
+                    headerStyle: const HeaderStyle(formatButtonVisible: false),
+                    calendarBuilders: CalendarBuilders(
+                      defaultBuilder: (context, day, focusedDay) {
+                        if (calendarController.visibleDates
+                            .any((d) => isSameDay(d, day))) {
+                          return _buildCalendarCell(day, true);
+                        }
+                        return _buildCalendarCell(day, false);
+                      },
+                    ),
+                  );
+                }),
+
+                const SizedBox(height: 20),
+                const Text('Special Prices Summary',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 150,
+                  child: calendarController.specialPrices.length == 0
+                      ? const Center(
+                          child: Text('No special prices set yet',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.black)))
+                      : Obx(() => ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: calendarController.specialPrices.length,
+                            itemBuilder: (context, index) {
+                              final entry =
+                                  calendarController.specialPrices[index];
+                              final date = entry['date'] as DateTime;
+                              final price = entry['price'] as double;
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 16),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
                                         DateFormat('EEE, d MMM yyyy')
                                             .format(date),
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '£${price.toStringAsFixed(2)}/mile',
+                                        style: const TextStyle(fontSize: 16)),
+                                    Row(
+                                      children: [
+                                        Text('£${price.toStringAsFixed(2)}/hr',
                                             style: TextStyle(
-                                              fontSize: 16,
-                                              color: price > 0
-                                                  ? Colors.black
-                                                  : Colors.red,
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete,
-                                                color: Colors.red),
-                                            onPressed: () {
-                                              calenderController
-                                                  .deleteSpecialPrice(date);
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            )),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 7: Driver Details
-                  const Text(
-                    'Driver Details',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'Fully Licensed & Insured',
-                      value: fullyLicensedInsured,
-                      onChanged: (value) {
-                        setState(() {
-                          fullyLicensedInsured = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomCheckbox(
-                      title: 'DBS Checked',
-                      value: dbsChecked,
-                      onChanged: (value) {
-                        setState(() {
-                          dbsChecked = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Dress Code *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select Dress Code",
-                      items: ['Formal', 'Casual', 'Uniform'],
-                      selectedValue: dressCode,
-                      onChanged: (value) {
-                        setState(() {
-                          dressCode = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 8: Cancellation Policy
-                  const Text(
-                    'Cancellation Policy *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: CustomDropdown(
-                      hintText: "Select a Cancellation Policy",
-                      items: cancellationPolicyMap.keys.toList(),
-                      selectedValue: cancellationPolicyMap.entries
-                          .firstWhere(
-                              (entry) => entry.value == cancellationPolicy,
-                              orElse: () => const MapEntry("", ""))
-                          .key,
-                      onChanged: (value) {
-                        setState(() {
-                          cancellationPolicy =
-                              cancellationPolicyMap[value] ?? "";
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 9: Licensing & Documents
-                  const Text(
-                    'Licensing & Documents',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Private Hire Operator Licence Number *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 20,
-                      textcont: privateHireOperatorLicenceNumberController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter private hire operator licence number",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Private Hire Operator Licence Number is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Licensing Authority *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: licensingAuthorityController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter licensing authority",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Licensing Authority is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Public Liability Insurance Provider *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 50,
-                      textcont: publicLiabilityInsuranceProviderController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter insurance provider",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Public Liability Insurance Provider is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Policy Number *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 20,
-                      textcont: policyNumberController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "Enter policy number",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Policy Number is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Expiry Date *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: expiryDate.value,
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2099, 12, 31),
-                            );
-                            if (pickedDate != null) {
-                              if (pickedDate.isBefore(DateTime.now())) {
-                                Get.snackbar(
-                                  "Invalid Date",
-                                  "Please select a future date.",
-                                  snackPosition: SnackPosition.BOTTOM,
-                                  backgroundColor: Colors.redAccent,
-                                  colorText: Colors.white,
-                                );
-                                return;
-                              }
-                              expiryDate.value = pickedDate;
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 16),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  DateFormat('dd-MM-yyyy')
-                                      .format(expiryDate.value),
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                const Icon(Icons.calendar_today,
-                                    color: Colors.grey),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  _buildDocumentUploadSection(
-                      "Operator Licence", operatorLicencePaths, true),
-                  _buildDocumentUploadSection(
-                      "Driver Licences", driversLicencePaths, true),
-                  _buildDocumentUploadSection("Public Liability Insurance",
-                      publicLiabilityInsurancePaths, true),
-                  _buildDocumentUploadSection("Vehicle Insurance And MOTs",
-                      vehicleInsuranceAndMOTsPaths, true),
-                  _buildDocumentUploadSection(
-                      "DBS Certificates", dbsCertificatesPaths, true),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Vehicle Images * (Upload minimum 3 images)',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding:
-                        const EdgeInsets.all(10.0), // Ensure padding is correct
-                    child: Center(
-                      child: Obx(() => Wrap(
-                            spacing: 8.0,
-                            runSpacing: 4.0,
-                            children: List.generate(minibusPhotosPaths.length,
-                                (index) {
-                              return Stack(
-                                children: [
-                                  Image.file(
-                                    File(minibusPhotosPaths[index]),
-                                    fit: BoxFit.cover,
-                                    height: 60,
-                                    width: 60,
-                                  ),
-                                  Positioned(
-                                    top: 2,
-                                    right: 2,
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          minibusPhotosPaths.removeAt(index),
-                                      child: const Icon(Icons.close,
-                                          color: Colors.redAccent),
+                                                fontSize: 16,
+                                                color: price > 0
+                                                    ? Colors.black
+                                                    : Colors.red)),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.red),
+                                          onPressed: () => calendarController
+                                              .deleteSpecialPrice(date),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               );
-                            }),
+                            },
                           )),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => Column(
+                ),
+
+                const SizedBox(height: 20),
+                const Text('Cancellation Policy *',
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                CustomDropdown(
+                  hintText: "Select a Cancellation Policy",
+                  items: cancellationPolicyMap.keys.toList(),
+                  selectedValue: cancellationPolicyMap.entries
+                      .firstWhere((entry) => entry.value == cancellationPolicy,
+                          orElse: () => const MapEntry("", ""))
+                      .key,
+                  onChanged: (value) {
+                    setState(() {
+                      cancellationPolicy = cancellationPolicyMap[value] ?? "";
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // SECTION 6: Photos & Media
+                const Text('Photos & Media',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                const Text("Vehicle Images * (Upload minimum 3 images)",
+                    style: TextStyle(color: Colors.black87, fontSize: 16)),
+                const SizedBox(height: 10),
+                Center(
+                  child: Obx(() => Wrap(
+                        spacing: 8.0,
+                        runSpacing: 4.0,
+                        children:
+                            List.generate(minibusPhotosPaths.length, (index) {
+                          return Stack(
+                            children: [
+                              Image.file(
+                                File(minibusPhotosPaths[index]),
+                                fit: BoxFit.cover,
+                                height: 60,
+                                width: 60,
+                              ),
+                              Positioned(
+                                top: 2,
+                                right: 2,
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      minibusPhotosPaths.removeAt(index),
+                                  child: const Icon(Icons.close,
+                                      color: Colors.redAccent),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      )),
+                ),
+
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) {
+                        return Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
+                          children: <Widget>[
                             ListTile(
-                              leading: const Icon(Icons.camera_alt),
+                              leading: const Icon(Icons.camera),
                               title: const Text('Take a Photo'),
                               onTap: () async {
                                 await imageController.pickImages(true);
                                 if (imageController.selectedImages.isNotEmpty) {
                                   minibusPhotosPaths
-                                      .add(imageController.selectedImages.last);
-                                  imageController.selectedImages.removeLast();
+                                      .addAll(imageController.selectedImages);
+                                  imageController.selectedImages.clear();
                                 }
                                 Navigator.pop(context);
                               },
@@ -2077,219 +1130,162 @@ class _MinibusHireServiceState extends State<MinibusHireService> {
                                 await imageController.pickImages(false);
                                 if (imageController.selectedImages.isNotEmpty) {
                                   minibusPhotosPaths
-                                      .add(imageController.selectedImages.last);
-                                  imageController.selectedImages.removeLast();
+                                      .addAll(imageController.selectedImages);
+                                  imageController.selectedImages.clear();
                                 }
                                 Navigator.pop(context);
                               },
                             ),
                           ],
-                        ),
-                      );
-                    },
-                    child: DottedBorder(
-                      color: Colors.black,
-                      strokeWidth: 2,
-                      dashPattern: const [5, 5],
-                      child: Container(
-                        height: 150,
-                        width: double.infinity,
-                        child: const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.cloud_upload,
-                                  color: Colors.grey, size: 30),
-                              SizedBox(height: 8),
-                              Text(
-                                'Click to upload or drag and drop PNG, JPG or JPEG',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w700),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 10: Business Highlights
-                  const Text(
-                    'Business Highlights',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Unique Features *',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'What makes your service reliable or unique? e.g., punctuality, eco-friendly fleet, partnerships, multilingual drivers',
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Color.fromARGB(255, 109, 104, 104)),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Signup_textfilled(
-                      length: 1000,
-                      textcont: uniqueFeaturesController,
-                      textfilled_height: 17,
-                      textfilled_weight: 1,
-                      keytype: TextInputType.text,
-                      hinttext: "",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Unique Features are required';
-                        }
-                        return null;
+                        );
                       },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Section 11: Coupons / Discounts
-                  const Text(
-                    "Coupons / Discounts",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: w * 0.45,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () => Get.dialog(AddCouponDialog()),
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                                (states) => Colors.green),
-                      ),
-                      child: const Text("Add Coupon",
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Obx(() => couponController.coupons.isEmpty
-                      ? const SizedBox.shrink()
-                      : CouponList()),
-                  const SizedBox(height: 20),
-
-                  // Section 12: Declaration & Agreement
-                  const Text(
-                    'SECTION 12: Declaration & Agreement',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-
-// Terms and Conditions Checkbox
-                  CustomCheckbox(
-                    title: 'I agree to the Terms and Conditions',
-                    value: agreeTerms,
-                    onChanged: (value) {
-                      setState(() {
-                        agreeTerms = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-// No Contact Details Checkbox
-                  CustomCheckbox(
-                    title:
-                        'I have not shared any contact details (Email, Phone, Skype, Website etc.)',
-                    value: noContactDetails,
-                    onChanged: (value) {
-                      setState(() {
-                        noContactDetails = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-// Cookies Policy Checkbox
-                  CustomCheckbox(
-                    title: 'I agree to the Cookies Policy',
-                    value: cookies,
-                    onChanged: (value) {
-                      setState(() {
-                        cookies = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-// Privacy Policy Checkbox
-                  CustomCheckbox(
-                    title: 'I agree to the Privacy Policy',
-                    value: ispvc,
-                    onChanged: (value) {
-                      setState(() {
-                        ispvc = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-
-// Cancellation Policy Checkbox
-                  CustomCheckbox(
-                    title: 'I agree to the Cancellation Fee Policy',
-                    value: agreeCancellation,
-                    onChanged: (value) {
-                      setState(() {
-                        agreeCancellation = value!;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-                  Text(
-                      'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
-                  const SizedBox(height: 20),
-
-                  // Submit Button
-                  Container(
-                    width: w,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting
-                          ? null
-                          : () {
-                              _submitForm();
-                            },
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                                (states) => Colors.green),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2.5,
-                              ),
-                            )
-                          : const Text(
-                              "Save & Submit",
+                    );
+                  },
+                  child: DottedBorder(
+                    color: Colors.black,
+                    strokeWidth: 2,
+                    dashPattern: const [5, 5],
+                    child: Container(
+                      height: 150,
+                      width: double.infinity,
+                      child: const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.cloud_upload_outlined,
+                                size: 40, color: Colors.grey),
+                            Text(
+                              "Click to upload PNG, JPG (max 5MB)",
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w700),
+                              textAlign: TextAlign.center,
                             ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Coupons / Discounts
+                const Text("Coupons / Discounts",
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: w * 0.45,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () => Get.dialog(AddCouponDialog()),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    child: const Text("Add Coupon",
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Obx(() => couponController.coupons.isEmpty
+                    ? const SizedBox.shrink()
+                    : CouponList()),
+
+                const SizedBox(height: 20),
+
+                // Declaration & Agreement
+                const Text('Declaration & Agreement',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                CustomCheckbox(
+                  title:
+                      'I confirm that all information provided is accurate and current. *',
+                  value: agreeTerms,
+                  onChanged: (value) {
+                    setState(() {
+                      agreeTerms = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                CustomCheckbox(
+                  title:
+                      'I have not shared any contact details (Email, Phone, Skype, Website, etc.). *',
+                  value: noContactDetails,
+                  onChanged: (value) {
+                    setState(() {
+                      noContactDetails = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                CustomCheckbox(
+                  title: 'I agree to the Cookies Policy. *',
+                  value: agreeCookies,
+                  onChanged: (value) {
+                    setState(() {
+                      agreeCookies = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                CustomCheckbox(
+                  title: 'I agree to the Privacy Policy. *',
+                  value: agreePrivacy,
+                  onChanged: (value) {
+                    setState(() {
+                      agreePrivacy = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                CustomCheckbox(
+                  title: 'I agree to the Cancellation Fee Policy. *',
+                  value: agreeCancellation,
+                  onChanged: (value) {
+                    setState(() {
+                      agreeCancellation = value!;
+                    });
+                  },
+                ),
+                const SizedBox(height: 20),
+                Text(
+                    'Date: ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now())}'),
+
+                const SizedBox(height: 20),
+
+                // Submit Button
+                Container(
+                  width: w,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _isSubmitting ? null : _submitForm,
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2.5),
+                          )
+                        : const Text(
+                            "Submit",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
