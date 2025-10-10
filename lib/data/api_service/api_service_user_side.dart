@@ -10,7 +10,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Auth/phoneLogin.dart';
-import '../../views/generalinformation.dart';
+import '../../User_app/views/generalinformation.dart';
 import '../getx_controller/user_side/auth_user_getx_controller.dart';
 import '../getx_controller/user_side/user_basic_getx_controller.dart';
 

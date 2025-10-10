@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hire_any_thing/utilities/AppImages.dart';
 import 'package:hire_any_thing/utilities/constant.dart';
-import 'package:hire_any_thing/views/booking_success.dart';
+import 'package:hire_any_thing/User_app/views/booking_success.dart';
 
 import '../navigation_bar.dart';
 class PaymentMethod extends StatefulWidget {

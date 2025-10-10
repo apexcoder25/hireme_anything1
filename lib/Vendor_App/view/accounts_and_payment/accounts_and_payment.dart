@@ -11,11 +11,6 @@ class AccountsAndManagementScreen extends StatelessWidget {
     final AccountsAndManagementController controller = Get.put(AccountsAndManagementController());
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Vendor Account Management"),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-      ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());

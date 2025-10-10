@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:hire_any_thing/data/api_service/api_service_user_side.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/auth_user_getx_controller.dart';
-import 'package:hire_any_thing/views/generalinformation.dart';
+import 'package:hire_any_thing/User_app/views/generalinformation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

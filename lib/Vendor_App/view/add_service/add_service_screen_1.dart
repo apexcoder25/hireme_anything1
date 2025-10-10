@@ -197,30 +197,6 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
 
     return Scaffold(
       backgroundColor: colors.scaffold_background_color,
-      appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          "Add Service",
-          style: TextStyle(fontWeight: FontWeight.bold, color: colors.white),
-        ),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-            // Navigator.pushReplacement(
-            //     context,
-            //     MaterialPageRoute(
-            //       builder: (context) => const Login(),
-            //     ));
-          },
-          icon: const Icon(
-            Icons.arrow_back,
-            color: colors.black,
-          ),
-        ),
-      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(15.0),

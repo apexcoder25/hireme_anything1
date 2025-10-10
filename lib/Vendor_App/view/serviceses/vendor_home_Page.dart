@@ -12,6 +12,7 @@ import 'package:hire_any_thing/Vendor_App/view/serviceses/home_page_widget.dart/
 import 'package:hire_any_thing/Vendor_App/view/serviceses/home_page_widget.dart/vehicle_specifications_widget.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
 import 'package:hire_any_thing/data/models/vender_side_model/vendor_home_page_services_model.dart';
+import 'package:hire_any_thing/utilities/colors.dart';
 
 class HomePageAddService extends StatefulWidget {
   @override
@@ -35,36 +36,6 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Dashboard"),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          onPressed: () {
-            showGeneralDialog(
-              context: context,
-              barrierDismissible: true,
-              barrierLabel: "Drawer",
-              barrierColor: Colors.black.withOpacity(0.5),
-              transitionDuration: const Duration(milliseconds: 300),
-              pageBuilder: (context, anim1, anim2) {
-                return const CustomDrawer();
-              },
-              transitionBuilder: (context, anim1, anim2, child) {
-                return SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(-1, 0),
-                    end: Offset.zero,
-                  ).animate(anim1),
-                  child: child,
-                );
-              },
-            );
-          },
-          icon: const Icon(Icons.menu, color: colors.white),
-        ),
-      ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return Center(child: CircularProgressIndicator());

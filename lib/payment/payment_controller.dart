@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:hire_any_thing/data/session_manage/session_user_side_manage.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:hire_any_thing/services/payment_services.dart';
-import 'package:hire_any_thing/views/Book_Service/controllers/your_service_booking.dart';
+import 'package:hire_any_thing/User_app/views/Book_Service/controllers/your_service_booking.dart';
 import 'package:intl/intl.dart';
 
 class PaymentController extends GetxController {

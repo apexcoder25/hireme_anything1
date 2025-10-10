@@ -5,7 +5,7 @@ import 'package:hire_any_thing/Auth/agree.dart';
 import 'package:hire_any_thing/data/session_manage/session_user_side_manage.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/user_profile_controller.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
-import 'package:hire_any_thing/views/Introduction/introduction_screen.dart';
+import 'package:hire_any_thing/User_app/views/Introduction/introduction_screen.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});

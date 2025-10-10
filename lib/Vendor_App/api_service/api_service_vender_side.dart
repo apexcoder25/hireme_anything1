@@ -36,7 +36,7 @@ class ApiServiceVenderSide {
   static const String _verifyOtpEmailEndpoint = '/vendor/verify-otp';
   static const String _sendOtpPhoneEndpoint = '/api/send-otp';
   static const String _verifyOtpPhoneEndpoint = '/api/verify-otp';
-  static const String _vendorRegisterEndpoint = '/vendor/partner';
+  static const String _vendorRegisterEndpoint = '/vendor/signup';
   static const String _vendorLoginEndpoint = '/vendor/partnerlogin';
   static const String _userRegisterEndpoint = '/user/register';
   static const String _addServiceVendorEndpoint = '/vendor/add_vendor_service';
@@ -273,6 +273,20 @@ class ApiServiceVenderSide {
       print( 'response.statusCode=>${response.statusCode}');
 
       if (response.statusCode == 201) {
+        Get.snackbar(
+          "Success", 
+          "User Registered Successfully.", 
+          snackPosition: SnackPosition.BOTTOM, 
+          backgroundColor: Color.fromARGB(255, 5, 129, 69),
+          colorText: Colors.white,
+          borderRadius: 8.0,
+          margin: const EdgeInsets.all(16), 
+          duration: const Duration(
+              seconds: 3), 
+        );
+        return true;
+      }
+      if (response.statusCode == 200) {
         Get.snackbar(
           "Success", 
           "User Registered Successfully.", 

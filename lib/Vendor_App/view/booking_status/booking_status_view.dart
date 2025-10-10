@@ -22,11 +22,6 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Booking Management Dashboard'),
-        centerTitle: true,
-        backgroundColor: Colors.blueAccent,
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
        controller.refreshBookings();

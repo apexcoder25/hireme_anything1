@@ -5,7 +5,7 @@ import 'package:hire_any_thing/data/getx_controller/user_side/user_profile_contr
 import 'package:hire_any_thing/res/routes/routes_name.dart';
 import 'package:hire_any_thing/splash.dart';
 import 'package:hire_any_thing/utilities/AppFonts.dart';
-import 'package:hire_any_thing/views/subCategoryPage/electricianDetail.dart';
+import 'package:hire_any_thing/User_app/views/subCategoryPage/electricianDetail.dart';
 
 ProductDetails? selectedProduct;
 

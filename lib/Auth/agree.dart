@@ -1,10 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/Auth/login.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 
-import '../utilities/constant.dart';
+import '../utilities/colors.dart';
 import '../utilities/custom_indicator.dart';
 
 class Agree_screen extends StatefulWidget {
@@ -16,401 +15,368 @@ class Agree_screen extends StatefulWidget {
 
 class _Agree_screenState extends State<Agree_screen> {
   final controller = PageController(viewportFraction: 0.8, keepPage: true);
-  final TextEditingController _phoneNumberController = TextEditingController();
-  String? _phoneNumberError;
-
-  void _validatePhoneNumber(String value) {
-    if (value.length != 10) {
-      setState(() {
-        _phoneNumberError = "Please enter valid mobile number";
-      });
-    } else {
-      setState(() {
-        _phoneNumberError = null;
-      });
-    }
-  }
 
   List description = [
-    {
-      "title": "Ride Your Way",
-      "des":
-          "we have the perfect vehicle for every adventure! Discover freedom on the road today!",
-    },
-    {
-      "title": "Drive Your Dreams",
-      "des":
-          "Explore our diverse fleet of cars and vehicles tailored for every journey. Your perfect ride awaits!"
-    },
-    {
-      "title": "Unlock the Road",
-      "des":
-          "Choose from a wide range of vehicles for every occasion. Adventure starts with the right ride!"
-    },
+    "Ride Your Way",
+    "Drive Your Dreams",
+    "Unlock The Road",
   ];
   int _currentPage = 0;
   var chekbox = true;
+
   @override
   Widget build(BuildContext context) {
-    // final h = MediaQuery.of(context).size.height;
-    // final w = MediaQuery.of(context).size.width;
-    // final isPortrait =
-    //     MediaQuery.of(context).orientation == Orientation.portrait;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F9FA),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.stretch, 
           children: [
+            // Top section with vehicle image and carousel
             Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.white, Colors.white],
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 24,
+              height: screenHeight * 0.55,
+              color: Colors.white,
+              child: Stack(
+                children: [
+                  // Premium Badge
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 10,
+                    right: 20,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryDark,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Text(
+                        "Premium",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                    Image.asset(
-                      "assets/new/limousine.jpg", height: 250, fit: BoxFit.fill,
-                      scale: 1.2,
-                      // color: Colors.white,
+                  ),
+
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 50,
                     ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height / 5.5,
-                      child: CarouselSlider.builder(
+                    child: Column(
+                      children: [
+                        // Vehicle Image
+                        Container(
+                          height: 200,
+                          width: screenWidth * 0.9,
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.asset(
+                              "assets/new/limousine.jpg",
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Carousel
+                        SizedBox(
+                          width: screenWidth,
+                          height: 100,
+                          child: CarouselSlider.builder(
+                              itemCount: 3,
+                              itemBuilder: (context, index, realIndex) {
+                                return Container(
+                                  width: screenWidth,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
+                                  child: Column(
+                                    children: [
+                                      const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Welcome to",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              color: AppColors.textPrimary,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            " HireAnything",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              color: AppColors.blueAccent2,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        description[index],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              options: CarouselOptions(
+                                viewportFraction: 1.0,
+                                autoPlay: true,
+                                autoPlayInterval: const Duration(seconds: 4),
+                                enlargeCenterPage: true,
+                                aspectRatio: 4.0,
+                                onPageChanged: (index, reason) {
+                                  setState(() {
+                                    _currentPage = index;
+                                  });
+                                },
+                              )),
+                        ),
+                        const SizedBox(height: 15),
+
+                        // Page Indicator
+                        CustomPageIndicator(
+                          currentPage: _currentPage,
                           itemCount: 3,
-                          itemBuilder: (context, index, realIndex) {
-                            // print("index=>${index}");
-                            // print("realIndex=>${realIndex}");
-                            return InkWell(
-                              onTap: () async {},
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "Welcome to",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: kblackTextColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          " Hire Anything",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: kSecondaryColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    _buildPage(
-                                        "${description[index]["title"].toString()}",
-                                        "${description[index]["des"].toString()}")
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                          options: CarouselOptions(
-                            viewportFraction: 1.0,
-                            autoPlay: true,
-                            enlargeCenterPage: true,
-                            aspectRatio: 1.40,
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                _currentPage = index;
-                              });
-                            },
-                          )),
+                          dotColor: Colors.grey.shade300,
+                          activeDotColor: AppColors.primaryDark,
+                        ),
+                      ],
                     ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height / 40,
-                    ),
-                    CustomPageIndicator(
-                      currentPage: _currentPage,
-                      itemCount: 3, // Replace 3 with your actual item count
-                      dotColor: Colors.grey, // Customize dot color
-                      activeDotColor: Colors.blue, // Customize active dot color
-                    ),
-                    // SizedBox(
-                    //   height: MediaQuery.of(context).size.height / 32,
-                    // ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+
+            // Bottom white container with buttons
             Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
-              ),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30.0),
-                    topRight: Radius.circular(30.0),
-                  ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0),
+                  topRight: Radius.circular(30.0),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // const SizedBox(height: 20),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              transitionDuration: Duration(milliseconds: 250),
-                              pageBuilder: (_, __, ___) => LoginView(),
-                              transitionsBuilder: (_, animation, __, child) {
-                                return SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: Offset(
-                                        1.0, 0.0), // Start position off-screen
-                                    end: Offset.zero, // End position on-screen
-                                  ).animate(animation),
-                                  child: child,
-                                );
-                              },
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 20),
+
+                    // Sign in as User Button
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed('/auth', arguments: {'initialTab': 'login'});
+                      },
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryDark,
+                          borderRadius: BorderRadius.circular(30.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryDark.withOpacity(0.3),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
                             ),
-                          );
-                        },
-                        child: Column(
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            InkWell(
-                              onTap: () {
-                                Get.toNamed(UserRoutesName.loginUserView);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 25.0, right: 25),
-                                child: Container(
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    color: kPrimaryColor,
-                                    borderRadius: BorderRadius.circular(20.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: kPrimaryColor.withOpacity(0.5),
-                                        blurRadius: 10,
-                                        spreadRadius: 2,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Center(
-                                      child: Text(
-                                    "Sign in as an user",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                                ),
-                              ),
+                            Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 20,
                             ),
-                            const SizedBox(height: 20),
-                            InkWell(
-                              onTap: () {
-                                Get.toNamed(UserRoutesName.registerUserView);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 25.0, right: 25),
-                                child: Container(
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    color: kPrimaryColor,
-                                    borderRadius: BorderRadius.circular(20.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: kPrimaryColor.withOpacity(0.5),
-                                        blurRadius: 10,
-                                        spreadRadius: 2,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Center(
-                                      child: Text(
-                                    "Sign up as an user",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            InkWell(
-                              onTap: () {
-                                 Get.toNamed(VendorRoutesName.loginVendorView);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 25.0, right: 25),
-                                child: Container(
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    color: kPrimaryColor,
-                                    borderRadius: BorderRadius.circular(20.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: kPrimaryColor.withOpacity(0.5),
-                                        blurRadius: 10,
-                                        spreadRadius: 2,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Center(
-                                      child: Text(
-                                    "Sign in as a Partner/Vendor",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            InkWell(
-                              onTap: () {
-                                Get.toNamed(VendorRoutesName.registerVendorView);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 25.0, right: 25),
-                                child: Container(
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    color: kPrimaryColor,
-                                    borderRadius: BorderRadius.circular(20.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: kPrimaryColor.withOpacity(0.5),
-                                        blurRadius: 10,
-                                        spreadRadius: 2,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Center(
-                                      child: Text(
-                                    "Sign up as a Partner/Vendor",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  )),
-                                ),
-                              ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Sign in as User",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          Checkbox(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            activeColor: kPrimaryColor,
-                            side: BorderSide(
-                                color: chekbox == true
-                                    ? kPrimaryColor
-                                    : Colors.red),
-                            value: chekbox,
-                            onChanged: (value) {
-                              setState(() {
-                                chekbox = value!;
-                              });
-                            },
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 1.35,
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Sign up as User Button
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed('/auth', arguments: {'initialTab': 'register'});
+                      },
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: AppColors.disabledBtnColor,
+                          borderRadius: BorderRadius.circular(30.0),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.person_add,
+                              color: Colors.grey.shade700,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              "Sign up as User",
+                              style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Join as Partner Button
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(VendorRoutesName.loginVendorView);
+                      },
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.handshake,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "Join as Partner",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // Terms and Conditions
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5)),
+                          activeColor: AppColors.primary,
+                          side: BorderSide(
+                              color: chekbox == true
+                                  ? AppColors.primary
+                                  : Colors.red),
+                          value: chekbox,
+                          onChanged: (value) {
+                            setState(() {
+                              chekbox = value!;
+                            });
+                          },
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 12),
                             child: RichText(
-                                maxLines: 2,
                                 text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                        text: "I agree to the ",
-                                        style: TextStyle(
-                                            height: 2,
-                                            color: chekbox == true
-                                                ? Colors.grey
-                                                : Colors.red)),
-                                    TextSpan(
-                                        text:
-                                            "Terms & Conditions, Privacy Policy",
-                                        style: TextStyle(
-                                            color: chekbox == true
-                                                ? kPrimaryColor
-                                                : Colors.red,
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationStyle:
-                                                TextDecorationStyle.solid)),
-                                    TextSpan(
-                                        text: " and ",
-                                        style: TextStyle(
-                                            height: 1.5,
-                                            color: chekbox == true
-                                                ? Colors.grey
-                                                : Colors.red)),
-                                    TextSpan(
-                                        text: "Consent",
-                                        style: TextStyle(
-                                            color: chekbox == true
-                                                ? kPrimaryColor
-                                                : Colors.red,
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationStyle:
-                                                TextDecorationStyle.solid)),
-                                    TextSpan(
-                                        text:
-                                            " for accessing the credit report ",
-                                        style: TextStyle(
-                                            color: chekbox == true
-                                                ? Colors.grey
-                                                : Colors.red)),
-                                  ],
-                                )),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
+                              children: [
+                                TextSpan(
+                                    text: "I agree to the ",
+                                    style: TextStyle(
+                                        height: 1.4,
+                                        color: chekbox == true
+                                            ? Colors.grey.shade600
+                                            : Colors.red)),
+                                TextSpan(
+                                    text: "terms and conditions",
+                                    style: TextStyle(
+                                        color: chekbox == true
+                                            ? AppColors.primary
+                                            : Colors.red,
+                                        decoration: TextDecoration.underline,
+                                        decorationStyle:
+                                            TextDecorationStyle.solid)),
+                                TextSpan(
+                                    text: ", ",
+                                    style: TextStyle(
+                                        color: chekbox == true
+                                            ? Colors.grey.shade600
+                                            : Colors.red)),
+                                TextSpan(
+                                    text: "privacy policy",
+                                    style: TextStyle(
+                                        color: chekbox == true
+                                            ? AppColors.primary
+                                            : Colors.red,
+                                        decoration: TextDecoration.underline,
+                                        decorationStyle:
+                                            TextDecorationStyle.solid)),
+                                TextSpan(
+                                    text: " and ",
+                                    style: TextStyle(
+                                        color: chekbox == true
+                                            ? Colors.grey.shade600
+                                            : Colors.red)),
+                                TextSpan(
+                                    text: "consent",
+                                    style: TextStyle(
+                                        color: chekbox == true
+                                            ? AppColors.primary
+                                            : Colors.red,
+                                        decoration: TextDecoration.underline,
+                                        decorationStyle:
+                                            TextDecorationStyle.solid)),
+                                TextSpan(
+                                    text: " for accessing the services.",
+                                    style: TextStyle(
+                                        color: chekbox == true
+                                            ? Colors.grey.shade600
+                                            : Colors.red)),
+                              ],
+                            )),
+                          ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
             ),
@@ -421,7 +387,6 @@ class _Agree_screenState extends State<Agree_screen> {
   }
 
   Widget _buildPage(String title, String text) {
-    final w = MediaQuery.of(context).size.width;
     return SingleChildScrollView(
       child: Column(
         children: [

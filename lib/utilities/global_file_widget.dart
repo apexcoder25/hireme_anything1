@@ -3,7 +3,7 @@
 import 'package:hire_any_thing/utilities/AppConstant.dart';
 import 'package:hire_any_thing/utilities/constant.dart';
 import 'package:hire_any_thing/utilities/custom_indicator.dart';
-import 'package:hire_any_thing/views/date_timeSelect.dart';
+import 'package:hire_any_thing/User_app/views/date_timeSelect.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

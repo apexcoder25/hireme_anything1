@@ -3,10 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/user_basic_getx_controller.dart';
 import 'package:hire_any_thing/utilities/constant.dart';
-import 'package:hire_any_thing/views/HealthPlan.dart';
-import 'package:hire_any_thing/views/Home.dart';
-import 'package:hire_any_thing/views/booking.dart';
-import 'package:hire_any_thing/views/profile.dart';
+import 'package:hire_any_thing/User_app/views/HealthPlan.dart';
+import 'package:hire_any_thing/User_app/views/Home.dart';
+import 'package:hire_any_thing/User_app/views/booking.dart';
+import 'package:hire_any_thing/User_app/views/profile.dart';
 
 // int selectedindex = 0;
 class Navi extends StatefulWidget {
