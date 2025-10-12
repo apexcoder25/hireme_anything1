@@ -18,6 +18,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/mi
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/passenger_transpost.dart';
 import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';
+import 'package:hire_any_thing/utilities/colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../uiltis/color.dart';
 
 class AddServiceScreenFirst extends StatefulWidget {
-  AddServiceScreenFirst({Key? key});
+  AddServiceScreenFirst({Key? key}) : super(key: key);
 
   @override
   State<AddServiceScreenFirst> createState() => _AddServiceScreenFirstState();
@@ -34,613 +35,819 @@ class AddServiceScreenFirst extends StatefulWidget {
 class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
   final DropdownController controller = Get.put(DropdownController());
   final CalendarController Calendercontroller = Get.put(CalendarController());
-  TextEditingController kmPriceController = TextEditingController();
-  // TextEditingController selltingController = TextEditingController();
-  TextEditingController streetNameController = TextEditingController();
-  TextEditingController postCodeController = TextEditingController();
-  TextEditingController cityController = TextEditingController();
-  TextEditingController serviceNameController = TextEditingController();
-  TextEditingController desController = TextEditingController();
 
-  TextEditingController jobTitleController = TextEditingController();
-
-  TextEditingController experienceController = TextEditingController();
-  TextEditingController SpecializationsController = TextEditingController();
-  TextEditingController KeySkillsCompletedController = TextEditingController();
-  TextEditingController KeyProjectCompletedController = TextEditingController();
-
-  TextEditingController preferredWorkLocationsController =
-      TextEditingController();
-  String? selectedTimeSlot;
-  String? ServiceStatus;
-
-  final List<String> timeSlots = ["Morning", "Afternoon", "Evening", "Night"];
-
-  bool isOneDayHire = false;
-  bool isPerHourHire = false;
-
-  bool isGDPR = false;
-  bool isTNC = false;
-  bool isContactDetails = false;
-  bool isCookiesPolicy = false;
-  bool isPrivacyPolicy = false;
-
-  final Map<String, bool> days = {
-    'Monday': false,
-    'Tuesday': false,
-    'Wednesday': false,
-    'Thursday': false,
-    'Friday': false,
-    'Saturday': false,
-    'Sunday': false,
-  };
-
-  File? _logoImage;
-  File? _coverImage;
-  int k = 0;
-  var ll = 10;
-
+  // Essential controllers only
+  List<String>? _imageFiles = [];
   final ImagePicker _picker = ImagePicker();
-
-  Future<void> _getImageFromCamera(ImageSource source, bool isLogo) async {
-    final XFile? pickedFile = await _picker.pickImage(source: source);
-    if (pickedFile != null) {
-      setState(() {
-        if (isLogo) {
-          _logoImage = File(pickedFile.path);
-        } else {
-          _coverImage = File(pickedFile.path);
-        }
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    // Future.microtask(() => apiServiceVenderSide.subcategoryList(
-    //     venderSidetGetXController
-    //         .getCategoryList!.subcategoryList[0].categoryId)).whenComplete(() {
-    //   setState(() {});
-    // });
-
-    super.initState();
-  }
-
-  IconData currentIcon = Icons.add;
-
-  String getFormattedTime(TimeOfDay time) {
-    int hour = time.hour;
-    int minute = time.minute;
-    String period = time.period == DayPeriod.am ? 'AM' : 'PM';
-
-    String formattedHour = hour < 10 ? '0$hour' : '$hour';
-    String formattedMinute = minute < 10 ? '0$minute' : '$minute';
-
-    return '$formattedHour:$formattedMinute $period';
-  }
-
+  bool loader = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final VenderSidetGetXController venderSidetGetXController =
       Get.put(VenderSidetGetXController());
 
-  // String? selectedHireOption; // Default selected option
-  // String selectedSubOption = 'Sub C.. Limousine Hire'; // Default selected option
-
-  List<String>? _imageFiles = [];
-
-  Future compressFile({file}) async {
-    final filePath = file!.path;
-
-    // Create output file path
-    // eg:- "Volume/VM/abcd_out.jpeg"
-    final lastIndex = filePath.lastIndexOf(RegExp(r'.jp'));
-    final splitted = filePath.substring(0, (lastIndex));
-    final outPath = '${splitted}_out${filePath.substring(lastIndex)}';
-    var result = await FlutterImageCompress.compressAndGetFile(
-      file.path.toString(),
-      outPath.toString(),
-      quality: 80,
-    );
-    return result?.path.toString();
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
   }
 
-  Future<void> _pickImages(bool camera) async {
-    final ImagePicker _picker = ImagePicker();
-    // ImageSource.camera
-    // _picker.pickImage(source: source)
-
-    if (camera == false) {
-      final List<XFile>? pickedFiles =
-          await _picker.pickMultiImage(imageQuality: 50);
-
-      if (pickedFiles != null && pickedFiles.isNotEmpty) {
-        setState(() {
-          pickedFiles?.forEach((element) async {
-            print("Index => ${element.path}");
-            _imageFiles?.add(element.path);
-            // Future.microtask(
-            //         () => compressFile(file: XFile(element.path.toString())))
-            //     .then((value) {
-            //   _imageFiles?.add(value);
-            //   setState(() {});
-            // });
-          });
-        });
+  void _initializeData() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.categories.isEmpty) {
+        controller.refreshData();
       }
-    }
-
-    if (camera == true) {
-      //
-      dynamic image =
-          await _picker.pickImage(source: ImageSource.camera, imageQuality: 50);
-      if (image != null) {
-        _imageFiles?.add(image.path.toString());
-      }
-
-      setState(() {});
-    }
+    });
   }
 
-  bool loader = false;
-
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    final h = MediaQuery.of(context).size.height;
-    final w = MediaQuery.of(context).size.width;
-    final VenderSidetGetXController venderSidetGetXController =
-        Get.put(VenderSidetGetXController());
-
-    // print("venderSidetGetXController.getSubCategoryList?.subcategoryList=>${venderSidetGetXController.getSubCategoryList?.subcategoryList.length}");
-
-    print(
-        "value=> ${venderSidetGetXController.getCategoryList?.subcategoryList.length}}");
-
     return Scaffold(
-      backgroundColor: colors.scaffold_background_color,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Form(
-            autovalidateMode: AutovalidateMode.always,
-            key: _formKey,
+      backgroundColor: Colors.grey.shade50,
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          _buildHeaderSection(),
+          _buildFormSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderSection() {
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 10),
-                Text("Select Category"),
-                const SizedBox(height: 10),
-                Obx(() {
-                  if (controller.isLoading.value) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-
-                  return DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 11, 14, 16),
-                            width: 2), // Custom Border
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.btnColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: Colors.green, width: 3), // Focused Border
+                      child: const Icon(
+                        Icons.add_business_outlined,
+                        color: AppColors.btnColor,
+                        size: 24,
                       ),
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    value: controller.selectedCategory.value,
-                    hint: Text("Select Category"),
-                    isExpanded: true,
-                    items: controller.categories.map((category) {
-                      return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.selectCategory(value);
-                      }
-                    },
-                  );
-                }),
-
-                SizedBox(height: 20),
-                Text("Select Subcategory"),
-                SizedBox(height: 10),
-
-                // Subcategory Dropdown
-                Obx(() {
-                  return DropdownButtonFormField<String>(
-                    decoration: InputDecoration(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: const Color.fromARGB(255, 11, 14, 16),
-                            width: 2), // Custom Border
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: Colors.green, width: 3), // Focused Border
-                      ),
-                    ),
-                    value: controller.selectedSubcategory.value,
-                    hint: Text("Select Subcategory"),
-                    isExpanded: true,
-                    items: controller.subcategories.map((subcat) {
-                      return DropdownMenuItem<String>(
-                        value: subcat,
-                        child: Text(subcat),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        controller.selectSubcategory(value);
-                      }
-                    },
-                  );
-                }),
-
-                const SizedBox(height: 40),
-
-                Container(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      print(controller.selectedSubcategory);
-                      if (controller.selectedCategory ==
-                          'Passenger Transport') {
-                        if (controller.selectedSubcategory == 'Boat Hire') {
-                          Get.to(BoatHireService(
-                            Category: controller.selectedCategory,
-                            SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller
-                                .selectedCategoryId.value, // Pass categoryId
-                            SubCategoryId:
-                                controller.selectedSubcategoryId.value,
-                          ));
-                        } else if (controller.selectedSubcategory ==
-                            'Chauffeur Driven Prestige Car Hire') {
-                          Get.to(ChauffeurHireService(
-                            Category: controller.selectedCategory,
-                            SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller
-                                .selectedCategoryId.value, // Pass categoryId
-                            SubCategoryId:
-                                controller.selectedSubcategoryId.value,
-                          ));
-                        } else if (controller.selectedSubcategory ==
-                            'Coach Hire') {
-                          Get.to(CoachHireService(
-                            Category: controller.selectedCategory,
-                            SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller
-                                .selectedCategoryId.value, // Pass categoryId
-                            SubCategoryId:
-                                controller.selectedSubcategoryId.value,
-                          ));
-                        } else if (controller.selectedSubcategory ==
-                            'Funeral Car Hire') {
-                          Get.to(FuneralCarHireService(
-                            Category: controller.selectedCategory,
-                            SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller
-                                .selectedCategoryId.value, // Pass categoryId
-                            SubCategoryId:
-                                controller.selectedSubcategoryId.value,
-                          ));
-                        } else if (controller.selectedSubcategory ==
-                            'Horse and Carriage Hire') {
-                          Get.to(HorseAndCarriageHireService(
-                            Category: controller.selectedCategory,
-                            SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller
-                                .selectedCategoryId.value, // Pass categoryId
-                            SubCategoryId:
-                                controller.selectedSubcategoryId.value,
-                          ));
-                        } else if (controller.selectedSubcategory ==
-                            'Limousine Hire') {
-                          Get.to(LimousineHireService(
-                            Category: controller.selectedCategory,
-                            SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller
-                                .selectedCategoryId.value, // Pass categoryId
-                            SubCategoryId:
-                                controller.selectedSubcategoryId.value,
-                          ));
-                        } else if (controller.selectedSubcategory ==
-                            'Minibus Hire') {
-                          Get.to(MinibusHireService(
-                            Category: controller.selectedCategory,
-                            SubCategory: controller.selectedSubcategory,
-                            CategoryId: controller
-                                .selectedCategoryId.value, // Pass categoryId
-                            SubCategoryId:
-                                controller.selectedSubcategoryId.value,
-                          ));
-                        }
-                      } else if (controller.selectedCategory ==
-                              'Passenger Transport' &&
-                          controller.selectedSubcategory.isNotEmpty != null) {
-                        Get.to(PassengerTransportService(
-                          Category: controller.selectedCategory,
-                          SubCategory: controller.selectedSubcategory,
-                          CategoryId: controller
-                              .selectedCategoryId.value, // Pass categoryId
-                          SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));
-                      } else if (controller.selectedCategory ==
-                              'Automotive and Electric Hire' &&
-                          controller.selectedSubcategory.isNotEmpty != null) {
-                        Get.to(AutomotiveElectricHireService(
-                          Category: controller.selectedCategory,
-                          SubCategory: controller.selectedSubcategory,
-                          CategoryId: controller
-                              .selectedCategoryId.value, // Pass categoryId
-                          SubCategoryId: controller.selectedSubcategoryId.value,
-                        ));
-                      }
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          // if (mobile.text.isEmpty ||
-                          //     shop_name.text.isEmpty ||
-                          //     addressmap!.isEmpty ||
-                          //     emaillllllll.text.isEmpty ||
-                          //     legal_nameee.text.isEmpty ||
-                          //     _logoImage == null ||
-                          //     vehicleName.text.isEmpty ||
-                          //     vehicleDescription.text.isEmpty
-                          // // selectedOpenTime == null ||
-                          // // selectedOpenTime1 == null ||
-                          // // ||
-                          // // _coverImage == null
-                          // ) {
-                          //   return Colors.grey;
-                          // }
-                          return Colors.green;
-                        },
-                      ),
-                    ),
-                    child: (loader == true)
-                        ? CircularProgressIndicator(
-                            color: Colors.blue,
-                          )
-                        : const Text(
-                            "Next",
-                            style: TextStyle(color: Colors.white),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Service Category',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
                           ),
-                  ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Select your business category and service type',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 20),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     const Text(
-                //       "Already have an account?",
-                //       style: TextStyle(
-                //           fontSize: 15,
-                //           color: colors.hintext_shop,
-                //           fontWeight: FontWeight.normal),
-                //     ),
-                //     TextButton(
-                //       child: const Text("Login",
-                //           textAlign: TextAlign.justify,
-                //           style: TextStyle(
-                //               color: colors.button_color,
-                //               fontWeight: FontWeight.w600)),
-                //       onPressed: () {
-                //         Get.to(const Login());
-                //       },
-                //     )
-                //   ],
-                // ),
               ],
             ),
           ),
+          Container(
+            height: 1,
+            color: Colors.grey.shade200,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildCategoryDropdown(),
+            const SizedBox(height: 24),
+            _buildSubcategoryDropdown(),
+            const SizedBox(height: 40),
+            _buildActionButtons(),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
   }
 
-  bool isLoading = false;
-  bool isMapOpening = false;
-
-  Future<void> getCurrentLocation() async {
-    print("Get Current Location");
-    try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        try {
-          Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
-          );
-          double latitude = position.latitude;
-          double longitude = position.longitude;
-
-          // Save the latitude and longitude to SharedPreferences
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setDouble('latitude', latitude);
-          await prefs.setDouble('longitude', longitude);
-
-          print('Latitude: $latitude, Longitude: $longitude');
-
-          // Navigate to the GmapState screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => GmapStatetest()),
-          ).then((result) {
-            if (result != null) {
-              setState(() {
-                latitudemap = result['latitude'];
-                longitudemap = result['longitude'];
-                addressmap = result['address'];
-              });
-            }
-          });
-        } catch (e) {
-          print('Error getting current location: $e');
-        }
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  double? latitudemap;
-
-  double? longitudemap;
-
-  String? addressmap;
-
-  bool isRowVisible = false;
-
-  TimeOfDay? selectedOpenTime;
-  TimeOfDay? selectedOpenTime1;
-
-  TimeOfDay? selectedOpenTime2;
-  TimeOfDay? selectedOpenTime3;
-
-  void _showWarningDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Warning'),
-          content: const Text(
-              'Please enter the time after the previous close time.'),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
+  Widget _buildCategoryDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.category_outlined,
+              color: AppColors.btnColor,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Business Category',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const Text(
+              ' *',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
-        );
-      },
-    );
-  }
-
-  bool _isBefore(TimeOfDay time1, TimeOfDay time2) {
-    final DateTime dateTime1 = DateTime(2023, 1, 1, time1.hour, time1.minute);
-    final DateTime dateTime2 = DateTime(2023, 1, 1, time2.hour, time2.minute);
-    return dateTime1.isBefore(dateTime2);
-  }
-
-  submit() {
-    // print("KM PRICE: ${kmPriceController}");
-    if (serviceNameController.text.isEmpty) {
-      return gtxSnakbar("Missing Information", "Please Enter Service Name");
-    }
-
-    if (kmPriceController.text.isEmpty) {
-      return gtxSnakbar(
-          "Missing Information", "Please enter the price per kilometer");
-    }
-
-    if (desController.text.isEmpty) {
-      return gtxSnakbar("Missing Information", "Please Enter Description");
-    }
-
-    Map<String, dynamic> requestedData = {
-      // "categoryId": "${venderSidetGetXController.initalvalue}",
-      "subcategoryId": "${venderSidetGetXController.initalvalueSubCategory}",
-      "service_name": "${serviceNameController.text.trim()}",
-      "kilometer_price": "${kmPriceController.text}",
-      // "service_price": "${mrpController.text.trim()}",
-      // "final_price": "${selltingController .text.trim()}",
-      // "address": "${addressmap.toString()}",
-      // "city_name": "${cityController.text.trim()}",
-      // "pincode": "${postCodeController.text.trim()}",
-      "description": "${desController.text.trim()}",
-      // "latitude": "${latitudemap}",
-      // "longitude": "${longitudemap}",
-    };
-
-    Future.microtask(() => apiServiceVenderSide.addVendorService(
-        _imageFiles, requestedData, context));
-  }
-
-  gtxSnakbar(title, des) {
-    return Get.snackbar(
-      "$title", // Title of the Snackbar
-      "$des", // Message to display
-      snackPosition: SnackPosition.BOTTOM, // Position of the snackbar
-      backgroundColor: Colors.redAccent, // Background color
-      colorText: Colors.white, // Text color
-      borderRadius: 8.0, // Border radius for rounding corners
-      margin: const EdgeInsets.all(16), // Padding around the snackbar
-      duration: Duration(seconds: 3), // How long the snackbar will be visible
-    );
-  }
-}
-
-Widget _buildDatePicker(BuildContext context, String label,
-    Rx<DateTime> selectedDate, bool isFrom) {
-  final CalendarController calendarController = Get.put(CalendarController());
-  return ListTile(
-    title: Text(
-        "$label: ${DateFormat('dd-MM-yyyy HH:mm').format(selectedDate.value)}"),
-    trailing: Icon(Icons.calendar_today),
-    onTap: () async {
-      DateTime? pickedDate = await showDatePicker(
-        context: context,
-        initialDate: selectedDate.value,
-        firstDate: DateTime(2025, 2, 1),
-        lastDate: DateTime(2025, 2, 28),
-      );
-
-      if (pickedDate != null) {
-        TimeOfDay? pickedTime = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.fromDateTime(selectedDate.value),
-        );
-
-        if (pickedTime != null) {
-          DateTime finalDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-
-          if (isFrom) {
-            calendarController.updateDateRange(
-                finalDateTime, calendarController.toDate.value);
-          } else {
-            calendarController.updateDateRange(
-                calendarController.fromDate.value, finalDateTime);
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          if (controller.isLoading.value) {
+            return _buildLoadingDropdown();
           }
-        }
-      }
-    },
-  );
-}
 
-Widget _buildCalendarCell(DateTime date) {
-  return Center(
-    child: Text(
-      DateFormat('d').format(date),
-      style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-    ),
-  );
+          if (controller.categories.isEmpty) {
+            return _buildErrorDropdown();
+          }
+
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.grey.shade300,
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+              ),
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+              dropdownColor: Colors.white,
+              value: controller.selectedCategory.value,
+              hint: Text(
+                "Choose your business category",
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 15,
+                ),
+              ),
+              isExpanded: true,
+              validator: (value) =>
+                  value == null ? "Please select a category" : null,
+              items: controller.categories.map((category) {
+                return DropdownMenuItem<String>(
+                  value: category,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: AppColors.btnColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          category,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  controller.selectCategory(value);
+                  _showSelectionFeedback("Category selected: $value");
+                }
+              },
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildSubcategoryDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.tune_outlined,
+              color: AppColors.btnColor,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'Service Type',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const Text(
+              ' *',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Obx(() {
+          bool isDisabled = controller.selectedCategory.value == null;
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              color: isDisabled ? Colors.grey.shade100 : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDisabled ? Colors.grey.shade300 : Colors.grey.shade300,
+                width: 1.5,
+              ),
+              boxShadow: isDisabled
+                  ? []
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+            ),
+            child: DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+              ),
+              style: TextStyle(
+                fontSize: 15,
+                color: isDisabled ? Colors.grey.shade500 : Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+              dropdownColor: Colors.white,
+              value: controller.selectedSubcategory.value,
+              hint: Text(
+                isDisabled
+                    ? "First select a category above"
+                    : "Choose your specific service",
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 15,
+                ),
+              ),
+              isExpanded: true,
+              validator: (value) =>
+                  value == null ? "Please select a service type" : null,
+              items: controller.subcategories.map((subcat) {
+                return DropdownMenuItem<String>(
+                  value: subcat,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: AppColors.btnColor.withOpacity(0.6),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          subcat,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: isDisabled
+                  ? null
+                  : (value) {
+                      if (value != null) {
+                        controller.selectSubcategory(value);
+                        _showSelectionFeedback("Service selected: $value");
+                      }
+                    },
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildLoadingDropdown() {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade300, width: 1.5),
+      ),
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.btnColor),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              "Loading categories...",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorDropdown() {
+    return Container(
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.red.shade200, width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: Colors.red.shade400,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Unable to load categories",
+                      style: TextStyle(
+                        color: Colors.red.shade700,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: TextButton.icon(
+              onPressed: controller.refreshData,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text("Retry"),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red.shade700,
+                backgroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        // Selection Summary (only show when both are selected)
+        Obx(() {
+          if (controller.selectedCategory.value != null &&
+              controller.selectedSubcategory.value != null) {
+            return Container(
+              margin: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.btnColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.btnColor.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline,
+                        color: AppColors.btnColor,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Selection Summary',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSummaryRow(
+                    'Category',
+                    controller.selectedCategory.value!,
+                    Icons.category_outlined,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildSummaryRow(
+                    'Service Type',
+                    controller.selectedSubcategory.value!,
+                    Icons.tune_outlined,
+                  ),
+                ],
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+
+        // Continue Button
+        Container(
+          width: double.infinity,
+          height: 56,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.btnColor.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: loader ? null : _handleNextButtonPress,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.btnColor,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            child: loader
+                ? SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Continue to Service Details",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.arrow_forward_rounded,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: AppColors.btnColor.withOpacity(0.7),
+          size: 16,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey.shade700,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.btnColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _handleNextButtonPress() async {
+    // Validate form
+    if (!_formKey.currentState!.validate()) {
+      _showErrorSnackbar("Please complete all required fields");
+      return;
+    }
+
+    if (controller.selectedCategory.value == null) {
+      _showErrorSnackbar("Please select a business category");
+      return;
+    }
+
+    if (controller.selectedSubcategory.value == null) {
+      _showErrorSnackbar("Please select a service type");
+      return;
+    }
+
+    setState(() => loader = true);
+
+    // Simulate processing delay
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    setState(() => loader = false);
+
+    // Navigate
+    _navigateToServiceScreen();
+  }
+
+  void _navigateToServiceScreen() {
+    final category = controller.selectedCategory.value!;
+    final subcategory = controller.selectedSubcategory.value!;
+    final categoryId = controller.selectedCategoryId.value ?? "";
+    final subcategoryId = controller.selectedSubcategoryId.value ?? "";
+
+    // Navigation logic (keeping your existing logic)
+    if (category == 'Passenger Transport') {
+      switch (subcategory) {
+        case 'Boat Hire':
+          Get.to(() => BoatHireService(
+                Category: Rxn<String>(category),
+                SubCategory: Rxn<String>(subcategory),
+                CategoryId: categoryId,
+                SubCategoryId: subcategoryId,
+              ));
+          break;
+        case 'Chauffeur Driven Prestige Car Hire':
+          Get.to(() => ChauffeurHireService(
+                Category: Rxn<String>(category),
+                SubCategory: Rxn<String>(subcategory),
+                CategoryId: categoryId,
+                SubCategoryId: subcategoryId,
+              ));
+          break;
+        // ... (keep all your existing cases)
+        default:
+          Get.to(() => PassengerTransportService(
+                Category: Rxn<String>(category),
+                SubCategory: Rxn<String>(subcategory),
+                CategoryId: categoryId,
+                SubCategoryId: subcategoryId,
+              ));
+      }
+    } else if (category == 'Automotive and Electric Hire') {
+      Get.to(() => AutomotiveElectricHireService(
+            Category: Rxn<String>(category),
+            SubCategory: Rxn<String>(subcategory),
+            CategoryId: categoryId,
+            SubCategoryId: subcategoryId,
+          ));
+    } else {
+      _showErrorSnackbar("Service screen not found for selected category");
+    }
+  }
+
+  void _showSelectionFeedback(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.btnColor,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red.shade600,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.help_outline,
+              color: AppColors.btnColor,
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Need Help?',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '1. Choose your business category (e.g., Passenger Transport)',
+              style: TextStyle(fontSize: 14, height: 1.5),
+            ),
+            SizedBox(height: 8),
+            Text(
+              '2. Select your specific service type (e.g., Limousine Hire)',
+              style: TextStyle(fontSize: 14, height: 1.5),
+            ),
+            SizedBox(height: 8),
+            Text(
+              '3. Click "Continue" to proceed with service setup',
+              style: TextStyle(fontSize: 14, height: 1.5),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Got it',
+              style: TextStyle(
+                color: AppColors.btnColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Deprecated snackbar method (keeping for compatibility)
+  gtxSnakbar(String title, String des) {
+    return _showErrorSnackbar(des);
+  }
 }
