@@ -1,29 +1,13 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_product/maptest.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/automotive_electric_hire_service/automotive_and_electric_hire.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/category_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/boat_hire_service_screen.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/chauffeur_Driven_Prestige_Car_HIre.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coach_hire_services.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/funeralCarHireService.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/horse_and_carriage_hire_service.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/limousine_hire_service.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/minibus_hire_services.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/passenger_transpost.dart';
-import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';
 import 'package:hire_any_thing/utilities/colors.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../uiltis/color.dart';
 
 class AddServiceScreenFirst extends StatefulWidget {
   AddServiceScreenFirst({Key? key}) : super(key: key);
@@ -37,8 +21,6 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
   final CalendarController Calendercontroller = Get.put(CalendarController());
 
   // Essential controllers only
-  List<String>? _imageFiles = [];
-  final ImagePicker _picker = ImagePicker();
   bool loader = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final VenderSidetGetXController venderSidetGetXController =
@@ -289,15 +271,15 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
             Icon(
               Icons.tune_outlined,
               color: AppColors.btnColor,
               size: 20,
             ),
-            const SizedBox(width: 8),
-            const Text(
+            SizedBox(width: 8),
+            Text(
               'Service Type',
               style: TextStyle(
                 fontSize: 16,
@@ -305,7 +287,7 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
                 color: Colors.black87,
               ),
             ),
-            const Text(
+            Text(
               ' *',
               style: TextStyle(
                 color: Colors.red,
@@ -422,7 +404,7 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
@@ -523,15 +505,15 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(
                         Icons.check_circle_outline,
                         color: AppColors.btnColor,
                         size: 20,
                       ),
-                      const SizedBox(width: 8),
-                      const Text(
+                      SizedBox(width: 8),
+                      Text(
                         'Selection Summary',
                         style: TextStyle(
                           fontSize: 16,
@@ -585,7 +567,7 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
               ),
             ),
             child: loader
-                ? SizedBox(
+                ? const SizedBox(
                     width: 24,
                     height: 24,
                     child: CircularProgressIndicator(
@@ -638,7 +620,7 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
         Expanded(
           child: Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.btnColor,
               fontWeight: FontWeight.w600,
