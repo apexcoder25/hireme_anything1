@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
 import '../controllers/vendor_auth_controller.dart';
 import '../components/auth_input_field.dart';
 import '../components/auth_button.dart';

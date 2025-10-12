@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
 
 class ImageUploadSection extends StatefulWidget {
   const ImageUploadSection({super.key});

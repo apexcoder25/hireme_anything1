@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/Vendor_App/model/account_deatils_model.dart';
+import 'package:hire_any_thing/Vendor_App/models/account_deatils_model.dart';
 import 'package:hire_any_thing/data/exceptions/api_exception.dart';
 import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';

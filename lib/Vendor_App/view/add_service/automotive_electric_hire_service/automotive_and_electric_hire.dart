@@ -9,7 +9,7 @@ import 'package:hire_any_thing/Vendor_App/uiltis/custom_checkbox.dart';
 import 'package:hire_any_thing/Vendor_App/uiltis/custom_dropdown.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
 import 'package:intl/intl.dart';

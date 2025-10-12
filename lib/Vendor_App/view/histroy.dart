@@ -9,10 +9,10 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/date_shop_order_list.dart';
-import '../model/monthly_shop_order_list.dart';
-import '../model/today_shop_orderlist_model.dart';
-import '../model/weekly_shop_orderlist.dart';
+import '../models/date_shop_order_list.dart';
+import '../models/monthly_shop_order_list.dart';
+import '../models/today_shop_orderlist_model.dart';
+import '../models/weekly_shop_orderlist.dart';
 import '../uiltis/color.dart';
 import 'histroyorderdeatils.dart';
 

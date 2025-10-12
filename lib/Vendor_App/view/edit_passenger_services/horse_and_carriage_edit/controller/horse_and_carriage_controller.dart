@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
 import 'package:hire_any_thing/data/exceptions/api_exception.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';
 import 'package:hire_any_thing/data/models/vender_side_model/vendor_home_page_services_model.dart';

@@ -14,7 +14,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/controller/add_vendor
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupon_list.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupondialog.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/upload_image.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/constants_file/uk_cities.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/city_fetch_controller.dart';

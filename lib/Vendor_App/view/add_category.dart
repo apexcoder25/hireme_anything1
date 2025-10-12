@@ -4,7 +4,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../model/searchshop.dart';
+import '../models/searchshop.dart';
 import '../uiltis/color.dart';
 import 'cate_product_list.dart';
 
