@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/add_service_screen_1.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/add_service_screen_1.dart';
 import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';
 

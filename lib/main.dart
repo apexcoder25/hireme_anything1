@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/data/getx_controller/user_side/user_profile_controller.dart';
+import 'package:hire_any_thing/User_app/views/user_profle/controller/user_profile_controller.dart';
 import 'package:hire_any_thing/res/routes/routes_name.dart';
 import 'package:hire_any_thing/splash.dart';
 import 'package:hire_any_thing/utilities/AppFonts.dart';

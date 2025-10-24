@@ -1,14 +1,13 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/models/account_deatils_model.dart';
 import 'package:hire_any_thing/data/exceptions/api_exception.dart';
 import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
+import 'package:hire_any_thing/utilities/colors.dart';
 
-
-class AccountsAndManagementController extends GetxController {
+class AccountsAndManagementController extends GetxController with GetSingleTickerProviderStateMixin {
   final accountNumberController = TextEditingController();
   final bankNameController = TextEditingController();
   final sortCodeController = TextEditingController();
@@ -24,19 +23,46 @@ class AccountsAndManagementController extends GetxController {
   var isEditing = false.obs;
   var accountDetails = Rxn<AccountDetailsModel>();
   var vendorId = "".obs;
+  var selectedTab = 0.obs; // 0 = Bank Details, 1 = PayPal
+  var isAnimationInitialized = false.obs;
 
   final SessionVendorSideManager sessionManager = SessionVendorSideManager();
   final ApiServiceVenderSide apiService = ApiServiceVenderSide();
 
+  late AnimationController animationController;
+  late Animation<double> slideAnimation;
+
   @override
   void onInit() {
     super.onInit();
+    _initializeAnimations();
     fetchVendorId();
     fetchAccountDetails();
   }
 
+  void _initializeAnimations() {
+    animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    slideAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOutCubic,
+    ));
+
+    animationController.forward();
+    isAnimationInitialized.value = true;
+  }
+
   @override
   void onClose() {
+    if (isAnimationInitialized.value) {
+      animationController.dispose();
+    }
     accountNumberController.dispose();
     bankNameController.dispose();
     sortCodeController.dispose();
@@ -79,30 +105,12 @@ class AccountsAndManagementController extends GetxController {
     try {
       String? token = await sessionManager.getToken();
       if (token == null || vendorId.value.isEmpty) {
-        Get.snackbar(
-          "Error",
-          "Unable to fetch token or vendor ID",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          borderRadius: 8.0,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 3),
-        );
+        _showErrorSnackbar("Unable to fetch authentication details");
         return;
       }
 
       if (isTokenExpired(token)) {
-        Get.snackbar(
-          "Error",
-          "Session expired. Please log in again.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          borderRadius: 8.0,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 3),
-        );
+        _showErrorSnackbar("Session expired. Please log in again.");
         return;
       }
 
@@ -115,93 +123,122 @@ class AccountsAndManagementController extends GetxController {
         final data = response is Map<String, dynamic> ? response : response['data'];
         accountDetails.value = AccountDetailsModel.fromJson(data);
         hasAccountDetails.value = true;
-
-        accountNumberController.text = accountDetails.value!.accountNumber;
-        bankNameController.text = accountDetails.value!.bankName;
-        sortCodeController.text = accountDetails.value!.ifscCode;
-        ibanNumberController.text = accountDetails.value!.ibanNumber;
-        accountHolderNameController.text = accountDetails.value!.bankAccountHolderName;
-        swiftCodeController.text = accountDetails.value!.swiftCode;
-        paypalIdController.text = accountDetails.value!.paypalId;
+        _populateControllers();
       } else {
         hasAccountDetails.value = false;
-        accountNumberController.clear();
-        bankNameController.clear();
-        sortCodeController.clear();
-        ibanNumberController.clear();
-        accountHolderNameController.clear();
-        swiftCodeController.clear();
-        paypalIdController.clear();
+        _clearControllers();
       }
     } on ApiException catch (e) {
-      Get.snackbar(
-        "Error",
-        "Failed to fetch account details: ${e.message}",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        borderRadius: 8.0,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      );
+      _showErrorSnackbar("Failed to fetch account details: ${e.message}");
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "An error occurred while fetching account details: ${e.toString()}",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        borderRadius: 8.0,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      );
+      _showErrorSnackbar("An error occurred while fetching account details");
     } finally {
       isLoading.value = false;
     }
   }
 
+  void _populateControllers() {
+    if (accountDetails.value != null) {
+      accountNumberController.text = accountDetails.value!.accountNumber;
+      bankNameController.text = accountDetails.value!.bankName;
+      sortCodeController.text = accountDetails.value!.ifscCode;
+      ibanNumberController.text = accountDetails.value!.ibanNumber;
+      accountHolderNameController.text = accountDetails.value!.bankAccountHolderName;
+      swiftCodeController.text = accountDetails.value!.swiftCode;
+      paypalIdController.text = accountDetails.value!.paypalId;
+    }
+  }
+
+  void _clearControllers() {
+    accountNumberController.clear();
+    bankNameController.clear();
+    sortCodeController.clear();
+    ibanNumberController.clear();
+    accountHolderNameController.clear();
+    swiftCodeController.clear();
+    paypalIdController.clear();
+  }
+
   bool validateForm() {
-    if (accountNumberController.text.isEmpty) {
-      showValidationError("Account Number is required");
-      return false;
-    }
-    if (bankNameController.text.isEmpty) {
-      showValidationError("Bank Name is required");
-      return false;
-    }
-    if (sortCodeController.text.isEmpty) {
-      showValidationError("Sort Code is required");
-      return false;
-    }
-    if (ibanNumberController.text.isEmpty) {
-      showValidationError("IBAN Number is required");
-      return false;
-    }
-    if (accountHolderNameController.text.isEmpty) {
-      showValidationError("Account Holder Name is required");
-      return false;
-    }
-    if (swiftCodeController.text.isEmpty) {
-      showValidationError("SWIFT Code is required");
-      return false;
-    }
-    if (paypalIdController.text.isEmpty) {
-      showValidationError("PayPal ID is required");
-      return false;
+    if (selectedTab.value == 0) {
+      // Bank validation
+      if (accountNumberController.text.trim().isEmpty) {
+        _showValidationError("Account Number is required");
+        return false;
+      }
+      if (bankNameController.text.trim().isEmpty) {
+        _showValidationError("Bank Name is required");
+        return false;
+      }
+      if (sortCodeController.text.trim().isEmpty) {
+        _showValidationError("Sort Code is required");
+        return false;
+      }
+      if (ibanNumberController.text.trim().isEmpty) {
+        _showValidationError("IBAN Number is required");
+        return false;
+      }
+      if (accountHolderNameController.text.trim().isEmpty) {
+        _showValidationError("Account Holder Name is required");
+        return false;
+      }
+      if (swiftCodeController.text.trim().isEmpty) {
+        _showValidationError("SWIFT Code is required");
+        return false;
+      }
+    } else {
+      // PayPal validation
+      if (paypalIdController.text.trim().isEmpty) {
+        _showValidationError("PayPal ID is required");
+        return false;
+      }
+      if (!GetUtils.isEmail(paypalIdController.text.trim())) {
+        _showValidationError("Please enter a valid PayPal email address");
+        return false;
+      }
     }
     return true;
   }
 
-  void showValidationError(String message) {
+  void _showValidationError(String message) {
     Get.snackbar(
       "Validation Error",
       message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red.shade600,
       colorText: Colors.white,
-      borderRadius: 8.0,
+      borderRadius: 12.0,
       margin: const EdgeInsets.all(16),
       duration: const Duration(seconds: 3),
+      icon: const Icon(Icons.error_outline, color: Colors.white, size: 20),
+    );
+  }
+
+  void _showErrorSnackbar(String message) {
+    Get.snackbar(
+      "Error",
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red.shade600,
+      colorText: Colors.white,
+      borderRadius: 12.0,
+      margin: const EdgeInsets.all(16),
+      duration: const Duration(seconds: 4),
+      icon: const Icon(Icons.error_outline, color: Colors.white, size: 20),
+    );
+  }
+
+  void _showSuccessSnackbar(String message) {
+    Get.snackbar(
+      "Success",
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: AppColors.btnColor,
+      colorText: Colors.white,
+      borderRadius: 12.0,
+      margin: const EdgeInsets.all(16),
+      duration: const Duration(seconds: 3),
+      icon: const Icon(Icons.check_circle_outline, color: Colors.white, size: 20),
     );
   }
 
@@ -211,124 +248,108 @@ class AccountsAndManagementController extends GetxController {
     }
 
     isLoading.value = true;
-
-    // Declare isUpdateOperation here so it is accessible in try and catch blocks
     bool isUpdateOperation = false;
 
     try {
       String? token = await sessionManager.getToken();
       if (token == null || vendorId.value.isEmpty) {
-        Get.snackbar(
-          "Error",
-          "Unable to fetch token or vendor ID",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          borderRadius: 8.0,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 3),
-        );
+        _showErrorSnackbar("Unable to fetch authentication details");
         return;
       }
 
       if (isTokenExpired(token)) {
-        Get.snackbar(
-          "Error",
-          "Session expired. Please log in again.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          borderRadius: 8.0,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 3),
-        );
+        _showErrorSnackbar("Session expired. Please log in again.");
         return;
       }
 
       final payload = {
-        'accountNumber': accountNumberController.text,
-        'bankName': bankNameController.text,
-        'ifscCode': sortCodeController.text,
-        'ibanNumber': ibanNumberController.text,
-        'bankAccountHolderName': accountHolderNameController.text,
-        'swiftCode': swiftCodeController.text,
-        'paypalId': paypalIdController.text,
+        'accountNumber': accountNumberController.text.trim(),
+        'bankName': bankNameController.text.trim(),
+        'ifscCode': sortCodeController.text.trim(),
+        'ibanNumber': ibanNumberController.text.trim(),
+        'bankAccountHolderName': accountHolderNameController.text.trim(),
+        'swiftCode': swiftCodeController.text.trim(),
+        'paypalId': paypalIdController.text.trim(),
       };
 
-      print("Submitting account details...");
-      print("Vendor ID: ${vendorId.value}");
-      print("Token: $token");
-      print("Payload: $payload");
-
       apiService.setRequestHeaders({'Authorization': 'Bearer $token'});
-   
       isUpdateOperation = hasAccountDetails.value && isEditing.value;
 
       final responseData = isUpdateOperation
-          ? await apiService.putApi('/vendor/${vendorId.value}/account', payload)
-          : await apiService.postApi('/vendor/${vendorId.value}/account', payload);
-
-      print("Response: $responseData");
+          ? await apiService.putApi('/${vendorId.value}/account', payload)
+          : await apiService.postApi('/${vendorId.value}/account', payload);
 
       if (responseData != null) {
-        final accountData = responseData is Map<String, dynamic> ? responseData : responseData['data'];
-        if (accountData != null) {
-          accountDetails.value = AccountDetailsModel.fromJson(accountData);
+        Map<String, dynamic>? accountData;
+        
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('error') && responseData['error'] == true) {
+            throw Exception(responseData['message'] ?? 'Unknown error occurred');
+          }
+          if (responseData.containsKey('success') && responseData['success'] == false) {
+            throw Exception(responseData['message'] ?? 'Operation failed');
+          }
+          
+          accountData = responseData.containsKey('data') ? responseData['data'] : responseData;
+        } else {
+          accountData = responseData['data'];
+        }
+
+        if (accountData != null && accountData.isNotEmpty) {
+          try {
+            accountDetails.value = AccountDetailsModel.fromJson(accountData);
+          } catch (modelError) {
+            print("Error creating AccountDetailsModel: $modelError");
+          }
         }
 
         hasAccountDetails.value = true;
+        isEditing.value = false;
 
         String successMessage = isUpdateOperation
             ? "Account details updated successfully"
             : "Account details added successfully";
 
-        isEditing.value = false;
-        Get.snackbar(
-          "Success",
-          successMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color.fromARGB(255, 5, 129, 69),
-          colorText: Colors.white,
-          borderRadius: 8.0,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 3),
-        );
+        _showSuccessSnackbar(successMessage);
+      } else {
+        throw Exception("No response received from server");
       }
     } on ApiException catch (e) {
       String errorMessage = isUpdateOperation
           ? "Failed to update account details"
-          : "Failed to add account details. Please try again.";
-      if (e.message != null && e.message!.isNotEmpty) {
-        errorMessage = e.message!;
+          : "Failed to add account details";
+      if (e.message.isNotEmpty) {
+        errorMessage = e.message;
       }
-
-      Get.snackbar(
-        "Error",
-        errorMessage,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        borderRadius: 8.0,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      );
+      _showErrorSnackbar(errorMessage);
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "An error occurred while submitting account details: ${e.toString()}",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        borderRadius: 8.0,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-      );
+      String errorMessage = "An error occurred while ${isUpdateOperation ? 'updating' : 'submitting'} account details";
+      
+      if (e.toString().contains('No response received') || 
+          e.toString().contains('Unknown error occurred') ||
+          e.toString().contains('Operation failed')) {
+        errorMessage = e.toString();
+      }
+      
+      _showErrorSnackbar(errorMessage);
     } finally {
       isLoading.value = false;
     }
   }
 
-  void resetForm() {
-    isEditing.value = true;
+  void toggleEditMode() {
+    isEditing.value = !isEditing.value;
+    if (isEditing.value) {
+      animationController.forward();
+    }
+  }
+
+  void cancelEdit() {
+    isEditing.value = false;
+    _populateControllers(); // Reset to original values
+  }
+
+  void changeTab(int index) {
+    selectedTab.value = index;
   }
 }

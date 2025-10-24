@@ -4,7 +4,7 @@ class UserRoutesName {
   
   // Main App Routes
   static const String introScreen = '/introduction_screen';
-  static const String homeUserView = '/home_page';
+  static const String UserMainDashboard= '/user_main_dashboard';  
   static const String userProfleScreen = '/user_profile_screen';
   
   // Service Routes

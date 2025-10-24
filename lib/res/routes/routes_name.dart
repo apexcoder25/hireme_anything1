@@ -1,15 +1,16 @@
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Auth/agree.dart';
 import 'package:hire_any_thing/User_App/views/auth/main_auth_screen.dart';
+import 'package:hire_any_thing/User_app/views/main_dashboard/user_main_dashboard.dart';
 import 'package:hire_any_thing/Vendor_App/view/accounts_and_payment/accounts_and_payment.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/add_service_screen_1.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/add_service_screen_1.dart';
 import 'package:hire_any_thing/Vendor_App/view/auth/main_auth_screen.dart';
 import 'package:hire_any_thing/Vendor_App/view/booking_status/booking_status_view.dart';
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/vendor_main_dashboard.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/profile_page.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
-import 'package:hire_any_thing/User_app/views/About/about_screen.dart';
+import 'package:hire_any_thing/User_app/views/AboutScreen/about_screen.dart';
 import 'package:hire_any_thing/User_app/views/Category/categories_view_all_screen.dart';
 import 'package:hire_any_thing/User_app/views/HomePage/home_page.dart';
 import 'package:hire_any_thing/User_app/views/Introduction/introduction_screen.dart';
@@ -18,11 +19,11 @@ import 'package:hire_any_thing/User_app/views/about_services/artist_hire_screen.
 import 'package:hire_any_thing/User_app/views/about_services/meeting_room_hire.dart';
 import 'package:hire_any_thing/User_app/views/about_services/passenger_transport_hire_screen.dart';
 import 'package:hire_any_thing/User_app/views/about_services/tutor_hire_details.dart';
-import 'package:hire_any_thing/User_app/views/contactUs/contact_us.dart';
+import 'package:hire_any_thing/User_app/views/contactUs_screen/contact_us.dart';
 import 'package:hire_any_thing/User_app/views/payment_success/payment_succes.dart';
-import 'package:hire_any_thing/User_app/views/user_booking_details/views/my_booking_screen.dart';
+import 'package:hire_any_thing/User_app/views/user_booking_screen/views/my_booking_screen.dart';
 import 'package:hire_any_thing/User_app/views/user_profle/user_profle_screen.dart';
-import 'package:hire_any_thing/User_app/views/why_choose_us_screen/why_choose_us_screen.dart';
+import 'package:hire_any_thing/User_app/views/whyChooseUsScreen/why_choose_us_screen.dart';
 
 class AppRoutes {
   static appRoutes() => [
@@ -47,8 +48,8 @@ class AppRoutes {
         //     transition: Transition.leftToRight,
         //     transitionDuration: Duration(milliseconds: 250)),
         GetPage(
-            name: UserRoutesName.homeUserView,
-            page: () => UserHomePageScreen(),
+            name: UserRoutesName.UserMainDashboard,
+            page: () => UserMainDashboard(),
             transition: Transition.leftToRight,
             transitionDuration: Duration(milliseconds: 250)),
         GetPage(

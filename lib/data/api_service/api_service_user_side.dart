@@ -47,33 +47,70 @@ class ApiServiceUserSide {
       print('UserLoginSignup Error: $e');
     }
   }
-Future<bool> userLogin(Map<String, dynamic> data) async {
-  try {
-    var response = await http.post(
-      Uri.parse(appUrlsUserSide.login),
-      body: data,
-    );
 
-    print('Login Response Status Code: ${response.statusCode}');
-    print('Login Response Body: ${response.body}');
+  Future<bool> userLogin(Map<String, dynamic> data) async {
+    try {
+      var response = await http.post(
+        Uri.parse(appUrlsUserSide.login),
+        body: data,
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
+      print('Login Response Status Code: ${response.statusCode}');
+      print('Login Response Body: ${response.body}');
 
-      // Validate the response structure
-      if (responseData is Map<String, dynamic>) {
-        final token = responseData["token"];
-        final userId = responseData["user"]?["id"];
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
 
-        // Log the extracted values
-        print("Extracted Token: $token");
-        print("Extracted User ID: $userId");
+        // Validate the response structure
+        if (responseData is Map<String, dynamic>) {
+          final token = responseData["token"];
+          final userId = responseData["user"]?["id"];
 
-        // Check if token and userId are present
-        if (token == null || userId == null) {
+          // Log the extracted values
+          print("Extracted Token: $token");
+          print("Extracted User ID: $userId");
+
+          // Check if token and userId are present
+          if (token == null || userId == null) {
+            Get.snackbar(
+              "Error",
+              "Invalid response: Token or User ID missing",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.redAccent,
+              colorText: Colors.white,
+              borderRadius: 8.0,
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 3),
+            );
+            return false;
+          }
+
+          // Store token and userId in SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString("usertoken", token.toString());
+          await prefs.setString("userId", userId.toString());
+
+          // Verify storage by retrieving the values
+          print("Stored Token: ${await prefs.getString("usertoken")}");
+          print("Stored User ID: ${await prefs.getString("userId")}");
+
+          Get.snackbar(
+            "Success",
+            "User Login Successfully.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: const Color.fromARGB(255, 5, 129, 69),
+            colorText: Colors.white,
+            borderRadius: 8.0,
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 3),
+          );
+
+          return true;
+        } else {
+          print("Invalid response format: $responseData");
           Get.snackbar(
             "Error",
-            "Invalid response: Token or User ID missing",
+            "Invalid response format from server",
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.redAccent,
             colorText: Colors.white,
@@ -83,33 +120,10 @@ Future<bool> userLogin(Map<String, dynamic> data) async {
           );
           return false;
         }
-
-        // Store token and userId in SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString("usertoken", token.toString());
-        await prefs.setString("userId", userId.toString());
-
-        // Verify storage by retrieving the values
-        print("Stored Token: ${await prefs.getString("usertoken")}");
-        print("Stored User ID: ${await prefs.getString("userId")}");
-
-        Get.snackbar(
-          "Success",
-          "User Login Successfully.",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color.fromARGB(255, 5, 129, 69),
-          colorText: Colors.white,
-          borderRadius: 8.0,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 3),
-        );
-
-        return true;
       } else {
-        print("Invalid response format: $responseData");
         Get.snackbar(
           "Error",
-          "Invalid response format from server",
+          "Login failed with status code: ${response.statusCode}",
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.redAccent,
           colorText: Colors.white,
@@ -119,10 +133,11 @@ Future<bool> userLogin(Map<String, dynamic> data) async {
         );
         return false;
       }
-    } else {
+    } catch (e) {
+      print("Login Error: $e");
       Get.snackbar(
         "Error",
-        "Login failed with status code: ${response.statusCode}",
+        "Some Error Occurred: $e",
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -132,20 +147,7 @@ Future<bool> userLogin(Map<String, dynamic> data) async {
       );
       return false;
     }
-  } catch (e) {
-    print("Login Error: $e");
-    Get.snackbar(
-      "Error",
-      "Some Error Occurred: $e",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-      borderRadius: 8.0,
-      margin: const EdgeInsets.all(16),
-      duration: const Duration(seconds: 3),
-    );
-    return false;
-  }}
+  }
 
   Future<void> userVerify(Map<String, dynamic>? requestedData) async {
     try {
@@ -712,46 +714,45 @@ Future<bool> userLogin(Map<String, dynamic> data) async {
     }
   }
 
-  
   Future<bool> contactUs(Map<String, dynamic> data) async {
-  try {
-    var response = await http.post(
-      Uri.parse(appUrlsUserSide.contact),
-      body: data,
-    );
-
-    print(response.body);
-    print(response.statusCode);
-
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body); 
-
-   Get.snackbar(
-        "Success", 
-        "Enquiry Submitted Successfully.", 
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Color.fromARGB(255, 5, 129, 69), 
-        colorText: Colors.white, 
-        borderRadius: 8.0, 
-        margin: const EdgeInsets.all(16), 
-        duration: const Duration(seconds: 3),
+    try {
+      var response = await http.post(
+        Uri.parse("https://stag-api.hireanything.com/vendor/sendEmail"),
+        body: data,
       );
 
-      return true;
+      print(response.body);
+      print(response.statusCode);
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+
+        Get.snackbar(
+          "Success",
+          "Enquiry Submitted Successfully.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Color.fromARGB(255, 5, 129, 69),
+          colorText: Colors.white,
+          borderRadius: 8.0,
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
+        );
+
+        return true;
+      }
+    } catch (e) {
+      print(e);
+      Get.snackbar(
+        "Error",
+        "Some Error Occurred!",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        borderRadius: 8.0,
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 3),
+      );
     }
-  } catch (e) {
-    print(e);
-    Get.snackbar(
-      "Error",
-      "Some Error Occurred!",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-      borderRadius: 8.0,
-      margin: const EdgeInsets.all(16),
-      duration: const Duration(seconds: 3),
-    );
+    return false;
   }
-  return false;
-}
 }

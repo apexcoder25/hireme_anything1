@@ -103,6 +103,7 @@ class _MainAuthScreenState extends State<MainAuthScreen>
     
     setState(() => _isAnimating = false);
   }
+  
 
   @override
   Widget build(BuildContext context) {

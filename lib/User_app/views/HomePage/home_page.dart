@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/category_controller.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/controllers/category_controller.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/all_services_controller.dart';
 import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
 import 'package:hire_any_thing/User_app/views/HomePage/services_card.dart';
-import 'package:hire_any_thing/User_app/views/UserHomePage/user_drawer.dart';
+import 'package:hire_any_thing/utilities/colors.dart';
 import 'package:intl/intl.dart';
 
 class ServicesScreen extends StatefulWidget {
@@ -45,7 +45,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
     Future.delayed(Duration.zero, () {
       controller.fetchAllServices();
     });
-
     _scrollController.addListener(_scrollListener);
   }
 
@@ -72,9 +71,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       categoryId: subCatController.selectedCategoryId.value,
       subCategoryId: subCatController.selectedSubcategoryId.value,
       location: selectedLocation,
-      date: selectedDate != null
-          ? DateFormat('yyyy-MM-dd').format(selectedDate!)
-          : null,
+      date: selectedDate != null ? DateFormat('yyyy-MM-dd').format(selectedDate!) : null,
       budgetRange: selectedBudget,
     );
   }
@@ -82,41 +79,38 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Widget _buildServiceSection(String categoryKey) {
     return Obx(() {
       try {
-        // Get ALL services for this category with error handling
-        final List<Datum> categoryServices = 
+        final List<Datum> categoryServices =
             controller.getServicesByCategory(categoryKey).cast<Datum>();
-
-        // Show ALL services (no approval filtering)
         List<Datum> allServices = categoryServices;
-
         if (allServices.isEmpty) return SizedBox.shrink();
-
         String displayName = controller.getCategoryDisplayName(categoryKey);
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Add category header back
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "$displayName (${allServices.length})",
-                style: TextStyle(
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue[800],
-                ),
+              padding: const EdgeInsets.only(left: 2, top: 9, bottom: 3),
+              child: Row(
+                children: [
+                  Icon(Icons.folder_special, color: AppColors.blue),
+                  SizedBox(width: 8),
+                  Text(
+                    "$displayName (${allServices.length})",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.btnColor,
+                    ),
+                  ),
+                ],
               ),
             ),
-            // Services list
             ...allServices
                 .map((service) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: ServiceCard(service: service),
-                ))
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: ServiceCard(service: service),
+                    ))
                 .toList(),
-            // Add spacing between categories
-            SizedBox(height: 16),
+            SizedBox(height: 18),
           ],
         );
       } catch (e) {
@@ -129,23 +123,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue[50],
-      appBar: AppBar(
-        title: Text(
-          "All Available Services",
-          style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.lightBlue[50],
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: colors.black),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-      ),
-      drawer: UserDrawer(onItemSelected: _onDrawerItemSelected),
+      backgroundColor: AppColors.grey50,
       body: Column(
         children: [
           _buildFilterSection(),
@@ -156,16 +134,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
+                      CircularProgressIndicator(color: AppColors.btnColor),
                       SizedBox(height: 16),
-                      Text("Loading services...", 
-                           style: TextStyle(color: Colors.grey[600])),
+                      Text("Loading services...",
+                        style: TextStyle(color: AppColors.textLight)),
                     ],
                   ),
                 );
               }
-
-              // Calculate total services (no approval filtering)
               int totalServices = 0;
               try {
                 for (String category in serviceCategories) {
@@ -181,21 +157,20 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.search_off, size: 80, color: Colors.grey),
+                      Icon(Icons.search_off, size: 80, color: AppColors.grey300),
                       SizedBox(height: 10),
                       Text("No services available",
-                          style: TextStyle(fontSize: 16, color: Colors.grey)),
+                        style: TextStyle(fontSize: 16, color: AppColors.grey600)),
                       SizedBox(height: 10),
                       Text(
-                          "Total services loaded: ${controller.services.length}",
-                          style:
-                              TextStyle(fontSize: 14, color: Colors.grey[600])),
+                        "Total services loaded: ${controller.services.length}",
+                        style: TextStyle(fontSize: 14, color: AppColors.grey600)),
                       SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () => controller.fetchAllServices(),
                         child: Text("Retry"),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: AppColors.secondary,
                           foregroundColor: Colors.white,
                         ),
                       ),
@@ -205,17 +180,23 @@ class _ServicesScreenState extends State<ServicesScreen> {
               }
 
               return RefreshIndicator(
+                color: AppColors.btnColor,
                 onRefresh: _refreshServices,
                 child: ListView(
                   controller: _scrollController,
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
                   children: [
-                    // Services summary card
                     Card(
-                      color: Colors.blue[50],
+                      color: AppColors.blueLighten4,
                       margin: EdgeInsets.only(bottom: 16),
+                      elevation: 2,
+                      shadowColor: AppColors.btnColor.withOpacity(0.07),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        side: BorderSide(color: AppColors.blueLighten2),
+                      ),
                       child: Padding(
-                        padding: const EdgeInsets.all(12.0),
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -223,20 +204,22 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               "Total Services",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 16.7,
+                                color: AppColors.primaryDark,
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                               decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(20),
+                                color: AppColors.btnColor,
+                                borderRadius: BorderRadius.circular(22),
                               ),
                               child: Text(
                                 "${controller.services.length}",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
@@ -244,20 +227,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ),
                       ),
                     ),
-
-                    // Build sections for all service categories
                     ...serviceCategories
                         .map((category) => _buildServiceSection(category))
                         .toList(),
-
-                    // Loading indicator for pagination
                     if (controller.isLoadingMore.value)
                       const Padding(
                         padding: EdgeInsets.all(20.0),
                         child: Center(child: CircularProgressIndicator()),
                       ),
-
-                    // Load more button
                     if (controller.hasMoreData.value &&
                         !controller.isLoadingMore.value)
                       Padding(
@@ -267,7 +244,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             onPressed: () => controller.loadMoreServices(),
                             child: Text("Load More Services"),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
+                              backgroundColor: AppColors.secondary,
                               foregroundColor: Colors.white,
                               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                               shape: RoundedRectangleBorder(
@@ -277,8 +254,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           ),
                         ),
                       ),
-
-                    // End indicator
                     if (!controller.hasMoreData.value &&
                         controller.services.isNotEmpty)
                       Padding(
@@ -287,12 +262,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                             decoration: BoxDecoration(
-                              color: Colors.grey[200],
+                              color: AppColors.grey100,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               "All ${controller.services.length} services loaded",
-                              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                              style: TextStyle(color: AppColors.grey700, fontSize: 14),
                             ),
                           ),
                         ),
@@ -309,7 +284,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   Widget _buildFilterSection() {
     return Container(
-      padding: EdgeInsets.all(12),
+      padding: EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
@@ -318,9 +293,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: AppColors.shadowMedium,
             spreadRadius: 2,
-            blurRadius: 5,
+            blurRadius: 10,
             offset: Offset(0, 3),
           ),
         ],
@@ -329,40 +304,30 @@ class _ServicesScreenState extends State<ServicesScreen> {
         children: [
           Row(
             children: [
-              Expanded(
-                child: _buildCategoryDropdown(),
-              ),
+              Expanded(child: _buildCategoryDropdown()),
             ],
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 11),
           Row(
             children: [
-              Expanded(
-                child: _buildSubcategoryDropdown(),
-              ),
+              Expanded(child: _buildSubcategoryDropdown()),
             ],
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 11),
           Row(
             children: [
-              Expanded(
-                child: _buildLocationField(),
-              ),
+              Expanded(child: _buildLocationField()),
               SizedBox(width: 10),
-              Expanded(
-                child: _buildDatePicker(),
-              ),
+              Expanded(child: _buildDatePicker()),
             ],
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 11),
           Row(
             children: [
-              Expanded(
-                child: _buildBudgetDropdown(),
-              ),
+              Expanded(child: _buildBudgetDropdown()),
             ],
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 11),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -370,22 +335,21 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 onPressed: _clearFilters,
                 child: Text(
                   "Clear",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: AppColors.textLight),
                 ),
               ),
-              SizedBox(width: 10),
+              SizedBox(width: 12),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: AppColors.btnColor,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(22),
                   ),
+                  elevation: 1.8,
                 ),
                 onPressed: _applyFilters,
-                child: Text(
-                  "Search",
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text("Search", style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -401,7 +365,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         value: subCatController.selectedCategory.value,
         hint: Text("Category"),
         isExpanded: true,
-        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+        icon: Icon(Icons.arrow_drop_down, color: AppColors.grey600),
         items: subCatController.categories.map((category) {
           return DropdownMenuItem<String>(
             value: category,
@@ -424,7 +388,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         value: subCatController.selectedSubcategory.value,
         hint: Text("Subcategory"),
         isExpanded: true,
-        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+        icon: Icon(Icons.arrow_drop_down, color: AppColors.grey600),
         items: subCatController.subcategories.map((subcat) {
           return DropdownMenuItem<String>(
             value: subcat,
@@ -443,10 +407,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Widget _buildLocationField() {
     return TextField(
       decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        prefixIcon: Icon(Icons.location_on, color: Colors.orange),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11)),
+        prefixIcon: Icon(Icons.location_on, color: AppColors.secondaryDark),
         hintText: "Location",
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: EdgeInsets.symmetric(horizontal: 17, vertical: 13),
       ),
       onChanged: (value) {
         setState(() {
@@ -460,12 +424,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
     return TextField(
       readOnly: true,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.calendar_today, color: Colors.orange),
+        prefixIcon: Icon(Icons.calendar_today, color: AppColors.secondaryDark),
         hintText: selectedDate == null
             ? "Date"
             : DateFormat('dd-MM-yyyy').format(selectedDate!),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(11)),
+        contentPadding: EdgeInsets.symmetric(horizontal: 17, vertical: 13),
       ),
       onTap: () async {
         DateTime? pickedDate = await showDatePicker(
@@ -489,7 +453,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       value: selectedBudget,
       hint: Text("Budget"),
       isExpanded: true,
-      icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+      icon: Icon(Icons.arrow_drop_down, color: AppColors.grey600),
       items: ["Any Budget", "0-50", "50-100", "100-200", "200+"].map((budget) {
         return DropdownMenuItem<String>(
           value: budget == "Any Budget" ? null : budget,
@@ -506,17 +470,17 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   InputDecoration _dropdownDecoration(String hint) {
     return InputDecoration(
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      contentPadding: EdgeInsets.symmetric(horizontal: 17, vertical: 13),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.grey),
+        borderRadius: BorderRadius.circular(11),
+        borderSide: BorderSide(color: AppColors.grey400),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: Colors.blue),
+        borderRadius: BorderRadius.circular(11),
+        borderSide: BorderSide(color: AppColors.btnColor),
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(11),
       ),
       hintText: hint,
     );

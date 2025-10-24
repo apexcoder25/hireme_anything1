@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Auth/agree.dart';
+import 'package:hire_any_thing/User_app/views/user_profle/controller/user_profile_controller.dart';
 import 'package:hire_any_thing/data/session_manage/session_user_side_manage.dart';
-import 'package:hire_any_thing/data/getx_controller/user_side/user_profile_controller.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:hire_any_thing/User_app/views/Introduction/introduction_screen.dart';
 
@@ -126,14 +126,14 @@ class _SplashState extends State<Splash> {
     // If roleType is empty or null, but we have userId, assume user role
     if (roleType.isEmpty || roleType.toLowerCase() == 'null') {
       debugPrint("Role type is empty/null, but user is authenticated. Assuming user role.");
-      Get.offAllNamed(UserRoutesName.homeUserView);
+      Get.offAllNamed(UserRoutesName.UserMainDashboard);
       return;
     }
 
     switch (roleType.toLowerCase().trim()) {
       case "user":
         debugPrint("Navigating to user home");
-        Get.offAllNamed(UserRoutesName.homeUserView);
+        Get.offAllNamed(UserRoutesName.UserMainDashboard);
         break;
       case "vendor":
         debugPrint("Navigating to vendor home");
@@ -142,7 +142,7 @@ class _SplashState extends State<Splash> {
       default:
         debugPrint("Unknown role: $roleType, defaulting to user home");
         // For unknown roles but valid authentication, default to user home
-        Get.offAllNamed(UserRoutesName.homeUserView);
+        Get.offAllNamed(UserRoutesName.UserMainDashboard);
     }
   }
 

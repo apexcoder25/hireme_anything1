@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/add_service_screen_1.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/add_service_screen_1.dart';
 import 'package:hire_any_thing/Vendor_App/view/booking_status/booking_status_view.dart';
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/components/vendor_drawer.dart';
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/controllers/vendor_dashboard_controller.dart';

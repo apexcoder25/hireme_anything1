@@ -13,6 +13,8 @@ import 'package:hire_any_thing/Vendor_App/view/serviceses/home_page_widget.dart/
 import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
 import 'package:hire_any_thing/data/models/vender_side_model/vendor_home_page_services_model.dart';
 import 'package:hire_any_thing/utilities/colors.dart';
+import 'package:hire_any_thing/res/routes/routes.dart';
+import 'package:hire_any_thing/Vendor_App/view/main_dashboard/controllers/vendor_dashboard_controller.dart';
 
 class HomePageAddService extends StatefulWidget {
   @override
@@ -42,15 +44,81 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         }
         print("serviceList length in UI: ${controller.serviceList.length}");
         if (controller.serviceList.isEmpty) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.search_off, size: 80, color: Colors.grey),
-                SizedBox(height: 10),
-                Text("No services available",
-                    style: TextStyle(fontSize: 16, color: Colors.grey)),
-              ],
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Circle icon background
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(24),
+                    child: const Icon(
+                      Icons.inventory_2_outlined,
+                      size: 48,
+                      color: AppColors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    "No Services Yet",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                    child: Text(
+                      "Start building your business by creating your first service. It only takes a few minutes to get started.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Get the dashboard controller and navigate to Add Services tab
+                          try {
+                            final dashboardController = Get.find<VendorDashboardController>();
+                            dashboardController.changeTab(2); // Index 2 is Add Services
+                            
+                            // Open the drawer to show the navigation
+                            Scaffold.of(context).openDrawer();
+                          } catch (e) {
+                            // Fallback: direct navigation if controller not found
+                            Get.toNamed(VendorRoutesName.vendorServicesScreen);
+                          }
+                        },
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        label: Text("Create Your First Service", style: const TextStyle(color: Colors.white),),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          textStyle: const TextStyle(fontSize: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: AppColors.btnColor,
+                          shadowColor: AppColors.btnColor.withOpacity(0.3),
+                        ),
+                        
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         }

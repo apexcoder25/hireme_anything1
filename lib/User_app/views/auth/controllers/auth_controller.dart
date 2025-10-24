@@ -1,8 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:hire_any_thing/User_app/views/main_dashboard/user_main_dashboard.dart';
+import 'package:hire_any_thing/User_app/views/user_profle/controller/user_profile_controller.dart';
 import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/data/api_service/api_service_user_side.dart';
-import 'package:hire_any_thing/data/getx_controller/user_side/user_profile_controller.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:hire_any_thing/utilities/colors.dart';
 
@@ -186,7 +187,8 @@ class AuthController extends GetxController {
         if (profileController.isLogin.value) {
           print("Profile loaded, navigating to home...");
           showSuccessSnackbar("Login successful!");
-          Get.offAllNamed(UserRoutesName.homeUserView);
+          // Get.offAllNamed(UserRoutesName.homeUserView);
+          Get.offAll(() => UserMainDashboard());
           return true;
         } else {
           showErrorSnackbar("Failed to load user profile. Please try again.");
@@ -417,7 +419,7 @@ class AuthController extends GetxController {
 
             // Navigate to home after brief delay
             await Future.delayed(const Duration(milliseconds: 1500));
-            Get.offAllNamed('/auth', arguments: {'initialTab': 'register'});
+            Get.offAllNamed('/auth', arguments: {'initialTab': 'login'});
             return true;
           } else {
             showErrorSnackbar("Registration failed. Please try again.");

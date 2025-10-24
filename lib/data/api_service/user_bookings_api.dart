@@ -15,7 +15,7 @@ class UserBookingApi {
       final sessionManager = SessionManageerUserSide();
       final token = await sessionManager.getToken();
 
-      if (token == null || token.isEmpty) {
+      if (token.isEmpty) {
         Get.snackbar(
           "Error",
           "Session expired. Please login again.",
@@ -42,16 +42,16 @@ class UserBookingApi {
             response.map((json) => BookingDetails.fromJson(json)).toList();
         return bookings;
       } else {
-        Get.snackbar(
-          "Error",
-          "Failed to fetch bookings",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white,
-          borderRadius: 8.0,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 3),
-        );
+        // Get.snackbar(
+        //   "Error",
+        //   "Failed to fetch bookings",
+        //   snackPosition: SnackPosition.BOTTOM,
+        //   backgroundColor: Colors.redAccent,
+        //   colorText: Colors.white,
+        //   borderRadius: 8.0,
+        //   margin: const EdgeInsets.all(16),
+        //   duration: const Duration(seconds: 3),
+        // );
         return [];
       }
     } catch (e) {

@@ -15,7 +15,7 @@ import '../setting/faq.dart';
 import '../setting/privacy.dart';
 import '../setting/termlist.dart';
 import '../uiltis/color.dart';
-import 'add_service/add_service_screen_1.dart';
+import 'add_service/passengerTransport/addServiceScreen1/add_service_screen_1.dart';
 import 'home.dart';
 
 SessionVendorSideManager sessionVendorSideManager=SessionVendorSideManager();

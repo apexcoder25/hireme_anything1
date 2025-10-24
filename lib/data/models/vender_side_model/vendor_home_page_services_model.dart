@@ -1557,7 +1557,13 @@ class PricingDetails {
                   ? (json["fullDayRate"] as double).toInt()
                   : null,
       multiDayRate: json["multiDayRate"],
-      depositRequired: json["depositRequired"],
+      depositRequired: json["depositRequired"] == null
+    ? null
+    : json["depositRequired"] is bool
+        ? json["depositRequired"]
+        : json["depositRequired"] is int
+            ? json["depositRequired"] == 1
+            : null,
       depositAmount: json["depositAmount"],
       mileageAllowance: json["mileageAllowance"],
       additionalMileageFee: json["additionalMileageFee"] == null
