@@ -17,6 +17,10 @@ class _UserProfileScreenState extends State<UserProfileScreen>
       Get.put(UserProfileController());
   bool isEditing = false;
   bool _animationsInitialized = false;
+  bool isEditingEmail = false;
+  bool isEditingPhone = false;
+  bool emailOtpSent = false;
+  bool phoneOtpSent = false;
 
   late AnimationController _animationController;
   late AnimationController _editButtonController;
@@ -28,6 +32,12 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController countryCodeController = TextEditingController();
+  // Inline edit controllers
+  final TextEditingController newEmailController = TextEditingController();
+  final TextEditingController emailOtpController = TextEditingController();
+  final TextEditingController newPhoneController = TextEditingController();
+  final TextEditingController newPhoneCcController = TextEditingController();
+  final TextEditingController phoneOtpController = TextEditingController();
 
   @override
   void initState() {
@@ -104,6 +114,11 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     emailController.dispose();
     mobileController.dispose();
     countryCodeController.dispose();
+    newEmailController.dispose();
+    emailOtpController.dispose();
+    newPhoneController.dispose();
+    newPhoneCcController.dispose();
+    phoneOtpController.dispose();
   }
 
   void _toggleEditMode() async {
@@ -122,12 +137,10 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   }
 
   Future<void> _saveProfile() async {
+    // Per requirement: when Save from edit mode, only names should be updated inline
     final success = await profileController.updateProfile(
       firstName: firstNameController.text.trim(),
       lastName: lastNameController.text.trim(),
-      email: emailController.text.trim(),
-      mobileNo: mobileController.text.trim(),
-      countryCode: countryCodeController.text.trim(),
     );
 
     if (!success) {
@@ -461,8 +474,10 @@ class _UserProfileScreenState extends State<UserProfileScreen>
         [
           _buildInfoRow(Icons.person_outline, "Name", firstNameController,
               secondController: lastNameController),
-          _buildInfoRow(Icons.email_outlined, "Email Address", emailController),
-          _buildPhoneRow(),
+          // Email row: read-only unless user taps edit icon (when in edit mode)
+          _buildInfoRow(Icons.email_outlined, "Email Address", emailController, showEdit: true),
+          // Phone row: handled separately to show edit icon when in edit mode
+          _buildPhoneRow(showEdit: true),
         ],
         Icons.person_outline,
         Colors.blue.shade600);
@@ -523,9 +538,8 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     );
   }
 
-  Widget _buildInfoRow(
-      IconData icon, String label, TextEditingController controller,
-      {TextEditingController? secondController}) {
+  Widget _buildInfoRow(IconData icon, String label, TextEditingController controller,
+      {TextEditingController? secondController, bool showEdit = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -548,11 +562,26 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                   letterSpacing: 0.3,
                 ),
               ),
+              const Spacer(),
+              if (showEdit && isEditing)
+                IconButton(
+                  onPressed: () {
+                    if (label.toLowerCase().contains('email')) {
+                      setState(() {
+                        isEditingEmail = true;
+                        emailOtpSent = false;
+                        newEmailController.text = emailController.text;
+                        emailOtpController.text = '';
+                      });
+                    }
+                  },
+                  icon: Icon(Icons.edit, size: 18, color: Colors.blue.shade600),
+                ),
             ],
           ),
           const SizedBox(height: 10),
 
-          // If secondController is provided, show two fields side by side (for first and last name)
+          // If secondController provided (name)
           if (secondController != null && isEditing)
             Row(
               children: [
@@ -577,8 +606,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                            BorderSide(color: Colors.blue.shade600, width: 2),
+                        borderSide: BorderSide(color: Colors.blue.shade600, width: 2),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -611,8 +639,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                            BorderSide(color: Colors.blue.shade600, width: 2),
+                        borderSide: BorderSide(color: Colors.blue.shade600, width: 2),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
@@ -625,8 +652,6 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                 ),
               ],
             )
-
-          // If secondController is provided but not editing, show combined display
           else if (secondController != null && !isEditing)
             Container(
               width: double.infinity,
@@ -643,72 +668,148 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                 _getCombinedText(controller, secondController),
                 style: TextStyle(
                   fontSize: 16,
-                  color: _getCombinedText(controller, secondController) !=
-                          'Not provided'
-                      ? Colors.black87
-                      : Colors.grey.shade500,
+                  color: _getCombinedText(controller, secondController) != 'Not provided' ? Colors.black87 : Colors.grey.shade500,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             )
-
-          // Single field (normal case)
           else
-            isEditing
-                ? TextField(
-                    controller: controller,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 16,
+            (() {
+              if (label.toLowerCase().contains('email')) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!isEditingEmail)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Text(
+                          controller.text.isNotEmpty ? controller.text : 'Not provided',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: controller.text.isNotEmpty ? Colors.black87 : Colors.grey.shade500,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      )
+                    else
+                      Column(
+                        children: [
+                          if (!emailOtpSent)
+                            Column(
+                              children: [
+                                TextField(
+                                  controller: newEmailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: const InputDecoration(hintText: 'Enter new email'),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isEditingEmail = false;
+                                          newEmailController.clear();
+                                        });
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
+                                    const Spacer(),
+                                    Obx(() {
+                                      if (profileController.isProcessingOtp.value) {
+                                        return const SizedBox(width: 36, height: 36, child: CircularProgressIndicator());
+                                      }
+                                      return ElevatedButton(
+                                        onPressed: () async {
+                                          final email = newEmailController.text.trim();
+                                          if (!GetUtils.isEmail(email)) {
+                                            Get.snackbar('Invalid Email', 'Please enter a valid email', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.orange, colorText: Colors.white);
+                                            return;
+                                          }
+                                          final ok = await profileController.checkEmailAvailable(email);
+                                          if (!ok) return;
+                                          final sent = await profileController.sendEmailChangeOtp(email);
+                                          if (sent) {
+                                            setState(() {
+                                              emailOtpSent = true;
+                                            });
+                                          }
+                                        },
+                                        child: const Text('Check & Send OTP'),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ],
+                            )
+                          else
+                            Column(
+                              children: [
+                                TextField(controller: emailOtpController, keyboardType: TextInputType.number, decoration: const InputDecoration(hintText: 'Enter OTP')),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    TextButton(onPressed: () { setState(() { emailOtpSent = false; emailOtpController.clear(); }); }, child: const Text('Back')),
+                                    const Spacer(),
+                                    Obx(() {
+                                      if (profileController.isProcessingOtp.value) {
+                                        return const SizedBox(width: 36, height: 36, child: CircularProgressIndicator());
+                                      }
+                                      return ElevatedButton(
+                                        onPressed: () async {
+                                          final otp = emailOtpController.text.trim();
+                                          if (otp.isEmpty) return;
+                                          final email = newEmailController.text.trim();
+                                          final verified = await profileController.verifyEmailChangeOtp(email, otp);
+                                          if (verified) {
+                                            await profileController.fetchProfile();
+                                            _populateControllers(profileController.profile.value?.data);
+                                            setState(() {
+                                              isEditingEmail = false;
+                                              emailOtpSent = false;
+                                            });
+                                          }
+                                        },
+                                        child: const Text('Verify'),
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                            BorderSide(color: Colors.blue.shade600, width: 2),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                    ),
-                  )
-                : Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 16,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Text(
-                      controller.text.isNotEmpty
-                          ? controller.text
-                          : 'Not provided',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: controller.text.isNotEmpty
-                            ? Colors.black87
-                            : Colors.grey.shade500,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  ],
+                );
+              }
+              if (isEditing) {
+                return TextField(
+                  controller: controller,
+                  style: const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w500),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade300)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.blue.shade600, width: 2)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade300)),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
                   ),
+                );
+              }
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(14), border: Border.all(color: Colors.grey.shade200)),
+                child: Text(controller.text.isNotEmpty ? controller.text : 'Not provided', style: TextStyle(fontSize: 16, color: controller.text.isNotEmpty ? Colors.black87 : Colors.grey.shade500, fontWeight: FontWeight.w500)),
+              );
+            }()),
         ],
       ),
     );
@@ -775,7 +876,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     );
   }
 
-  Widget _buildPhoneRow() {
+  Widget _buildPhoneRow({bool showEdit = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(

@@ -58,7 +58,7 @@ class PricingOptionsWidget extends StatelessWidget {
   }
 
   bool _hasPricingInformation() {
-    switch (service.serviceType?.toLowerCase()) {
+    switch (service.serviceType.toLowerCase()) {
       case 'boat':
         return service.boatRates != null;
       case 'horse':
@@ -68,30 +68,20 @@ class PricingOptionsWidget extends StatelessWidget {
       case 'minibus':
         return service.miniBusRates != null;
       case 'limousine':
-        return service.hourlyRate != null ||
-            service.halfDayRate != null ||
-            service.fullDayRate != null;
       case 'chauffeur':
-        return service.hourlyRate != null ||
-            service.halfDayRate != null ||
-            service.fullDayRate != null ||
-            service.pricing != null ||
-            service.pricingDetails != null;
+        return service.pricingDetails != null;
       case 'coach':
-        return service.pricing != null ||
-            service.hourlyRate != null ||
-            service.pricingDetails != null;
+        return service.pricing != null || service.pricingDetails != null;
       default:
-        return service.hourlyRate != null ||
-            service.halfDayRate != null ||
-            service.fullDayRate != null ||
-            service.pricing != null ||
-            service.pricingDetails != null;
+        return service.pricing != null ||
+            service.pricingDetails != null ||
+            service.boatRates != null ||
+            service.miniBusRates != null;
     }
   }
 
   List<Widget> _buildPricingDetails() {
-    switch (service.serviceType?.toLowerCase()) {
+    switch (service.serviceType.toLowerCase()) {
       case 'boat':
         return _buildBoatPricing();
       case 'horse':
@@ -116,30 +106,19 @@ class PricingOptionsWidget extends StatelessWidget {
 
     List<Widget> pricingRows = [];
 
-    // Standard rates
-    if (_hasAnyRate(service.boatRates!.hourlyRate,
-        service.boatRates!.halfDayRate, service.boatRates!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.boatRates!.hourlyRate),
-        _buildRateColumn("Half Day", service.boatRates!.halfDayRate),
-        _buildRateColumn("Full Day", service.boatRates!.fullDayRate),
-      ]));
-    }
+    // Standard rates - use actual property names from BoatRates model
+    pricingRows.add(_buildRateRow([
+      _buildRateColumn("Hourly", service.boatRates!.hourlyRate.toDouble()),
+      _buildRateColumn("Half Day", service.boatRates!.halfDayHire.toDouble()),
+      _buildRateColumn("10 Hour Day", service.boatRates!.tenHourDayHire.toDouble()),
+    ]));
 
-    // Overnight charter rate
-    if (service.boatRates!.overnightCharterRate != null &&
-        service.boatRates!.overnightCharterRate! > 0) {
+    // Per mile rate
+    if (service.boatRates!.perMileRate > 0) {
       pricingRows.add(SizedBox(height: 12));
       pricingRows.add(_buildSingleRate(
-          "Overnight Charter", service.boatRates!.overnightCharterRate));
-    }
-
-    // Package deals description
-    if (service.boatRates!.packageDealsDescription != null &&
-        service.boatRates!.packageDealsDescription!.isNotEmpty) {
-      pricingRows.add(SizedBox(height: 12));
-      pricingRows.add(_buildPackageDescription(
-          "Package Deals", service.boatRates!.packageDealsDescription!));
+          "Per Mile", service.boatRates!.perMileRate.toDouble(),
+          isDecimal: true));
     }
 
     return pricingRows;
@@ -150,30 +129,17 @@ class PricingOptionsWidget extends StatelessWidget {
 
     List<Widget> pricingRows = [];
 
-    if (_hasAnyRate(service.pricing!.hourlyRate, service.pricing!.halfDayRate,
-        service.pricing!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricing!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricing!.halfDayRate),
-        _buildRateColumn("Full Day", service.pricing!.fullDayRate),
-      ]));
-    }
+    // Standard rates
+    pricingRows.add(_buildRateRow([
+      _buildRateColumn("Hourly", service.pricing!.hourlyRate),
+      _buildRateColumn("Half Day", service.pricing!.halfDayRate),
+      _buildRateColumn("Full Day", service.pricing!.fullDayRate),
+    ]));
 
-    // Ceremony package rate
-    if (service.pricing!.ceremonyPackageRate != null &&
-        service.pricing!.ceremonyPackageRate! > 0) {
+    // Fixed packages
+    if (service.pricing!.fixedPackages.isNotEmpty) {
       pricingRows.add(SizedBox(height: 12));
-      pricingRows.add(_buildSingleRate(
-          "Ceremony Package", service.pricing!.ceremonyPackageRate));
-    }
-
-    // Per mile charge
-    if (service.pricing!.perMileCharge != null &&
-        service.pricing!.perMileCharge! > 0) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(_buildSingleRate(
-          "Per Mile", service.pricing!.perMileCharge,
-          isDecimal: true));
+      pricingRows.add(_buildFixedPackages(service.pricing!.fixedPackages));
     }
 
     return pricingRows;
@@ -184,59 +150,32 @@ class PricingOptionsWidget extends StatelessWidget {
 
     List<Widget> pricingRows = [];
 
-    // Use dayRate instead of fullDayRate for funeral services
-    if (_hasAnyRate(service.pricingDetails!.hourlyRate,
-        service.pricingDetails!.halfDayRate, service.pricingDetails!.dayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricingDetails!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricingDetails!.halfDayRate),
-        _buildRateColumn("Day Rate", service.pricingDetails!.dayRate),
-      ]));
+    // Standard rates using PricingDetails properties
+    List<Widget> rates = [];
+    rates.add(_buildRateColumn("Hourly", service.pricingDetails!.hourlyRate));
+    rates.add(_buildRateColumn("Half Day", service.pricingDetails!.halfDayRate.toDouble()));
+    
+    if (service.pricingDetails!.dayRate != null) {
+      rates.add(_buildRateColumn("Day Rate", service.pricingDetails!.dayRate!));
+    }
+    
+    if (service.pricingDetails!.fullDayRate != null) {
+      rates.add(_buildRateColumn("Full Day", service.pricingDetails!.fullDayRate!.toDouble()));
     }
 
-    // Additional funeral-specific rates
-    if (service.pricingDetails!.multiDayRate != null &&
-        service.pricingDetails!.multiDayRate! > 0) {
+    pricingRows.add(_buildRateRow(rates));
+
+    // Additional rates
+    if (service.pricingDetails!.weddingPackageRate != null) {
       pricingRows.add(SizedBox(height: 12));
       pricingRows.add(_buildSingleRate(
-          "Multi-Day Rate", service.pricingDetails!.multiDayRate));
+          "Wedding Package", service.pricingDetails!.weddingPackageRate!));
     }
 
-    if (service.pricingDetails!.extraMileageCharge != null &&
-        service.pricingDetails!.extraMileageCharge! > 0) {
+    if (service.pricingDetails!.airportTransferRate != null) {
       pricingRows.add(SizedBox(height: 8));
       pricingRows.add(_buildSingleRate(
-          "Extra Mileage Charge", service.pricingDetails!.extraMileageCharge));
-    }
-
-    if (service.pricingDetails!.waitTimeFeePerHour != null &&
-        service.pricingDetails!.waitTimeFeePerHour! > 0) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(_buildSingleRate("Wait Time Fee (per hour)",
-          service.pricingDetails!.waitTimeFeePerHour));
-    }
-
-    if (service.pricingDetails!.decoratingFloralServiceFee != null &&
-        service.pricingDetails!.decoratingFloralServiceFee! > 0) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(_buildSingleRate("Decorating/Floral Service Fee",
-          service.pricingDetails!.decoratingFloralServiceFee));
-    }
-
-    // Deposit information
-    if (service.pricingDetails!.depositRequired == true &&
-        service.pricingDetails!.depositAmount != null &&
-        service.pricingDetails!.depositAmount! > 0) {
-      pricingRows.add(SizedBox(height: 12));
-      pricingRows
-          .add(_buildDepositInfo(service.pricingDetails!.depositAmount!));
-    }
-
-    // Mileage information
-    if (service.pricingDetails!.mileageLimit != null ||
-        service.pricingDetails!.mileageAllowance != null) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(_buildMileageInfo());
+          "Airport Transfer", service.pricingDetails!.airportTransferRate!));
     }
 
     return pricingRows;
@@ -247,28 +186,18 @@ class PricingOptionsWidget extends StatelessWidget {
 
     List<Widget> pricingRows = [];
 
-    if (_hasAnyRate(service.miniBusRates!.hourlyRate,
-        service.miniBusRates!.halfDayRate, service.miniBusRates!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.miniBusRates!.hourlyRate),
-        _buildRateColumn("Half Day", service.miniBusRates!.halfDayRate),
-        _buildRateColumn("Full Day", service.miniBusRates!.fullDayRate),
-      ]));
-    }
+    // Standard rates
+    pricingRows.add(_buildRateRow([
+      _buildRateColumn("Hourly", service.miniBusRates!.hourlyRate.toDouble()),
+      _buildRateColumn("Half Day", service.miniBusRates!.halfDayRate),
+      _buildRateColumn("Full Day", service.miniBusRates!.fullDayRate),
+    ]));
 
     // Mileage information
-    if (service.miniBusRates!.mileageAllowance != null &&
-        service.miniBusRates!.mileageAllowance! > 0) {
+    if (service.miniBusRates!.mileageLimit > 0) {
       pricingRows.add(SizedBox(height: 12));
-      pricingRows.add(_buildSingleRate(
-          "Mileage Allowance", service.miniBusRates!.mileageAllowance,
-          suffix: " miles"));
-    }
-
-    if (service.miniBusRates!.additionalMileageFee != null &&
-        service.miniBusRates!.additionalMileageFee! > 0) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(_buildSingleRate("Additional Mileage Fee",
+      pricingRows.add(_buildMileageInfo(
+          service.miniBusRates!.mileageLimit,
           service.miniBusRates!.additionalMileageFee));
     }
 
@@ -276,216 +205,102 @@ class PricingOptionsWidget extends StatelessWidget {
   }
 
   List<Widget> _buildLimousinePricing() {
-    List<Widget> pricingRows = [];
-
-    // Standard rates
-    if (_hasAnyRate(
-        service.hourlyRate, service.halfDayRate, service.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.hourlyRate),
-        _buildRateColumn("Half Day", service.halfDayRate),
-        _buildRateColumn("Full Day", service.fullDayRate),
-      ]));
-    }
-
-    // Special package rates
-    if (service.weddingPackageRate != null && service.weddingPackageRate! > 0) {
-      pricingRows.add(SizedBox(height: 12));
-      pricingRows
-          .add(_buildSingleRate("Wedding Package", service.weddingPackageRate));
-    }
-
-    if (service.airportTransferRate != null &&
-        service.airportTransferRate! > 0) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(
-          _buildSingleRate("Airport Transfer", service.airportTransferRate));
-    }
-
-    // Fuel and mileage information
-    if (service.fuelIncluded != null) {
-      pricingRows.add(SizedBox(height: 12));
-      pricingRows
-          .add(_buildBooleanInfo("Fuel Included", service.fuelIncluded!));
-    }
-
-    if (service.mileageCapLimit != null && service.mileageCapLimit! > 0) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(_buildSingleRate("Mileage Cap", service.mileageCapLimit,
-          suffix: " miles", showCurrency: false));
-    }
-
-    if (service.mileageCapExcessCharge != null &&
-        service.mileageCapExcessCharge! > 0) {
-      pricingRows.add(SizedBox(height: 8));
-      pricingRows.add(_buildSingleRate(
-          "Excess Mileage Charge", service.mileageCapExcessCharge));
-    }
-
-    return pricingRows.isEmpty ? [_noPricingWidget()] : pricingRows;
+    return _buildPricingDetailsGeneric("Limousine");
   }
 
   List<Widget> _buildChauffeurPricing() {
-    List<Widget> pricingRows = [];
-
-    if (service.pricing != null &&
-        _hasAnyRate(service.pricing!.hourlyRate, service.pricing!.halfDayRate,
-            service.pricing!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricing!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricing!.halfDayRate),
-        _buildRateColumn("Full Day", service.pricing!.fullDayRate),
-      ]));
-    } else if (service.pricingDetails != null &&
-        _hasAnyRate(
-            service.pricingDetails!.hourlyRate,
-            service.pricingDetails!.halfDayRate,
-            service.pricingDetails!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricingDetails!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricingDetails!.halfDayRate),
-        _buildRateColumn("Full Day", service.pricingDetails!.fullDayRate),
-      ]));
-    } else if (_hasAnyRate(
-        service.hourlyRate, service.halfDayRate, service.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.hourlyRate),
-        _buildRateColumn("Half Day", service.halfDayRate),
-        _buildRateColumn("Full Day", service.fullDayRate),
-      ]));
-    }
-
-    return pricingRows.isEmpty ? [_noPricingWidget()] : pricingRows;
+    return _buildPricingDetailsGeneric("Chauffeur");
   }
 
   List<Widget> _buildCoachPricing() {
-    List<Widget> pricingRows = [];
-
-    // Try different pricing sources
-    if (service.pricing != null &&
-        _hasAnyRate(service.pricing!.hourlyRate, service.pricing!.halfDayRate,
-            service.pricing!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricing!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricing!.halfDayRate),
-        _buildRateColumn("Full Day", service.pricing!.fullDayRate),
-      ]));
-    } else if (service.pricingDetails != null &&
-        _hasAnyRate(
-            service.pricingDetails!.hourlyRate,
-            service.pricingDetails!.halfDayRate,
-            service.pricingDetails!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricingDetails!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricingDetails!.halfDayRate),
-        _buildRateColumn("Full Day", service.pricingDetails!.fullDayRate),
-      ]));
-    } else if (_hasAnyRate(
-        service.hourlyRate, service.halfDayRate, service.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.hourlyRate),
-        _buildRateColumn("Half Day", service.halfDayRate),
-        _buildRateColumn("Full Day", service.fullDayRate),
-      ]));
+    // Try pricing first, then pricingDetails
+    if (service.pricing != null) {
+      return _buildHorsePricing(); // Use same logic as horse
+    } else if (service.pricingDetails != null) {
+      return _buildPricingDetailsGeneric("Coach");
     }
-
-    return pricingRows.isEmpty ? [_noPricingWidget()] : pricingRows;
+    return [_noPricingWidget()];
   }
 
   List<Widget> _buildGeneralPricing() {
-    List<Widget> pricingRows = [];
-
-    // Try pricing object first, then service level rates, then pricingDetails
-    if (service.pricing != null &&
-        _hasAnyRate(service.pricing!.hourlyRate, service.pricing!.halfDayRate,
-            service.pricing!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricing!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricing!.halfDayRate),
-        _buildRateColumn("Full Day", service.pricing!.fullDayRate),
-      ]));
-    } else if (_hasAnyRate(
-        service.hourlyRate, service.halfDayRate, service.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.hourlyRate),
-        _buildRateColumn("Half Day", service.halfDayRate),
-        _buildRateColumn("Full Day", service.fullDayRate),
-      ]));
-    } else if (service.pricingDetails != null &&
-        _hasAnyRate(
-            service.pricingDetails!.hourlyRate,
-            service.pricingDetails!.halfDayRate,
-            service.pricingDetails!.fullDayRate)) {
-      pricingRows.add(_buildRateRow([
-        _buildRateColumn("Hourly", service.pricingDetails!.hourlyRate),
-        _buildRateColumn("Half Day", service.pricingDetails!.halfDayRate),
-        _buildRateColumn("Full Day", service.pricingDetails!.fullDayRate),
-      ]));
+    if (service.pricing != null) {
+      return _buildHorsePricing();
+    } else if (service.pricingDetails != null) {
+      return _buildPricingDetailsGeneric("Service");
+    } else if (service.boatRates != null) {
+      return _buildBoatPricing();
+    } else if (service.miniBusRates != null) {
+      return _buildMinibusPricing();
     }
-
-    return pricingRows.isEmpty ? [_noPricingWidget()] : pricingRows;
+    return [_noPricingWidget()];
   }
 
-  bool _hasAnyRate(num? hourly, num? halfDay, num? fullDay) {
-    return (hourly != null && hourly > 0) ||
-        (halfDay != null && halfDay > 0) ||
-        (fullDay != null && fullDay > 0);
+  List<Widget> _buildPricingDetailsGeneric(String serviceType) {
+    if (service.pricingDetails == null) return [_noPricingWidget()];
+
+    List<Widget> pricingRows = [];
+
+    // Standard rates
+    List<Widget> rates = [];
+    rates.add(_buildRateColumn("Hourly", service.pricingDetails!.hourlyRate));
+    rates.add(_buildRateColumn("Half Day", service.pricingDetails!.halfDayRate.toDouble()));
+    
+    if (service.pricingDetails!.fullDayRate != null) {
+      rates.add(_buildRateColumn("Full Day", service.pricingDetails!.fullDayRate!.toDouble()));
+    }
+
+    pricingRows.add(_buildRateRow(rates));
+
+    return pricingRows;
   }
 
   Widget _buildRateRow(List<Widget> columns) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: columns,
-    );
-  }
-
-  Widget _buildRateColumn(String label, num? rate) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            rate != null && rate > 0 ? "£${rate.toStringAsFixed(0)}" : "N/A",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: columns.map((column) => Expanded(child: column)).toList(),
       ),
     );
   }
 
-  Widget _buildSingleRate(String label, num? rate,
-      {String suffix = "", bool isDecimal = false, bool showCurrency = true}) {
-    String value = "N/A";
-    if (rate != null && rate > 0) {
-      if (showCurrency) {
-        value = isDecimal
-            ? "£${rate.toStringAsFixed(2)}"
-            : "£${rate.toStringAsFixed(0)}";
-      } else {
-        value = isDecimal ? rate.toStringAsFixed(2) : rate.toStringAsFixed(0);
-      }
-      value += suffix;
-    }
+  Widget _buildRateColumn(String label, double? rate) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade700,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 4),
+        Text(
+          rate != null ? "£${rate.toStringAsFixed(0)}" : "N/A",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.green.shade700,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
 
+  Widget _buildSingleRate(String label, double rate, {bool isDecimal = false}) {
     return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.green.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.green.shade100),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.green.shade200),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -494,16 +309,16 @@ class PricingOptionsWidget extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade700,
               fontWeight: FontWeight.w500,
+              color: Colors.grey.shade700,
             ),
           ),
           Text(
-            value,
+            isDecimal ? "£${rate.toStringAsFixed(2)}" : "£${rate.toStringAsFixed(0)}",
             style: TextStyle(
               fontSize: 14,
+              fontWeight: FontWeight.bold,
               color: Colors.green.shade700,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -511,141 +326,104 @@ class PricingOptionsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPackageDescription(String label, String description) {
+  Widget _buildFixedPackages(List<FixedPackage> packages) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Fixed Packages",
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.blue.shade700,
+          ),
+        ),
+        SizedBox(height: 8),
+        ...packages.map((package) => Container(
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.blue.shade200),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      package.packageName,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "£${package.packageRate}",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                ],
+              ),
+              if (package.packageDescription.isNotEmpty) ...[
+                SizedBox(height: 4),
+                Text(
+                  package.packageDescription,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        )).toList(),
+      ],
+    );
+  }
+
+  Widget _buildMileageInfo(int mileageLimit, double additionalFee) {
     return Container(
-      width: double.infinity,
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: Colors.orange.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.shade100),
+        border: Border.all(color: Colors.orange.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
+            "Mileage Information",
             style: TextStyle(
               fontSize: 14,
-              color: Colors.blue.shade700,
               fontWeight: FontWeight.w600,
+              color: Colors.orange.shade700,
             ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Mileage Limit:", style: TextStyle(fontSize: 12)),
+              Text("$mileageLimit miles", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+            ],
           ),
           SizedBox(height: 4),
-          Text(
-            description,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDepositInfo(int depositAmount) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange.shade100),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Deposit Required",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade700,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            "£${depositAmount.toStringAsFixed(0)}",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.orange.shade700,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMileageInfo() {
-    String mileageText = "";
-    if (service.pricingDetails?.mileageLimit != null) {
-      mileageText = "${service.pricingDetails!.mileageLimit} miles limit";
-    } else if (service.pricingDetails?.mileageAllowance != null) {
-      mileageText =
-          "${service.pricingDetails!.mileageAllowance} miles allowance";
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.shade100),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Mileage",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade700,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            mileageText,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.blue.shade700,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBooleanInfo(String label, bool value) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: value ? Colors.green.shade50 : Colors.red.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-            color: value ? Colors.green.shade100 : Colors.red.shade100),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade700,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          Text(
-            value ? "Yes" : "No",
-            style: TextStyle(
-              fontSize: 14,
-              color: value ? Colors.green.shade700 : Colors.red.shade700,
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Additional Fee:", style: TextStyle(fontSize: 12)),
+              Text("£${additionalFee.toStringAsFixed(2)}/mile", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+            ],
           ),
         ],
       ),
@@ -656,32 +434,14 @@ class PricingOptionsWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        children: [
-          Icon(
-            Icons.price_check_outlined,
-            size: 48,
-            color: Colors.grey.shade400,
-          ),
-          SizedBox(height: 8),
-          Text(
-            "Pricing information not available",
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            "Please contact for custom quotes",
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade500,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
+      child: Text(
+        "No pricing information available for this service type",
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey.shade600,
+          fontStyle: FontStyle.italic,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }

@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/data/getx_controller/user_side/category_controller.dart';
-import 'package:hire_any_thing/data/getx_controller/user_side/subcategories_controller.dart';
+import 'package:hire_any_thing/User_app/views/UserHomePage/controller/subcategory_controller.dart';
 import 'package:hire_any_thing/data/models/user_side_model/category_model.dart';
 import 'package:hire_any_thing/res/routes/routes.dart' as UserRoutes;
 import 'package:shimmer/shimmer.dart';
+import 'package:hire_any_thing/User_app/views/UserHomePage/subcategory_screen.dart';
 
 class CategoryGridPage extends StatefulWidget {
   @override
@@ -131,9 +132,10 @@ class _CategoryGridPageState extends State<CategoryGridPage> {
     return Obx(() {
       final subcategories = subcategoryController.getSubcategoriesByCategory()[category.id] ?? [];
 
-      return GestureDetector(
+        return GestureDetector(
         onTap: () {
-          subcategoryController.fetchSubcategories(categoryId: category.id);
+          // Navigate to subcategory screen; SubcategoryScreen will fetch items itself
+          Get.to(() => SubcategoryScreen(category: category));
         },
         child: Card(
           color: Colors.white,
@@ -218,7 +220,7 @@ class _CategoryGridPageState extends State<CategoryGridPage> {
                       if (route != '/') {
                         Get.toNamed(route);
                       } else {
-                        print("More Info clicked for ${category.categoryName} (no specific route)");
+                        // Fallback route
                         Get.toNamed(UserRoutes.UserRoutesName.MeetingRoomHireScreen);
                       }
                     },

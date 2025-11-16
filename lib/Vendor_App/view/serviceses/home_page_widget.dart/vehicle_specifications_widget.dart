@@ -58,14 +58,29 @@ class VehicleSpecificationsWidget extends StatelessWidget {
   }
 
   bool _hasVehicleSpecifications() {
-    return service.fleetInfo != null ||
-           service.fleetDetails != null ||
-           service.serviceDetails != null ||
-           service.serviceFleetDetails.isNotEmpty;
+    switch (service.serviceType.toLowerCase()) {
+      case 'boat':
+        return service.fleetInfo != null;
+      case 'horse':
+        return service.carriageDetails != null;
+      case 'funeral':
+        return service.fleetDetails != null;
+      case 'minibus':
+        return service.fleetInfo != null;
+      case 'limousine':
+      case 'chauffeur':
+        return service.fleetInfo != null;
+      case 'coach':
+        return service.fleetInfo != null || service.fleetDetails != null;
+      default:
+        return service.fleetInfo != null || 
+               service.fleetDetails != null || 
+               service.carriageDetails != null;
+    }
   }
 
   List<Widget> _buildSpecifications() {
-    switch (service.serviceType?.toLowerCase()) {
+    switch (service.serviceType.toLowerCase()) {
       case 'boat':
         return _buildBoatSpecifications();
       case 'horse':
@@ -76,6 +91,8 @@ class VehicleSpecificationsWidget extends StatelessWidget {
         return _buildMinibusSpecifications();
       case 'limousine':
         return _buildLimousineSpecifications();
+      case 'chauffeur':
+        return _buildChauffeurSpecifications();
       case 'coach':
         return _buildCoachSpecifications();
       default:
@@ -87,39 +104,42 @@ class VehicleSpecificationsWidget extends StatelessWidget {
     if (service.fleetInfo == null) return [_noDataWidget()];
 
     return [
-      _buildSpecRow("Boat Name", service.fleetInfo!.boatName ?? 'N/A'),
-      _buildSpecRow("Type", service.fleetInfo!.type ?? 'N/A'),
-      _buildSpecRow("Capacity", "${service.fleetInfo!.capacity ?? 'N/A'} passengers"),
-      _buildSpecRow("Year", service.fleetInfo!.year?.toString() ?? 'N/A'),
-      if (service.fleetInfo!.makeAndModel != null)
-        _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel!),
-      if (service.fleetInfo!.onboardFeatures != null)
-        _buildSpecRow("Onboard Features", service.fleetInfo!.onboardFeatures!, isExpandable: true),
-      if (service.fleetInfo!.onboardFacilities != null)
-        _buildSpecRow("Facilities", service.fleetInfo!.onboardFacilities!, isExpandable: true),
+      _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel),
+      _buildSpecRow("Seats", "${service.fleetInfo!.seats} passengers"),
+      _buildSpecRow("Luggage Capacity", "${service.fleetInfo!.luggageCapacity}"),
+      if (service.fleetInfo!.firstRegistered != null)
+        _buildSpecRow("First Registered", "${service.fleetInfo!.firstRegistered!.year}"),
+      if (service.fleetInfo!.largeSuitcases != null)
+        _buildSpecRow("Large Suitcases", "${service.fleetInfo!.largeSuitcases}"),
+      if (service.fleetInfo!.mediumSuitcases != null)
+        _buildSpecRow("Medium Suitcases", "${service.fleetInfo!.mediumSuitcases}"),
+      if (service.fleetInfo!.smallSuitcases != null)
+        _buildSpecRow("Small Suitcases", "${service.fleetInfo!.smallSuitcases}"),
       _buildSpecRow("Air Conditioning", service.fleetInfo!.airConditioning == true ? 'Yes' : 'No'),
       _buildSpecRow("Wheelchair Accessible", service.fleetInfo!.wheelchairAccessible == true ? 'Yes' : 'No'),
       _buildSpecRow("Luggage Space", service.fleetInfo!.luggageSpace == true ? 'Yes' : 'No'),
-      if (service.fleetInfo!.notes != null && service.fleetInfo!.notes!.isNotEmpty)
-        _buildSpecRow("Notes", service.fleetInfo!.notes!, isExpandable: true),
+      if (service.fleetInfo!.wheelchairAccessiblePrice != null)
+        _buildSpecRow("Wheelchair Access Price", "£${service.fleetInfo!.wheelchairAccessiblePrice}"),
     ];
   }
 
   List<Widget> _buildHorseSpecifications() {
-    if (service.serviceDetails == null) return [_noDataWidget()];
+    if (service.carriageDetails == null) return [_noDataWidget()];
 
     return [
-      _buildSpecRow("Carriage Types", service.serviceDetails!.carriageTypes.join(", "), isExpandable: true),
-      _buildSpecRow("Horse Types", service.serviceDetails!.horseTypes.join(", "), isExpandable: true),
-      _buildSpecRow("Number of Carriages", "${service.serviceDetails!.numberOfCarriages ?? 'N/A'}"),
-      _buildSpecRow("Fleet Size", "${service.serviceDetails!.fleetSize ?? 'N/A'}"),
-      _buildSpecRow("Base Postcode", service.serviceDetails!.basePostcode ?? 'N/A'),
-      if (service.serviceDetails!.mileage != null)
-        _buildSpecRow("Mileage Range", "${service.serviceDetails!.mileage} miles"),
-      if (service.serviceDetails!.otherCarriageType != null && service.serviceDetails!.otherCarriageType!.isNotEmpty)
-        _buildSpecRow("Other Carriage Type", service.serviceDetails!.otherCarriageType!),
-      if (service.serviceDetails!.otherHorseType != null && service.serviceDetails!.otherHorseType!.isNotEmpty)
-        _buildSpecRow("Other Horse Type", service.serviceDetails!.otherHorseType!),
+      _buildSpecRow("Carriage Type", service.carriageDetails!.carriageType),
+      _buildSpecRow("Number of Carriages", "${service.carriageDetails!.numberOfCarriages}"),
+      _buildSpecRow("Horse Count", "${service.carriageDetails!.horseCount}"),
+      _buildSpecRow("Seats", "${service.carriageDetails!.seats}"),
+      _buildSpecRow("Horse Breeds", service.carriageDetails!.horseBreeds.join(", "), isExpandable: true),
+      if (service.carriageDetails!.otherHorseBreed.isNotEmpty)
+        _buildSpecRow("Other Horse Breed", service.carriageDetails!.otherHorseBreed),
+      _buildSpecRow("Horse Colors", service.carriageDetails!.horseColors.join(", "), isExpandable: true),
+      if (service.carriageDetails!.otherHorseColor.isNotEmpty)
+        _buildSpecRow("Other Horse Color", service.carriageDetails!.otherHorseColor),
+      _buildSpecRow("Decoration Options", service.carriageDetails!.decorationOptions.join(", "), isExpandable: true),
+      if (service.carriageDetails!.otherDecoration.isNotEmpty)
+        _buildSpecRow("Other Decoration", service.carriageDetails!.otherDecoration),
     ];
   }
 
@@ -127,13 +147,10 @@ class VehicleSpecificationsWidget extends StatelessWidget {
     if (service.fleetDetails == null) return [_noDataWidget()];
 
     return [
-      _buildSpecRow("Make & Model", service.fleetDetails!.makeModel ?? 'N/A'),
-      _buildSpecRow("Vehicle Type", service.fleetDetails!.vehicleType ?? 'N/A'),
-      _buildSpecRow("Capacity", "${service.fleetDetails!.capacity ?? 'N/A'} passengers"),
-      _buildSpecRow("Year", "${service.fleetDetails!.year ?? 'N/A'}"),
-      _buildSpecRow("Color", service.fleetDetails!.color ?? 'N/A'),
-      if (service.fleetDetails!.notes != null && service.fleetDetails!.notes!.isNotEmpty)
-        _buildSpecRow("Notes", service.fleetDetails!.notes!, isExpandable: true),
+      _buildSpecRow("Make & Model", service.fleetDetails!.makeModel),
+      _buildSpecRow("Year", "${service.fleetDetails!.year.year}"),
+      _buildSpecRow("Seats", "${service.fleetDetails!.seats} passengers"),
+      _buildSpecRow("Luggage Capacity", "${service.fleetDetails!.luggageCapacity}"),
     ];
   }
 
@@ -141,42 +158,68 @@ class VehicleSpecificationsWidget extends StatelessWidget {
     if (service.fleetInfo == null) return [_noDataWidget()];
 
     return [
-      _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel ?? 'N/A'),
-      _buildSpecRow("Type", service.fleetInfo!.type ?? 'N/A'),
-      _buildSpecRow("Capacity", "${service.fleetInfo!.capacity ?? 'N/A'} passengers"),
-      _buildSpecRow("Year", service.fleetInfo!.year?.toString() ?? 'N/A'),
+      _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel),
+      _buildSpecRow("Seats", "${service.fleetInfo!.seats} passengers"),
+      _buildSpecRow("Luggage Capacity", "${service.fleetInfo!.luggageCapacity}"),
+      if (service.fleetInfo!.firstRegistered != null)
+        _buildSpecRow("First Registered", "${service.fleetInfo!.firstRegistered!.year}"),
       _buildSpecRow("Wheelchair Accessible", service.fleetInfo!.wheelchairAccessible == true ? 'Yes' : 'No'),
       _buildSpecRow("Air Conditioning", service.fleetInfo!.airConditioning == true ? 'Yes' : 'No'),
       _buildSpecRow("Luggage Space", service.fleetInfo!.luggageSpace == true ? 'Yes' : 'No'),
-      if (service.seatBeltsInAllVehicles != null)
-        _buildSpecRow("Seat Belts in All Vehicles", service.seatBeltsInAllVehicles! ? 'Yes' : 'No'),
-      if (service.fleetInfo!.onboardFacilities != null)
-        _buildSpecRow("Onboard Facilities", service.fleetInfo!.onboardFacilities!, isExpandable: true),
-      if (service.fleetInfo!.notes != null && service.fleetInfo!.notes!.isNotEmpty)
-        _buildSpecRow("Notes", service.fleetInfo!.notes!, isExpandable: true),
+      if (service.fleetInfo!.wheelchairAccessiblePrice != null)
+        _buildSpecRow("Wheelchair Access Price", "£${service.fleetInfo!.wheelchairAccessiblePrice}"),
+      if (service.fleetInfo!.largeSuitcases != null)
+        _buildSpecRow("Large Suitcases", "${service.fleetInfo!.largeSuitcases}"),
+      if (service.fleetInfo!.mediumSuitcases != null)
+        _buildSpecRow("Medium Suitcases", "${service.fleetInfo!.mediumSuitcases}"),
+      if (service.fleetInfo!.smallSuitcases != null)
+        _buildSpecRow("Small Suitcases", "${service.fleetInfo!.smallSuitcases}"),
     ];
   }
 
   List<Widget> _buildLimousineSpecifications() {
-    if (service.serviceFleetDetails.isEmpty) return [_noDataWidget()];
+    if (service.fleetInfo == null) return [_noDataWidget()];
 
-    final fleet = service.serviceFleetDetails.first;
     return [
-      _buildSpecRow("Make & Model", fleet.makeModel ?? 'N/A'),
-      _buildSpecRow("Vehicle Type", fleet.type ?? 'N/A'),
-      _buildSpecRow("Capacity", "${fleet.capacity ?? 'N/A'} passengers"),
-      _buildSpecRow("Year", "${fleet.year ?? 'N/A'}"),
-      _buildSpecRow("Color", fleet.color ?? 'N/A'),
-      if (fleet.vehicleDescription != null && fleet.vehicleDescription!.isNotEmpty)
-        _buildSpecRow("Description", fleet.vehicleDescription!, isExpandable: true),
-      if (fleet.bootSpace != null && fleet.bootSpace!.isNotEmpty)
-        _buildSpecRow("Boot Space", fleet.bootSpace!),
-      if (fleet.keyFeatures != null && fleet.keyFeatures!.isNotEmpty)
-        _buildSpecRow("Key Features", fleet.keyFeatures!, isExpandable: true),
-      
-      // Additional fleet vehicles
-      if (service.serviceFleetDetails.length > 1)
-        ..._buildAdditionalFleetInfo(),
+      _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel),
+      _buildSpecRow("Seats", "${service.fleetInfo!.seats} passengers"),
+      _buildSpecRow("Luggage Capacity", "${service.fleetInfo!.luggageCapacity}"),
+      if (service.fleetInfo!.firstRegistered != null)
+        _buildSpecRow("First Registered", "${service.fleetInfo!.firstRegistered!.year}"),
+      _buildSpecRow("Wheelchair Accessible", service.fleetInfo!.wheelchairAccessible == true ? 'Yes' : 'No'),
+      _buildSpecRow("Air Conditioning", service.fleetInfo!.airConditioning == true ? 'Yes' : 'No'),
+      _buildSpecRow("Luggage Space", service.fleetInfo!.luggageSpace == true ? 'Yes' : 'No'),
+      if (service.fleetInfo!.wheelchairAccessiblePrice != null)
+        _buildSpecRow("Wheelchair Access Price", "£${service.fleetInfo!.wheelchairAccessiblePrice}"),
+      if (service.fleetInfo!.largeSuitcases != null)
+        _buildSpecRow("Large Suitcases", "${service.fleetInfo!.largeSuitcases}"),
+      if (service.fleetInfo!.mediumSuitcases != null)
+        _buildSpecRow("Medium Suitcases", "${service.fleetInfo!.mediumSuitcases}"),
+      if (service.fleetInfo!.smallSuitcases != null)
+        _buildSpecRow("Small Suitcases", "${service.fleetInfo!.smallSuitcases}"),
+    ];
+  }
+
+  List<Widget> _buildChauffeurSpecifications() {
+    if (service.fleetInfo == null) return [_noDataWidget()];
+
+    return [
+      _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel),
+      _buildSpecRow("Seats", "${service.fleetInfo!.seats} passengers"),
+      _buildSpecRow("Luggage Capacity", "${service.fleetInfo!.luggageCapacity}"),
+      if (service.fleetInfo!.firstRegistered != null)
+        _buildSpecRow("First Registered", "${service.fleetInfo!.firstRegistered!.year}"),
+      _buildSpecRow("Wheelchair Accessible", service.fleetInfo!.wheelchairAccessible == true ? 'Yes' : 'No'),
+      _buildSpecRow("Air Conditioning", service.fleetInfo!.airConditioning == true ? 'Yes' : 'No'),
+      _buildSpecRow("Luggage Space", service.fleetInfo!.luggageSpace == true ? 'Yes' : 'No'),
+      if (service.fleetInfo!.wheelchairAccessiblePrice != null)
+        _buildSpecRow("Wheelchair Access Price", "£${service.fleetInfo!.wheelchairAccessiblePrice}"),
+      if (service.fleetInfo!.largeSuitcases != null)
+        _buildSpecRow("Large Suitcases", "${service.fleetInfo!.largeSuitcases}"),
+      if (service.fleetInfo!.mediumSuitcases != null)
+        _buildSpecRow("Medium Suitcases", "${service.fleetInfo!.mediumSuitcases}"),
+      if (service.fleetInfo!.smallSuitcases != null)
+        _buildSpecRow("Small Suitcases", "${service.fleetInfo!.smallSuitcases}"),
     ];
   }
 
@@ -186,32 +229,22 @@ class VehicleSpecificationsWidget extends StatelessWidget {
     // Check fleetInfo first, then fleetDetails
     if (service.fleetInfo != null) {
       specs.addAll([
-        _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel ?? 'N/A'),
-        // _buildSpecRow("Type", service.fleetInfo!.type ?? 'N/A'),
-        // _buildSpecRow("Capacity", "${service.fleetInfo!.seats ?? 'N/A'} passengers"),
-        // _buildSpecRow("Year", service.fleetInfo!.year?.toString() ?? 'N/A'),
+        _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel),
+        _buildSpecRow("Seats", "${service.fleetInfo!.seats} passengers"),
+        _buildSpecRow("Luggage Capacity", "${service.fleetInfo!.luggageCapacity}"),
+        if (service.fleetInfo!.firstRegistered != null)
+          _buildSpecRow("First Registered", "${service.fleetInfo!.firstRegistered!.year}"),
         _buildSpecRow("Wheelchair Accessible", service.fleetInfo!.wheelchairAccessible == true ? 'Yes' : 'No'),
         _buildSpecRow("Air Conditioning", service.fleetInfo!.airConditioning == true ? 'Yes' : 'No'),
-        // _buildSpecRow("Luggage Capacity", service.fleetInfo!.luggageCapacity == true ? 'Yes' : 'No'),
+        _buildSpecRow("Luggage Space", service.fleetInfo!.luggageSpace == true ? 'Yes' : 'No'),
       ]);
     } else if (service.fleetDetails != null) {
       specs.addAll([
-        _buildSpecRow("Make & Model", service.fleetDetails!.makeModel ?? 'N/A'),
-        _buildSpecRow("Vehicle Type", service.fleetDetails!.vehicleType ?? 'N/A'),
-        _buildSpecRow("Capacity", "${service.fleetDetails!.capacity ?? 'N/A'} passengers"),
-        _buildSpecRow("Year", "${service.fleetDetails!.year ?? 'N/A'}"),
-        _buildSpecRow("Color", service.fleetDetails!.color ?? 'N/A'),
+        _buildSpecRow("Make & Model", service.fleetDetails!.makeModel),
+        _buildSpecRow("Year", "${service.fleetDetails!.year.year}"),
+        _buildSpecRow("Seats", "${service.fleetDetails!.seats} passengers"),
+        _buildSpecRow("Luggage Capacity", "${service.fleetDetails!.luggageCapacity}"),
       ]);
-    }
-
-    // Add fleet size if available
-    if (service.fleetSize != null) {
-      specs.add(_buildSpecRow("Fleet Size", "${service.fleetSize} vehicles"));
-    }
-
-    // Add services provided
-    if (service.servicesProvided != null) {
-      specs.addAll(_buildServicesProvidedSpecs());
     }
 
     return specs.isEmpty ? [_noDataWidget()] : specs;
@@ -225,16 +258,8 @@ class VehicleSpecificationsWidget extends StatelessWidget {
       specs.addAll(_buildFromFleetInfo());
     } else if (service.fleetDetails != null) {
       specs.addAll(_buildFromFleetDetails());
-    } else if (service.serviceFleetDetails.isNotEmpty) {
-      specs.addAll(_buildFromServiceFleetDetails());
-    }
-
-    // Add general fleet information
-    if (service.fleetSize != null) {
-      specs.add(_buildSpecRow("Fleet Size", "${service.fleetSize} vehicles"));
-    }
-    if (service.basePostcode != null) {
-      specs.add(_buildSpecRow("Base Postcode", service.basePostcode!));
+    } else if (service.carriageDetails != null) {
+      specs.addAll(_buildFromCarriageDetails());
     }
 
     return specs.isEmpty ? [_noDataWidget()] : specs;
@@ -242,114 +267,30 @@ class VehicleSpecificationsWidget extends StatelessWidget {
 
   List<Widget> _buildFromFleetInfo() {
     return [
-      if (service.fleetInfo!.makeAndModel != null)
-        _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel!),
-      if (service.fleetInfo!.type != null)
-        _buildSpecRow("Type", service.fleetInfo!.type!),
-      if (service.fleetInfo!.capacity != null)
-        _buildSpecRow("Capacity", "${service.fleetInfo!.capacity} passengers"),
-      if (service.fleetInfo!.year != null)
-        _buildSpecRow("Year", service.fleetInfo!.year.toString()),
+      _buildSpecRow("Make & Model", service.fleetInfo!.makeAndModel),
+      _buildSpecRow("Seats", "${service.fleetInfo!.seats} passengers"),
+      _buildSpecRow("Luggage Capacity", "${service.fleetInfo!.luggageCapacity}"),
+      if (service.fleetInfo!.firstRegistered != null)
+        _buildSpecRow("First Registered", "${service.fleetInfo!.firstRegistered!.year}"),
     ];
   }
 
   List<Widget> _buildFromFleetDetails() {
     return [
-      if (service.fleetDetails!.makeModel != null)
-        _buildSpecRow("Make & Model", service.fleetDetails!.makeModel!),
-      if (service.fleetDetails!.vehicleType != null)
-        _buildSpecRow("Vehicle Type", service.fleetDetails!.vehicleType!),
-      if (service.fleetDetails!.capacity != null)
-        _buildSpecRow("Capacity", "${service.fleetDetails!.capacity} passengers"),
-      if (service.fleetDetails!.year != null)
-        _buildSpecRow("Year", service.fleetDetails!.year.toString()),
-      if (service.fleetDetails!.color != null)
-        _buildSpecRow("Color", service.fleetDetails!.color!),
+      _buildSpecRow("Make & Model", service.fleetDetails!.makeModel),
+      _buildSpecRow("Year", "${service.fleetDetails!.year.year}"),
+      _buildSpecRow("Seats", "${service.fleetDetails!.seats} passengers"),
+      _buildSpecRow("Luggage Capacity", "${service.fleetDetails!.luggageCapacity}"),
     ];
   }
 
-  List<Widget> _buildFromServiceFleetDetails() {
-    final fleet = service.serviceFleetDetails.first;
+  List<Widget> _buildFromCarriageDetails() {
     return [
-      if (fleet.makeModel != null)
-        _buildSpecRow("Make & Model", fleet.makeModel!),
-      if (fleet.type != null)
-        _buildSpecRow("Type", fleet.type!),
-      if (fleet.capacity != null)
-        _buildSpecRow("Capacity", "${fleet.capacity} passengers"),
-      if (fleet.year != null)
-        _buildSpecRow("Year", fleet.year.toString()),
-      if (fleet.color != null)
-        _buildSpecRow("Color", fleet.color!),
+      _buildSpecRow("Carriage Type", service.carriageDetails!.carriageType),
+      _buildSpecRow("Number of Carriages", "${service.carriageDetails!.numberOfCarriages}"),
+      _buildSpecRow("Horse Count", "${service.carriageDetails!.horseCount}"),
+      _buildSpecRow("Seats", "${service.carriageDetails!.seats}"),
     ];
-  }
-
-  List<Widget> _buildAdditionalFleetInfo() {
-    List<Widget> additionalFleet = [];
-    
-    if (service.serviceFleetDetails.length > 1) {
-      additionalFleet.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
-          child: Text(
-            "Additional Fleet Vehicles (${service.serviceFleetDetails.length - 1})",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.blue.shade700,
-            ),
-          ),
-        ),
-      );
-
-      for (int i = 1; i < service.serviceFleetDetails.length; i++) {
-        final fleet = service.serviceFleetDetails[i];
-        additionalFleet.add(
-          Container(
-            margin: EdgeInsets.only(bottom: 8),
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: Column(
-              children: [
-                _buildSpecRow("Make & Model", fleet.makeModel ?? 'N/A', isSmall: true),
-                _buildSpecRow("Type", fleet.type ?? 'N/A', isSmall: true),
-                _buildSpecRow("Capacity", "${fleet.capacity ?? 'N/A'} passengers", isSmall: true),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-    
-    return additionalFleet;
-  }
-
-  List<Widget> _buildServicesProvidedSpecs() {
-    List<Widget> specs = [];
-    final services = service.servicesProvided!;
-    
-    List<String> providedServices = [];
-    if (services.schoolTrips == true) providedServices.add("School Trips");
-    if (services.corporateTransport == true) providedServices.add("Corporate Transport");
-    if (services.privateGroupTours == true) providedServices.add("Private Group Tours");
-    if (services.airportTransfers == true) providedServices.add("Airport Transfers");
-    if (services.longDistanceTravel == true) providedServices.add("Long Distance Travel");
-    if (services.weddingOrEventTransport == true) providedServices.add("Wedding/Event Transport");
-    if (services.shuttleServices == true) providedServices.add("Shuttle Services");
-    if (services.accessibleCoachHire == true) providedServices.add("Accessible Coach Hire");
-    if (services.other == true && services.otherSpecified != null) {
-      providedServices.add(services.otherSpecified!);
-    }
-
-    if (providedServices.isNotEmpty) {
-      specs.add(_buildSpecRow("Services Provided", providedServices.join(", "), isExpandable: true));
-    }
-
-    return specs;
   }
 
   Widget _buildSpecRow(String label, String value, {bool isExpandable = false, bool isSmall = false}) {

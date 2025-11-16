@@ -212,7 +212,7 @@ class _Agree_screenState extends State<Agree_screen> {
                             ),
                             SizedBox(width: 10),
                             Text(
-                              "Sign in as User",
+                              "Sign in as an user",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -246,7 +246,7 @@ class _Agree_screenState extends State<Agree_screen> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              "Sign up as User",
+                              "Sign up as an user",
                               style: TextStyle(
                                   color: Colors.grey.shade700,
                                   fontSize: 16,

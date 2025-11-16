@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,28 +24,32 @@ final UserBasicGetxController userBasicGetxController =
 ApiServiceUserSide apiServiceUserSide = ApiServiceUserSide();
 
 class ApiServiceUserSide {
+  // Local debug logger: prints only in debug builds
+  void _log(Object? message) {
+    if (kDebugMode) debugPrint(message?.toString());
+  }
   Future<void> userLoginSignup(Map<String, dynamic>? requestedData) async {
     try {
-      print("requestedData=>${requestedData}");
+      _log("requestedData=>${requestedData}");
       final response = await http.post(Uri.parse(appUrlsUserSide.signup),
           body: requestedData);
 
-      print("userLoginSignup=response=>${response.body}");
+      _log("userLoginSignup=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("userLoginSignup=data=>${data}");
+        _log("userLoginSignup=data=>${data}");
 
         Future.microtask(
             () => authUserGetXController.setUserSideDetailsModel(data));
         Get.to(OtpPage());
       } else {
-        print('UserLoginSignup Failed to load terms and conditions');
+        _log('UserLoginSignup Failed to load terms and conditions');
       }
     } catch (e) {
-      print('UserLoginSignup Error: $e');
+      _log('UserLoginSignup Error: $e');
     }
   }
 
@@ -55,8 +60,8 @@ class ApiServiceUserSide {
         body: data,
       );
 
-      print('Login Response Status Code: ${response.statusCode}');
-      print('Login Response Body: ${response.body}');
+      _log('Login Response Status Code: ${response.statusCode}');
+      _log('Login Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
@@ -67,8 +72,8 @@ class ApiServiceUserSide {
           final userId = responseData["user"]?["id"];
 
           // Log the extracted values
-          print("Extracted Token: $token");
-          print("Extracted User ID: $userId");
+          _log("Extracted Token: $token");
+          _log("Extracted User ID: $userId");
 
           // Check if token and userId are present
           if (token == null || userId == null) {
@@ -91,8 +96,8 @@ class ApiServiceUserSide {
           await prefs.setString("userId", userId.toString());
 
           // Verify storage by retrieving the values
-          print("Stored Token: ${await prefs.getString("usertoken")}");
-          print("Stored User ID: ${await prefs.getString("userId")}");
+          _log("Stored Token: ${await prefs.getString("usertoken")}");
+          _log("Stored User ID: ${await prefs.getString("userId")}");
 
           Get.snackbar(
             "Success",
@@ -107,7 +112,7 @@ class ApiServiceUserSide {
 
           return true;
         } else {
-          print("Invalid response format: $responseData");
+          _log("Invalid response format: $responseData");
           Get.snackbar(
             "Error",
             "Invalid response format from server",
@@ -134,7 +139,7 @@ class ApiServiceUserSide {
         return false;
       }
     } catch (e) {
-      print("Login Error: $e");
+      _log("Login Error: $e");
       Get.snackbar(
         "Error",
         "Some Error Occurred: $e",
@@ -151,17 +156,17 @@ class ApiServiceUserSide {
 
   Future<void> userVerify(Map<String, dynamic>? requestedData) async {
     try {
-      print("userVerify=>${requestedData}");
+      _log("userVerify=>${requestedData}");
       final response = await http.post(Uri.parse(appUrlsUserSide.verifyOtp),
           body: requestedData);
 
-      print("userVerify=response=>${response.body}");
+      _log("userVerify=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("userVerify=data=>${data}");
+        _log("userVerify=data=>${data}");
 
         authUserGetXController.setUserSideDetailsModel(data);
 
@@ -170,7 +175,7 @@ class ApiServiceUserSide {
                 userId: authUserGetXController.userSideDetailsModel.userId,
               ));
         } else {
-          print("jsonData[data]=>${jsonData["data"]}");
+          _log("jsonData[data]=>${jsonData["data"]}");
           sessionManageerUserSide.setUserSessionManage(jsonData["data"]);
           // Get.offAll(() => Navi());
         }
@@ -186,16 +191,16 @@ class ApiServiceUserSide {
           duration:
               Duration(seconds: 3), // How long the snackbar will be visible
         );
-        print('userVerify Failed to load terms and conditions');
+        _log('userVerify Failed to load terms and conditions');
       }
     } catch (e) {
-      print('userVerify Error: $e');
+      _log('userVerify Error: $e');
     }
   }
 
   Future updateUserProfile(
       userId, imagePath, name, email, token, gender) async {
-    print("sadas");
+    _log("sadas");
     final sessionManager =
         await SessionManageerUserSide(); // Initialize session manager
     dynamic token = await sessionManager.getToken();
@@ -209,10 +214,10 @@ class ApiServiceUserSide {
     response.fields['token'] = "$token";
     response.fields['gender'] = "$gender";
 
-    print("imagePath=>$imagePath");
-    print("name=>${name}");
-    print("email=>${email}");
-    print("token=>${token}");
+    _log("imagePath=>$imagePath");
+    _log("name=>${name}");
+    _log("email=>${email}");
+    _log("token=>${token}");
 
     if (imagePath != "") {
       response.files.add(await http.MultipartFile.fromPath(
@@ -227,7 +232,7 @@ class ApiServiceUserSide {
     var responseString = String.fromCharCodes(responseData);
     if (imagePath != "") {
       var imageFile = File(imagePath);
-      print("Yes_image=>${imagePath}");
+      _log("Yes_image=>${imagePath}");
       response.files.add(await http.MultipartFile.fromPath(
         'user_image',
         imagePath,
@@ -239,10 +244,10 @@ class ApiServiceUserSide {
     }
 
     // dynamic jsondata = responseString;
-    print("updateUserProfile_responseString=>${responseString}");
+    _log("updateUserProfile_responseString=>${responseString}");
     var jsondata = json.decode(responseString);
 
-    print("updateUserProfile_jsondata[result] => ${jsondata["result"]}");
+    _log("updateUserProfile_jsondata[result] => ${jsondata["result"]}");
 
     if (jsondata["result"] == "true") {
       sessionManageerUserSide.setUserSessionManage(jsondata["data"]);
@@ -253,22 +258,22 @@ class ApiServiceUserSide {
 
   Future<void> resendOtp(Map<String, dynamic>? requestedData) async {
     try {
-      print("resendOtp=>${requestedData}");
+      _log("resendOtp=>${requestedData}");
       final response = await http.post(Uri.parse(appUrlsUserSide.resendOtp),
           body: requestedData);
 
-      print("resendOtp=response=>${response.body}");
+      _log("resendOtp=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("resendOtp=data=>${data}");
+        _log("resendOtp=data=>${data}");
 
         authUserGetXController.setUserSideDetailsModel(data);
       }
     } catch (e) {
-      print('userVerify Error: $e');
+      _log('userVerify Error: $e');
     }
   }
 
@@ -279,25 +284,25 @@ class ApiServiceUserSide {
 
       dynamic userId = await sessionManager.getUserId();
       requestedData!["userId"] = userId;
-      // print("vendorServiceList=>${requestedData}");
+      // debug: vendorServiceList request data
       final response = await http.post(
           Uri.parse(appUrlsUserSide.vendorServiceList),
           body: requestedData);
 
-      // print("vendorServiceList=response=>${response.body}");
+      _log("vendorServiceList=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
       final data = jsonData['data'];
       if (jsonData["result"] == "true") {
-        // print("vendorServiceList=data=>${data}");
+        _log("vendorServiceList=data=>${data}");
 
         userBasicGetxController.setServiceList(data);
       } else {
-        print("Error_vendorServiceList=data=>${data}");
+        _log("Error_vendorServiceList=data=>${data}");
         userBasicGetxController.setServiceList(data);
       }
     } catch (e) {
-      print('vendorServiceList Error: $e');
+      _log('vendorServiceList Error: $e');
     }
   }
 
@@ -316,17 +321,17 @@ class ApiServiceUserSide {
     requestedData!["token"] = token;
 
     try {
-      print("resendOtp=>${requestedData}");
+      _log("resendOtp=>${requestedData}");
       final response = await http
           .post(Uri.parse(appUrlsUserSide.addUserAddress), body: requestedData);
 
-      print("resendOtp=response=>${response.body}");
+      _log("resendOtp=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("resendOtp=data=>${data}");
+        _log("resendOtp=data=>${data}");
         await sessionManager.setAddressId(data["addressId"]);
         await sessionManager.setAddress(data["address"]);
         await sessionManager.setLatitude(data["latitude"]);
@@ -335,7 +340,7 @@ class ApiServiceUserSide {
         await sessionManager.setStreet(data["street"]);
       }
     } catch (e) {
-      print('userVerify Error: $e');
+      _log('userVerify Error: $e');
     }
   }
 
@@ -353,18 +358,18 @@ class ApiServiceUserSide {
     requestedData!["token"] = token;
 
     try {
-      print("addEnquiry=>${requestedData}");
+      _log("addEnquiry=>${requestedData}");
 
       final response = await http.post(Uri.parse(appUrlsUserSide.addEnquiry),
           body: requestedData);
 
-      print("addEnquiry=response=>${response.body}");
+      _log("addEnquiry=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("addEnquiry=data=>${data}");
+        _log("addEnquiry=data=>${data}");
 
         Future.microtask(() => userBasicGetxController.setHomePageNavigation(2))
             .whenComplete(() {
@@ -372,7 +377,7 @@ class ApiServiceUserSide {
         });
       }
     } catch (e) {
-      print('addEnquiry Error: $e');
+      _log('addEnquiry Error: $e');
     }
   }
 
@@ -391,17 +396,17 @@ class ApiServiceUserSide {
     requestedData!["token"] = token;
 
     try {
-      print("userProfile=>${requestedData}");
+      _log("userProfile=>${requestedData}");
       final response = await http.post(Uri.parse(appUrlsUserSide.userProfile),
           body: requestedData);
 
-      print("userProfile=response=>${response.body}");
+      _log("userProfile=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("userProfile=data=>${data}");
+        _log("userProfile=data=>${data}");
 
         await sessionManager.setAddress(data["address"]);
       }
@@ -423,19 +428,19 @@ class ApiServiceUserSide {
       final response = await http
           .get(Uri.parse("${appUrlsUserSide.bannerList}?token=$token"));
 
-      print("getHomeFirstBanner=response=>${response.body}");
+      _log("getHomeFirstBanner=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("getHomeFirstBanner=data=>${data}");
+        _log("getHomeFirstBanner=data=>${data}");
         userBasicGetxController.setGetHomebannerFirstList(data);
 
         // await sessionManager.setAddress(data["address"]);
       }
     } catch (e) {
-      print('getHomeFirstBanner Error: $e');
+      _log('getHomeFirstBanner Error: $e');
     }
   }
 
@@ -451,19 +456,19 @@ class ApiServiceUserSide {
       final response = await http
           .get(Uri.parse("${appUrlsUserSide.bannerFooterList}?token=$token"));
 
-      print("getHomeFooterBanner=response=>${response.body}");
+      _log("getHomeFooterBanner=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
 
-        print("getHomeFooterBanner=data=>${data}");
+        _log("getHomeFooterBanner=data=>${data}");
 
         userBasicGetxController.setGetHomeFooterbannerFirstList(data);
       }
     } catch (e) {
-      print('getHomeFooterBanner Error: $e');
+      _log('getHomeFooterBanner Error: $e');
     }
   }
 
@@ -478,19 +483,19 @@ class ApiServiceUserSide {
       final response = await http
           .get(Uri.parse("${appUrlsUserSide.offerList}?token=$token"));
 
-      print("getOfferList=response=>${response.body}");
+      _log("getOfferList=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("getOfferList=data=>${data}");
+        _log("getOfferList=data=>${data}");
         userBasicGetxController.setOffersListList(data);
 
         // await sessionManager.setAddress(data["address"]);
       }
     } catch (e) {
-      print('getOfferList Error: $e');
+      _log('getOfferList Error: $e');
     }
   }
 
@@ -506,19 +511,19 @@ class ApiServiceUserSide {
           Uri.parse("${appUrlsUserSide.categoryList}"),
           body: {"token": "$token"});
 
-      print("getCategoryList=response=>${response.body}");
+      _log("getCategoryList=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("getCategoryList=data=>${data}");
+        _log("getCategoryList=data=>${data}");
         userBasicGetxController.setCategoryList(data);
 
         // await sessionManager.setAddress(data["address"]);
       }
     } catch (e) {
-      print('getCategoryList Error: $e');
+      _log('getCategoryList Error: $e');
     }
   }
 
@@ -535,13 +540,13 @@ class ApiServiceUserSide {
       final response = await http
           .post(Uri.parse("${appUrlsUserSide.categoryBannerList}"), body: data);
 
-      print("getSubcategoryBannerList=response=>${response.body}");
+      _log("getSubcategoryBannerList=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("getSubcategoryBannerList=data=>${data}");
+        _log("getSubcategoryBannerList=data=>${data}");
         userBasicGetxController.setCategoryBannerList(data);
         userBasicGetxController.setCategoryName(jsonData["category_name"]);
 
@@ -550,7 +555,7 @@ class ApiServiceUserSide {
         userBasicGetxController.setCategoryName(jsonData["category_name"]);
       }
     } catch (e) {
-      print('getSubcategoryBannerList Error: $e');
+      _log('getSubcategoryBannerList Error: $e');
     }
   }
 
@@ -567,19 +572,19 @@ class ApiServiceUserSide {
       final response = await http
           .post(Uri.parse("${appUrlsUserSide.subcategoryList}"), body: data);
 
-      print("getSubcategoryList=response=>${response.body}");
+      _log("getSubcategoryList=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("getSubcategoryList=data=>${data}");
+        _log("getSubcategoryList=data=>${data}");
         userBasicGetxController.setSubCategoryList(data);
 
         // await sessionManager.setAddress(data["address"]);
       }
     } catch (e) {
-      print('getSubcategoryList Error: $e');
+      _log('getSubcategoryList Error: $e');
     }
   }
 
@@ -598,13 +603,13 @@ class ApiServiceUserSide {
       final response = await http
           .post(Uri.parse("${appUrlsUserSide.updateUserAddress}"), body: data);
 
-      print("updateUserAddress=response=>${response.body}");
+      _log("updateUserAddress=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("updateUserAddress=data=>${data}");
+        _log("updateUserAddress=data=>${data}");
         await sessionManager.setAddressId(data["addressId"]);
         await sessionManager.setAddress(data["address"]);
         await sessionManager.setLatitude(data["latitude"]);
@@ -613,7 +618,7 @@ class ApiServiceUserSide {
         await sessionManager.setStreet(data["street"]);
       }
     } catch (e) {
-      print('updateUserAddress Error: $e');
+      _log('updateUserAddress Error: $e');
     }
   }
 
@@ -632,19 +637,19 @@ class ApiServiceUserSide {
       final response =
           await http.post(Uri.parse("${appUrlsUserSide.faqList}"), body: data);
 
-      print("getFAQ=response=>${response.body}");
+      _log("getFAQ=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("getFAQ=data=>${data}");
+        _log("getFAQ=data=>${data}");
         userBasicGetxController.setFaqModelsListList(data);
 
         // await sessionManager.setAddress(data["address"]);
       }
     } catch (e) {
-      print('getFAQ Error: $e');
+      _log('getFAQ Error: $e');
     }
   }
 
@@ -665,19 +670,19 @@ class ApiServiceUserSide {
           Uri.parse("${appUrlommenTermsPrivacyAboutusModelList}"),
           body: data);
 
-      print("getCommenTermsPrivacyAboutusModelList=response=>${response.body}");
+      _log("getCommenTermsPrivacyAboutusModelList=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("getCommenTermsPrivacyAboutusModelList=data=>${data}");
+        _log("getCommenTermsPrivacyAboutusModelList=data=>${data}");
         userBasicGetxController.setCommenTermsPrivacyAboutusModel(data[0]);
 
         // await sessionManager.setAddress(data["address"]);
       }
     } catch (e) {
-      print('getCommenTermsPrivacyAboutusModelList Error: $e');
+      _log('getCommenTermsPrivacyAboutusModelList Error: $e');
     }
   }
 
@@ -698,19 +703,19 @@ class ApiServiceUserSide {
           Uri.parse("${appUrlsUserSide.addFavouriteService}"),
           body: data);
 
-      print("addFavouriteService=response=>${response.body}");
+      _log("addFavouriteService=response=>${response.body}");
 
       final jsonData = jsonDecode(response.body);
 
       if (jsonData["result"] == "true") {
         final data = jsonData['data'];
-        print("addFavouriteService=data=>${data}");
+        _log("addFavouriteService=data=>${data}");
         userBasicGetxController.setCommenTermsPrivacyAboutusModel(data[0]);
 
         // await sessionManager.setAddress(data["address"]);
       }
     } catch (e) {
-      print('addFavouriteService Error: $e');
+      _log('addFavouriteService Error: $e');
     }
   }
 
@@ -721,8 +726,8 @@ class ApiServiceUserSide {
         body: data,
       );
 
-      print(response.body);
-      print(response.statusCode);
+      _log(response.body);
+      _log(response.statusCode);
 
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
@@ -741,7 +746,7 @@ class ApiServiceUserSide {
         return true;
       }
     } catch (e) {
-      print(e);
+      _log(e);
       Get.snackbar(
         "Error",
         "Some Error Occurred!",

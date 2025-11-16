@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/controller/delete_vendor_services_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/boat_hire_edit/boat_hire_edit.dart';
-import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/funeral_car_edit/funeral_car_edit_screen.dart';
-import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/horse_and_carriage_edit/horse_and_carriage_service_screen.dart';
-import 'package:hire_any_thing/Vendor_App/view/edit_passenger_services/limousine_hire_edit/limousine_hire_edit_screen.dart';
-import 'package:hire_any_thing/Vendor_App/view/profile_page/drawer.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/home_page_widget.dart/pricing_options_widget.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/home_page_widget.dart/service_feature_widget.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/home_page_widget.dart/vehicle_specifications_widget.dart';
@@ -22,28 +17,88 @@ class HomePageAddService extends StatefulWidget {
 }
 
 class _HomePageAddServiceState extends State<HomePageAddService> {
-  final ServiceController controller = Get.put(ServiceController());
+  late final ServiceController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Try to find existing controller, or create new one
+    try {
+      controller = Get.find<ServiceController>();
+      print("🔍 Found existing ServiceController");
+    } catch (e) {
+      controller = Get.put(ServiceController());
+      print("🆕 Created new ServiceController");
+    }
+    
+    // Add a small delay to ensure controller is fully initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(Duration(milliseconds: 500));
+      print("🔄 Post-frame callback - checking controller state:");
+      print("  - Initialized: ${controller.isInitialized.value}");
+      print("  - Loading: ${controller.isLoading.value}");
+      print("  - Services: ${controller.serviceList.length}");
+      
+      // If not loading and no services, try manual fetch
+      if (!controller.isLoading.value && controller.serviceList.isEmpty && !controller.hasError.value) {
+        print("🔄 No services found, attempting manual fetch...");
+        await controller.fetchServices();
+      }
+    });
+  }
 
   Future<void> _refreshServices() async {
     try {
-      controller.fetchServices();
-      print("Fetched services count: ${controller.serviceList.length}");
+      print("🔄 Manual refresh triggered");
+      await controller.fetchServices();
+      print("✅ Manual refresh completed. Services count: ${controller.serviceList.length}");
       print(
-          "Fetched services: ${controller.serviceList.map((s) => s.serviceName ?? 'Unnamed').toList()}");
+          "Service titles: ${controller.serviceList.map((s) => s.serviceName ?? s.listingTitle).toList()}");
     } catch (e) {
-      print("Error during refresh: $e");
+      print("❌ Error during manual refresh: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.grey50,
       body: Obx(() {
+        print("🎭 UI Rebuild triggered - Controller state:");
+        print("  - Loading: ${controller.isLoading.value}");
+        print("  - Has Error: ${controller.hasError.value}");
+        print("  - Error Message: '${controller.errorMessage.value}'");
+        print("  - ServiceList Length: ${controller.serviceList.length}");
+        print("  - Vendor ID: '${controller.vendorId.value}'");
+        print("  - Has Auth Token: ${controller.authToken.value.isNotEmpty}");
+        
         if (controller.isLoading.value) {
+          print("🔄 Showing loading indicator");
           return Center(child: CircularProgressIndicator());
         }
-        print("serviceList length in UI: ${controller.serviceList.length}");
+        
+        if (controller.hasError.value) {
+          print("❌ Showing error state: ${controller.errorMessage.value}");
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+               const Icon(Icons.error, size: 64, color: Colors.red),
+               const SizedBox(height: 16),
+                Text("Error: ${controller.errorMessage.value}"),
+               const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => controller.refreshServices(),
+                  child: const Text("Retry"),
+                ),
+              ],
+            ),
+          );
+        }
+        
+        print("📊 Final check - serviceList.isEmpty: ${controller.serviceList.isEmpty}");
         if (controller.serviceList.isEmpty) {
+          print("📋 Showing empty state");
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -84,6 +139,29 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                     ),
                   ),
                   const SizedBox(height: 32),
+                  
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // ElevatedButton(
+                      //   onPressed: () async {
+                      //     await controller.debugFullFlow();
+                      //   },
+                      //   style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                      //   child: const Text("Debug Test", style: TextStyle(color: Colors.white)),
+                      // ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _refreshServices();
+                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        child: const Text("Manual Refresh", style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -102,7 +180,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                           }
                         },
                         icon: const Icon(Icons.add, color: Colors.white),
-                        label: Text("Create Your First Service", style: const TextStyle(color: Colors.white),),
+                        label:const Text("Create Your First Service", style:  TextStyle(color: Colors.white),),
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 16),
@@ -125,7 +203,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
 
         List<Service> passengerTransportServices = controller.serviceList
             .where((service) =>
-                service.categoryId?.categoryName == "Passenger Transport")
+                service.categoryId.categoryName == CategoryName.PASSENGER_TRANSPORT)
             .toList();
 
         List<Service> displayedServices = passengerTransportServices;
@@ -133,8 +211,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         return RefreshIndicator(
           onRefresh: _refreshServices,
           child: ListView(
-            physics: AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             children: [
               _buildServiceSection(
                 "Passenger Transport Services",
@@ -164,12 +242,10 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
 
   Widget _buildServiceCard(Service service) {
     // Debug service name
-    print('asdfgh ${service.serviceName2}');
 
     String serviceName;
 
-    serviceName =
-        service.serviceName2 ?? service.listingTitle ?? 'Unnamed Service';
+    serviceName = service.listingTitle;
 
     print("Service Name Debug: $serviceName for type: ${service.serviceType}");
 
@@ -218,8 +294,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                           },
                         )
                       : Image.network(
-                          service.serviceImage?.isNotEmpty == true
-                              ? service.serviceImage!.first.trim()
+                          service.serviceImages?.isNotEmpty == true
+                              ? service.serviceImages!.first.trim()
                               : "https://via.placeholder.com/400x200",
                           height: 200,
                           width: double.infinity,
@@ -294,7 +370,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          service.subcategoryId?.subcategoryName ?? 'Category',
+                          service.subcategoryId.subcategoryName,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,
@@ -324,26 +400,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                               EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         ),
                         child: Text(
-                          service.serviceType == "boat" &&
-                                  service.boatRates?.fullDayRate != null
-                              ? "£${service.boatRates!.fullDayRate}/day"
-                              : service.serviceType == "horse" &&
-                                      service.pricing?.fullDayRate != null
-                                  ? "£${service.pricing!.fullDayRate}/day"
-                                  : service.serviceType == "funeral" &&
-                                          service.pricingDetails?.dayRate !=
-                                              null
-                                      ? "£${service.pricingDetails!.dayRate}/day"
-                                      : service.serviceType == "minibus" &&
-                                              service.miniBusRates
-                                                      ?.fullDayRate !=
-                                                  null
-                                          ? "£${service.miniBusRates!.fullDayRate}/day"
-                                          : service.serviceType ==
-                                                      "limousine" &&
-                                                  service.fullDayRate != null
-                                              ? "£${service.fullDayRate}/day"
-                                              : "Contact for price",
+                          _getPriceDisplay(service),
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
@@ -374,19 +431,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          () {
-                            final locations = service.serviceType == 'boat'
-                                ? service.navigableRoutes ?? []
-                                : service.serviceType == 'horse'
-                                    ? service.serviceAreas ?? []
-                                    : service.areasCovered ?? [];
-
-                            if (locations.isNotEmpty) {
-                              return "${locations.first}${locations.length > 1 ? ' + ${locations.length - 1} more' : ''}";
-                            } else {
-                              return "Unknown";
-                            }
-                          }(),
+                          _getLocationDisplay(service),
                           style: TextStyle(
                               color: Colors.grey.shade700, fontSize: 13),
                           maxLines: 1,
@@ -419,25 +464,21 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                     children: [
                       ElevatedButton.icon(
                         onPressed: () {
-                          if (service.serviceType == "boat" &&
-                              service.id != null) {
+                          if (service.serviceType == "boat") {
                             Get.to(() =>
-                                BoatHireEditScreen(serviceId: service.id!));
+                                BoatHireEditScreen(serviceId: service.id));
                           }
-                          if (service.serviceType == "horse" &&
-                              service.id != null) {
-                            Get.to(() => HorseCarriageEditScreen(
-                                serviceId: service.id!));
+                          if (service.serviceType == "horse") {
+                            // Get.to(() => HorseCarriageEditScreen(
+                            //     serviceId: service.id));
                           }
-                          if (service.serviceType == "limousine" &&
-                              service.id != null) {
-                            Get.to(() =>
-                                LimoHireEditScreen(serviceId: service.id!));
+                          if (service.serviceType == "limousine") {
+                            // Get.to(() =>
+                            //     LimoHireEditScreen(serviceId: service.id));
                           }
-                          if (service.serviceType == "funeral" &&
-                              service.id != null) {
-                            Get.to(() => FuneralCarHireEditScreen(
-                                serviceId: service.id!));
+                          if (service.serviceType == "funeral") {
+                            // Get.to(() => FuneralCarHireEditScreen(
+                            //     serviceId: service.id));
                           }
                         },
                         icon: const Icon(Icons.edit, size: 16),
@@ -452,7 +493,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () async {
-                          if (service.id == null) {
+                          if (service.id.isEmpty) {
                             Get.snackbar(
                               "Error",
                               "Service ID not found",
@@ -470,7 +511,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
 
                           if (shouldDelete) {
                             bool deleted = await deleteApi
-                                .deleteVendorService(service.id!);
+                                .deleteVendorService(service.id);
 
                             Get.back();
 
@@ -498,5 +539,104 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         ),
       ),
     );
+  }
+
+  String _getPriceDisplay(Service service) {
+    switch (service.serviceType) {
+      case "boat":
+        if (service.boatRates?.tenHourDayHire != null) {
+          return "£${service.boatRates!.tenHourDayHire}/day";
+        }
+        if (service.boatRates?.halfDayHire != null) {
+          return "£${service.boatRates!.halfDayHire}/half day";
+        }
+        if (service.boatRates?.hourlyRate != null) {
+          return "£${service.boatRates!.hourlyRate}/hour";
+        }
+        break;
+      case "horse":
+        if (service.pricing?.fullDayRate != null) {
+          return "£${service.pricing!.fullDayRate}/day";
+        }
+        if (service.pricing?.halfDayRate != null) {
+          return "£${service.pricing!.halfDayRate}/half day";
+        }
+        if (service.pricing?.hourlyRate != null) {
+          return "£${service.pricing!.hourlyRate}/hour";
+        }
+        break;
+      case "funeral":
+        if (service.pricingDetails?.dayRate != null) {
+          return "£${service.pricingDetails!.dayRate}/day";
+        }
+        if (service.pricingDetails?.hourlyRate != null) {
+          return "£${service.pricingDetails!.hourlyRate}/hour";
+        }
+        break;
+      case "minibus":
+        if (service.miniBusRates?.fullDayRate != null) {
+          return "£${service.miniBusRates!.fullDayRate}/day";
+        }
+        if (service.miniBusRates?.halfDayRate != null) {
+          return "£${service.miniBusRates!.halfDayRate}/half day";
+        }
+        if (service.miniBusRates?.hourlyRate != null) {
+          return "£${service.miniBusRates!.hourlyRate}/hour";
+        }
+        break;
+      case "limousine":
+        if (service.pricingDetails?.fullDayRate != null) {
+          return "£${service.pricingDetails!.fullDayRate}/day";
+        }
+        if (service.pricingDetails?.halfDayRate != null) {
+          return "£${service.pricingDetails!.halfDayRate}/half day";
+        }
+        if (service.pricingDetails?.hourlyRate != null) {
+          return "£${service.pricingDetails!.hourlyRate}/hour";
+        }
+        break;
+      case "chauffeur":
+        if (service.pricingDetails?.fullDayRate != null) {
+          return "£${service.pricingDetails!.fullDayRate}/day";
+        }
+        if (service.pricingDetails?.halfDayRate != null) {
+          return "£${service.pricingDetails!.halfDayRate}/half day";
+        }
+        if (service.pricingDetails?.hourlyRate != null) {
+          return "£${service.pricingDetails!.hourlyRate}/hour";
+        }
+        break;
+      case "coach":
+        if (service.pricingDetails?.dayRate != null) {
+          return "£${service.pricingDetails!.dayRate}/day";
+        }
+        if (service.pricingDetails?.hourlyRate != null) {
+          return "£${service.pricingDetails!.hourlyRate}/hour";
+        }
+        break;
+    }
+    return "Contact for price";
+  }
+
+  String _getLocationDisplay(Service service) {
+    List<String> locations = [];
+    
+    switch (service.serviceType) {
+      case 'boat':
+        locations = service.areasCovered ?? [];
+        break;
+      case 'horse':
+        locations = service.areasCovered ?? [];
+        break;
+      default:
+        locations = service.areasCovered ?? [];
+        break;
+    }
+
+    if (locations.isNotEmpty) {
+      return "${locations.first}${locations.length > 1 ? ' + ${locations.length - 1} more' : ''}";
+    } else {
+      return service.basePostcode ?? service.baseLocationPostcode ?? "Location not specified";
+    }
   }
 }

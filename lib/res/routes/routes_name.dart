@@ -12,7 +12,7 @@ import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart'
 import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:hire_any_thing/User_app/views/AboutScreen/about_screen.dart';
 import 'package:hire_any_thing/User_app/views/Category/categories_view_all_screen.dart';
-import 'package:hire_any_thing/User_app/views/HomePage/home_page.dart';
+import 'package:hire_any_thing/User_app/views/BookServices/book_services_screen.dart';
 import 'package:hire_any_thing/User_app/views/Introduction/introduction_screen.dart';
 import 'package:hire_any_thing/User_app/views/UserHomePage/user_home_page.dart';
 import 'package:hire_any_thing/User_app/views/about_services/artist_hire_screen.dart';

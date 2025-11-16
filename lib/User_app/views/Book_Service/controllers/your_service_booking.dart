@@ -21,26 +21,19 @@ class YourServicesViewModel {
 
   void fetchService(String id) async {
     isLoading.value = true;
-    print('Fetching service for ID: $id');
-
     if (serviceController.vendorServices.isEmpty) {
-      print('Vendor services list is empty, waiting for fetchVendorServices');
       await serviceController.fetchVendorServices();
     }
 
     service.value = serviceController.getServiceById(id);
 
     if (service.value == null) {
-      print('Service not found in list, attempting to fetch by ID');
       service.value = await serviceController.fetchServiceById(id);
     }
 
     isLoading.value = false;
     if (service.value != null) {
-      print('Service loaded: ${service.value!.serviceName}');
       calculateTotal();
-    } else {
-      print('No service found for ID: $id');
     }
   }
 

@@ -442,7 +442,7 @@ class VendorAuthController extends GetxController {
       if (isLoggedIn) {
         Get.snackbar(
           'Success',
-          'Logged in successfully',
+          'Partner logged in successfully',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,

@@ -1803,128 +1803,82 @@ class LimousineHireService extends StatelessWidget {
                   return const Iterable<String>.empty();
                 }
                 return Cities.ukCities.where((String city) {
-                  return city.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                  return city
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase());
                 }).take(5);
               },
               onSelected: (String selection) {
                 controller.baseLocationController.text = selection;
               },
-              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+              fieldViewBuilder: (context, textEditingController, focusNode,
+                  onFieldSubmitted) {
                 // Initialize with current value
-                if (textEditingController.text.isEmpty && controller.baseLocationController.text.isNotEmpty) {
-                  textEditingController.text = controller.baseLocationController.text;
+                if (textEditingController.text.isEmpty &&
+                    controller.baseLocationController.text.isNotEmpty) {
+                  textEditingController.text =
+                      controller.baseLocationController.text;
                 }
-                
+
                 // Sync changes back to main controller
                 textEditingController.addListener(() {
-                  if (controller.baseLocationController.text != textEditingController.text) {
-                    controller.baseLocationController.text = textEditingController.text;
+                  if (controller.baseLocationController.text !=
+                      textEditingController.text) {
+                    controller.baseLocationController.text =
+                        textEditingController.text;
                   }
                 });
-                
-                return TextFormField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  validator: (value) {
-                    if (value?.trim().isEmpty ?? true)
-                      return 'Base location is required';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Enter your base location',
-                    hintStyle: const TextStyle(color: AppColors.grey500, fontSize: 14),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.grey300),
+
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
+                    color: Colors.white,
+                  ),
+                  child: TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    onSubmitted: (value) => onFieldSubmitted(),
+                    decoration: const InputDecoration(
+                      hintText: "Enter your base location",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16),
+                      hintStyle: TextStyle(
+                        color: Color(0xFF999999),
+                        fontSize: 16,
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.btnColor, width: 2),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF333333),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.grey300),
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                    suffixIcon: const Icon(Icons.location_city_outlined, color: AppColors.grey500),
                   ),
                 );
               },
               optionsViewBuilder: (context, onSelected, options) {
-                final optionsList = options.toList();
-                return Positioned(
-                  left: 0,
-                  right: 0,
+                return Align(
+                  alignment: Alignment.topLeft,
                   child: Material(
-                    elevation: 4,
+                    elevation: 4.0,
                     borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.grey300, width: 1),
-                      ),
-                      constraints: BoxConstraints(
-                        maxHeight: 260,
-                      ),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
                         shrinkWrap: true,
-                        itemCount: optionsList.length,
+                        itemCount: options.length,
                         itemBuilder: (context, index) {
-                          final option = optionsList[index];
-                          return Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => onSelected(option),
-                              borderRadius: index == 0 && index == optionsList.length - 1
-                                  ? BorderRadius.circular(8)
-                                  : index == 0
-                                      ? const BorderRadius.only(
-                                          topLeft: Radius.circular(8),
-                                          topRight: Radius.circular(8),
-                                        )
-                                      : index == optionsList.length - 1
-                                          ? const BorderRadius.only(
-                                              bottomLeft: Radius.circular(8),
-                                              bottomRight: Radius.circular(8),
-                                            )
-                                          : BorderRadius.zero,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                decoration: index < optionsList.length - 1
-                                    ? const BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: AppColors.grey200,
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                      )
-                                    : null,
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      color: AppColors.btnColor,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        option,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.grey900,
-                                          height: 1.1,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          final option = options.elementAt(index);
+                          return ListTile(
+                            title: Text(
+                              option,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF333333),
                               ),
                             ),
+                            onTap: () => onSelected(option),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           );
                         },
                       ),

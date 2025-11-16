@@ -58,49 +58,30 @@ class ServiceFeaturesWidget extends StatelessWidget {
   }
 
   bool _hasServiceFeatures() {
-    switch (service.serviceType?.toLowerCase()) {
+    switch (service.serviceType.toLowerCase()) {
       case 'boat':
-        return true;
+        return service.fleetInfo != null || service.areasCovered?.isNotEmpty == true;
       case 'horse':
-        return service.serviceDetails?.occasionsCatered.isNotEmpty ?? false;
+        return service.carriageDetails != null;
       case 'funeral':
-        return service.fleetDetails != null;
+        return service.fleetDetails != null || service.serviceDetail != null;
       case 'minibus':
         return service.fleetInfo != null;
       case 'limousine':
-        return service.features != null && _hasLimousineFeatures();
+      case 'chauffeur':
+        return service.fleetInfo != null || service.features != null;
       case 'coach':
-        return _hasCoachFeatures();
+        return service.fleetInfo != null || service.fleetDetails != null;
       default:
-        return _hasGeneralFeatures();
+        return service.fleetInfo != null || 
+               service.fleetDetails != null || 
+               service.carriageDetails != null ||
+               service.features != null;
     }
   }
 
-  bool _hasLimousineFeatures() {
-    return (service.features?.comfortAndLuxury.isNotEmpty ?? false) ||
-        (service.features?.eventsAndCustomization.isNotEmpty ?? false) ||
-        (service.features?.accessibilityServices.isNotEmpty ?? false) ||
-        (service.features?.safetyAndCompliance.isNotEmpty ?? false);
-  }
-
-  bool _hasCoachFeatures() {
-    return service.servicesProvided != null ||
-        service.fleetInfo != null ||
-        service.features != null;
-  }
-
-  bool _hasGeneralFeatures() {
-    return service.features != null ||
-        service.fleetInfo != null ||
-        service.serviceDetails != null ||
-        service.comfort != null ||
-        service.events != null ||
-        service.accessibility != null ||
-        service.security != null;
-  }
-
   List<Widget> _buildServiceFeatures() {
-    switch (service.serviceType?.toLowerCase()) {
+    switch (service.serviceType.toLowerCase()) {
       case 'boat':
         return _buildBoatFeatures();
       case 'horse':
@@ -111,6 +92,8 @@ class ServiceFeaturesWidget extends StatelessWidget {
         return _buildMinibusFeatures();
       case 'limousine':
         return _buildLimousineFeatures();
+      case 'chauffeur':
+        return _buildChauffeurFeatures();
       case 'coach':
         return _buildCoachFeatures();
       default:
@@ -131,41 +114,20 @@ class ServiceFeaturesWidget extends StatelessWidget {
         features.add(_buildFeatureRow(Icons.ac_unit, "Air Conditioning"));
       }
       if (service.fleetInfo!.wheelchairAccessible == true) {
-        features
-            .add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
+        features.add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
       }
       if (service.fleetInfo!.luggageSpace == true) {
-        features
-            .add(_buildFeatureRow(Icons.luggage, "Luggage Space Available"));
+        features.add(_buildFeatureRow(Icons.luggage, "Luggage Space Available"));
       }
-      if (service.fleetInfo!.onboardFeatures?.isNotEmpty ?? false) {
-        features.add(_buildFeatureRow(
-          Icons.featured_play_list,
-          "Onboard Features: ${service.fleetInfo!.onboardFeatures}",
-          isExpandable: true,
-        ));
-      }
-      if (service.fleetInfo!.onboardFacilities?.isNotEmpty ?? false) {
-        features.add(_buildFeatureRow(
-          Icons.room_service,
-          "Onboard Facilities: ${service.fleetInfo!.onboardFacilities}",
-          isExpandable: true,
-        ));
+      if (service.fleetInfo!.seats > 0) {
+        features.add(_buildFeatureRow(Icons.event_seat, "Seats: ${service.fleetInfo!.seats}"));
       }
     }
 
-    if (service.navigableRoutes.isNotEmpty) {
+    if (service.areasCovered?.isNotEmpty == true) {
       features.add(_buildFeatureRow(
-        Icons.route,
-        "Navigable Routes: ${service.navigableRoutes.join(", ")}",
-        isExpandable: true,
-      ));
-    }
-
-    if (service.boatRates?.packageDealsDescription?.isNotEmpty ?? false) {
-      features.add(_buildFeatureRow(
-        Icons.local_offer,
-        "Package Deals: ${service.boatRates!.packageDealsDescription}",
+        Icons.location_on,
+        "Areas Covered: ${service.areasCovered!.join(", ")}",
         isExpandable: true,
       ));
     }
@@ -176,66 +138,45 @@ class ServiceFeaturesWidget extends StatelessWidget {
   List<Widget> _buildHorseFeatures() {
     List<Widget> features = [];
 
-    if (service.serviceDetails?.occasionsCatered.isNotEmpty ?? false) {
-      features.add(_buildFeatureRow(
-        Icons.celebration,
-        "Occasions Catered: ${service.serviceDetails!.occasionsCatered.join(", ")}",
-        isExpandable: true,
-      ));
-    }
-
-    if (service.serviceDetails?.carriageTypes.isNotEmpty ?? false) {
+    if (service.carriageDetails != null) {
       features.add(_buildFeatureRow(
         Icons.directions_car,
-        "Carriage Types: ${service.serviceDetails!.carriageTypes.join(", ")}",
-        isExpandable: true,
+        "Carriage Type: ${service.carriageDetails!.carriageType}",
       ));
-    }
 
-    if (service.serviceDetails?.horseTypes.isNotEmpty ?? false) {
       features.add(_buildFeatureRow(
         Icons.pets,
-        "Horse Types: ${service.serviceDetails!.horseTypes.join(", ")}",
+        "Horse Breeds: ${service.carriageDetails!.horseBreeds.join(", ")}",
         isExpandable: true,
       ));
-    }
 
-    if (service.serviceDetails?.fleetSize != null &&
-        service.serviceDetails!.fleetSize! > 0) {
       features.add(_buildFeatureRow(
-        Icons.format_list_numbered,
-        "Fleet Size: ${service.serviceDetails!.fleetSize} carriages",
-      ));
-    }
-
-    if (service.serviceDetails?.numberOfCarriages != null &&
-        service.serviceDetails!.numberOfCarriages! > 0) {
-      features.add(_buildFeatureRow(
-        Icons.format_list_numbered,
-        "Number of Carriages: ${service.serviceDetails!.numberOfCarriages}",
-      ));
-    }
-
-    if (service.serviceDetails?.basePostcode?.isNotEmpty ?? false) {
-      features.add(_buildFeatureRow(
-        Icons.location_on,
-        "Based in: ${service.serviceDetails!.basePostcode}",
-      ));
-    }
-
-    if (service.serviceDetails?.mileage != null &&
-        service.serviceDetails!.mileage! > 0) {
-      features.add(_buildFeatureRow(
-        Icons.route,
-        "Service Range: ${service.serviceDetails!.mileage} miles",
-      ));
-    }
-
-    if (service.otherOccasions?.isNotEmpty ?? false) {
-      features.add(_buildFeatureRow(
-        Icons.event_available,
-        "Other Occasions: ${service.otherOccasions}",
+        Icons.palette,
+        "Horse Colors: ${service.carriageDetails!.horseColors.join(", ")}",
         isExpandable: true,
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Seats Available: ${service.carriageDetails!.seats}",
+      ));
+
+      if (service.carriageDetails!.decorationOptions.isNotEmpty) {
+        features.add(_buildFeatureRow(
+          Icons.celebration,
+          "Decoration Options: ${service.carriageDetails!.decorationOptions.join(", ")}",
+          isExpandable: true,
+        ));
+      }
+
+      features.add(_buildFeatureRow(
+        Icons.numbers,
+        "Number of Carriages: ${service.carriageDetails!.numberOfCarriages}",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.pets,
+        "Horse Count: ${service.carriageDetails!.horseCount}",
       ));
     }
 
@@ -245,58 +186,31 @@ class ServiceFeaturesWidget extends StatelessWidget {
   List<Widget> _buildFuneralFeatures() {
     List<Widget> features = [];
 
-    features.add(_buildFeatureRow(
-      Icons.local_florist,
-      "Professional Funeral Service",
-    ));
-
-    if (service.fleetDetails != null) {
-      if (service.fleetDetails!.vehicleType?.isNotEmpty ?? false) {
-        features.add(_buildFeatureRow(
-          Icons.directions_car,
-          "Vehicle Type: ${service.fleetDetails!.vehicleType}",
-        ));
+    if (service.serviceDetail != null) {
+      if (service.serviceDetail!.worksWithFuneralDirectors) {
+        features.add(_buildFeatureRow(Icons.business, "Works with Funeral Directors"));
       }
 
-      if (service.fleetDetails!.color?.isNotEmpty ?? false) {
-        features.add(_buildFeatureRow(
-          Icons.palette,
-          "Vehicle Color: ${service.fleetDetails!.color}",
-        ));
+      if (service.serviceDetail!.supportsAllFuneralTypes) {
+        features.add(_buildFeatureRow(Icons.support, "Supports All Funeral Types"));
       }
 
-      if (service.fleetDetails!.capacity != null &&
-          service.fleetDetails!.capacity! > 0) {
-        features.add(_buildFeatureRow(
-          Icons.people,
-          "Capacity: ${service.fleetDetails!.capacity} passengers",
-        ));
-      }
+      features.add(_buildFeatureRow(
+        Icons.category,
+        "Service Type: ${service.serviceDetail!.funeralServiceType}",
+      ));
     }
 
-    if (service.pricingDetails != null) {
-      if (service.pricingDetails!.decoratingFloralServiceFee != null &&
-          service.pricingDetails!.decoratingFloralServiceFee! > 0) {
-        features.add(_buildFeatureRow(
-          Icons.local_florist,
-          "Decorating/Floral Service Available",
-        ));
-      }
+    if (service.fleetDetails != null) {
+      features.add(_buildFeatureRow(
+        Icons.directions_car,
+        "Vehicle: ${service.fleetDetails!.makeModel} (${service.fleetDetails!.year.year})",
+      ));
 
-      if (service.pricingDetails!.waitTimeFeePerHour != null &&
-          service.pricingDetails!.waitTimeFeePerHour! > 0) {
-        features.add(_buildFeatureRow(
-          Icons.schedule,
-          "Flexible Wait Time Options",
-        ));
-      }
-
-      if (service.pricingDetails!.fuelChargesIncluded == true) {
-        features.add(_buildFeatureRow(
-          Icons.local_gas_station,
-          "Fuel Charges Included",
-        ));
-      }
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Capacity: ${service.fleetDetails!.seats} passengers",
+      ));
     }
 
     return features;
@@ -306,64 +220,31 @@ class ServiceFeaturesWidget extends StatelessWidget {
     List<Widget> features = [];
 
     if (service.fleetInfo != null) {
-      if (service.fleetInfo!.wheelchairAccessible == true) {
-        features.add(_buildFeatureRow(
-          Icons.accessible,
-          "Wheelchair Accessible",
-        ));
-      }
+      features.add(_buildFeatureRow(
+        Icons.directions_bus,
+        "Vehicle: ${service.fleetInfo!.makeAndModel}",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Seats: ${service.fleetInfo!.seats} passengers",
+      ));
 
       if (service.fleetInfo!.airConditioning == true) {
-        features.add(_buildFeatureRow(
-          Icons.ac_unit,
-          "Air Conditioning",
-        ));
+        features.add(_buildFeatureRow(Icons.ac_unit, "Air Conditioning"));
+      }
+
+      if (service.fleetInfo!.wheelchairAccessible == true) {
+        features.add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
       }
 
       if (service.fleetInfo!.luggageSpace == true) {
-        features.add(_buildFeatureRow(
-          Icons.luggage,
-          "Luggage Space Available",
-        ));
+        features.add(_buildFeatureRow(Icons.luggage, "Luggage Space"));
       }
 
-      if (service.fleetInfo!.capacity != null &&
-          service.fleetInfo!.capacity! > 0) {
-        features.add(_buildFeatureRow(
-          Icons.people,
-          "Capacity: ${service.fleetInfo!.capacity} passengers",
-        ));
-      }
-
-      if (service.fleetInfo!.onboardFacilities?.isNotEmpty ?? false) {
-        features.add(_buildFeatureRow(
-          Icons.room_service,
-          "Onboard Facilities: ${service.fleetInfo!.onboardFacilities}",
-          isExpandable: true,
-        ));
-      }
-    }
-
-    if (service.seatBeltsInAllVehicles == true) {
       features.add(_buildFeatureRow(
-        Icons.safety_check,
-        "Seat Belts in All Vehicles",
-      ));
-    }
-
-    if (service.miniBusRates?.mileageAllowance != null &&
-        service.miniBusRates!.mileageAllowance! > 0) {
-      features.add(_buildFeatureRow(
-        Icons.route,
-        "Mileage Allowance: ${service.miniBusRates!.mileageAllowance} miles",
-      ));
-    }
-
-    if (service.occasionsCovered.isNotEmpty) {
-      features.add(_buildFeatureRow(
-        Icons.event,
-        "Occasions Covered: ${service.occasionsCovered.join(", ")}",
-        isExpandable: true,
+        Icons.luggage,
+        "Luggage Capacity: ${service.fleetInfo!.luggageCapacity}",
       ));
     }
 
@@ -373,68 +254,66 @@ class ServiceFeaturesWidget extends StatelessWidget {
   List<Widget> _buildLimousineFeatures() {
     List<Widget> features = [];
 
-    if (service.features != null) {
-      if (service.features!.comfortAndLuxury.isNotEmpty) {
-        features.add(_buildFeatureRow(
-          Icons.star,
-          "Comfort & Luxury: ${service.features!.comfortAndLuxury.join(", ")}",
-          isExpandable: true,
-        ));
-      }
-
-      if (service.features!.eventsAndCustomization.isNotEmpty) {
-        features.add(_buildFeatureRow(
-          Icons.event,
-          "Events & Customization: ${service.features!.eventsAndCustomization.join(", ")}",
-          isExpandable: true,
-        ));
-      }
-
-      if (service.features!.accessibilityServices.isNotEmpty) {
-        features.add(_buildFeatureRow(
-          Icons.accessible,
-          "Accessibility: ${service.features!.accessibilityServices.join(", ")}",
-          isExpandable: true,
-        ));
-      }
-
-      if (service.features!.safetyAndCompliance.isNotEmpty) {
-        features.add(_buildFeatureRow(
-          Icons.security,
-          "Safety & Compliance: ${service.features!.safetyAndCompliance.join(", ")}",
-          isExpandable: true,
-        ));
-      }
-    }
-
-    // Fuel and mileage information
-    if (service.fuelIncluded == true) {
-      features.add(_buildFeatureRow(Icons.local_gas_station, "Fuel Included"));
-    }
-
-    if (service.mileageCapLimit != null && service.mileageCapLimit! > 0) {
+    if (service.fleetInfo != null) {
       features.add(_buildFeatureRow(
-        Icons.route,
-        "Mileage Cap: ${service.mileageCapLimit} miles",
+        Icons.directions_car,
+        "Luxury Vehicle: ${service.fleetInfo!.makeAndModel}",
       ));
-    }
 
-    // Service fleet details
-    if (service.serviceFleetDetails.isNotEmpty) {
-      final fleet = service.serviceFleetDetails.first;
-      if (fleet.keyFeatures?.isNotEmpty ?? false) {
-        features.add(_buildFeatureRow(
-          Icons.key,
-          "Key Features: ${fleet.keyFeatures}",
-          isExpandable: true,
-        ));
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Seats: ${service.fleetInfo!.seats} passengers",
+      ));
+
+      if (service.fleetInfo!.airConditioning == true) {
+        features.add(_buildFeatureRow(Icons.ac_unit, "Climate Control"));
       }
 
-      if (fleet.bootSpace?.isNotEmpty ?? false) {
+      if (service.fleetInfo!.wheelchairAccessible == true) {
+        features.add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
+      }
+
+      features.add(_buildFeatureRow(
+        Icons.luggage,
+        "Luggage Capacity: ${service.fleetInfo!.luggageCapacity}",
+      ));
+
+      if (service.fleetInfo!.largeSuitcases != null && service.fleetInfo!.largeSuitcases! > 0) {
         features.add(_buildFeatureRow(
           Icons.luggage,
-          "Boot Space: ${fleet.bootSpace}",
+          "Large Suitcases: ${service.fleetInfo!.largeSuitcases}",
         ));
+      }
+    }
+
+    return features;
+  }
+
+  List<Widget> _buildChauffeurFeatures() {
+    List<Widget> features = [];
+
+    features.add(_buildFeatureRow(
+      Icons.person,
+      "Professional Chauffeur Service",
+    ));
+
+    if (service.fleetInfo != null) {
+      features.add(_buildFeatureRow(
+        Icons.directions_car,
+        "Vehicle: ${service.fleetInfo!.makeAndModel}",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Seats: ${service.fleetInfo!.seats} passengers",
+      ));
+
+      if (service.fleetInfo!.airConditioning == true) {
+        features.add(_buildFeatureRow(Icons.ac_unit, "Climate Control"));
+      }
+
+      if (service.fleetInfo!.wheelchairAccessible == true) {
+        features.add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
       }
     }
 
@@ -444,58 +323,38 @@ class ServiceFeaturesWidget extends StatelessWidget {
   List<Widget> _buildCoachFeatures() {
     List<Widget> features = [];
 
-    // Services provided
-    if (service.servicesProvided != null) {
-      List<String> providedServices = [];
-      if (service.servicesProvided!.schoolTrips == true)
-        providedServices.add("School Trips");
-      if (service.servicesProvided!.corporateTransport == true)
-        providedServices.add("Corporate Transport");
-      if (service.servicesProvided!.privateGroupTours == true)
-        providedServices.add("Private Group Tours");
-      if (service.servicesProvided!.airportTransfers == true)
-        providedServices.add("Airport Transfers");
-      if (service.servicesProvided!.longDistanceTravel == true)
-        providedServices.add("Long Distance Travel");
-      if (service.servicesProvided!.weddingOrEventTransport == true)
-        providedServices.add("Wedding/Event Transport");
-      if (service.servicesProvided!.shuttleServices == true)
-        providedServices.add("Shuttle Services");
-      if (service.servicesProvided!.accessibleCoachHire == true)
-        providedServices.add("Accessible Coach Hire");
-      if (service.servicesProvided!.other == true &&
-          service.servicesProvided!.otherSpecified?.isNotEmpty == true) {
-        providedServices.add(service.servicesProvided!.otherSpecified!);
-      }
-
-      if (providedServices.isNotEmpty) {
-        features.add(_buildFeatureRow(
-          Icons.list_alt,
-          "Services: ${providedServices.join(", ")}",
-          isExpandable: true,
-        ));
-      }
-    }
-
-    // Fleet features
     if (service.fleetInfo != null) {
-      if (service.fleetInfo!.wheelchairAccessible == true) {
-        features
-            .add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
-      }
+      features.add(_buildFeatureRow(
+        Icons.directions_bus,
+        "Coach: ${service.fleetInfo!.makeAndModel}",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Seats: ${service.fleetInfo!.seats} passengers",
+      ));
+
       if (service.fleetInfo!.airConditioning == true) {
         features.add(_buildFeatureRow(Icons.ac_unit, "Air Conditioning"));
       }
-      if (service.fleetInfo!.luggageSpace == true) {
-        features.add(_buildFeatureRow(Icons.luggage, "Luggage Space"));
-      }
-    }
 
-    // Fleet size
-    if (service.fleetSize != null && service.fleetSize! > 0) {
+      if (service.fleetInfo!.wheelchairAccessible == true) {
+        features.add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
+      }
+
+      features.add(_buildFeatureRow(
+        Icons.luggage,
+        "Luggage Capacity: ${service.fleetInfo!.luggageCapacity}",
+      ));
+    } else if (service.fleetDetails != null) {
       features.add(_buildFeatureRow(
         Icons.directions_bus,
-        "Fleet Size: ${service.fleetSize} vehicles",
+        "Coach: ${service.fleetDetails!.makeModel} (${service.fleetDetails!.year.year})",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Seats: ${service.fleetDetails!.seats} passengers",
       ));
     }
 
@@ -505,45 +364,68 @@ class ServiceFeaturesWidget extends StatelessWidget {
   List<Widget> _buildGeneralFeatures() {
     List<Widget> features = [];
 
-    if (service.features != null) {
-      features.addAll(_buildLimousineFeatures());
-    }
-
     if (service.fleetInfo != null) {
-      if (service.fleetInfo!.wheelchairAccessible == true) {
-        features
-            .add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
-      }
+      features.add(_buildFeatureRow(
+        Icons.directions_car,
+        "Vehicle: ${service.fleetInfo!.makeAndModel}",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Capacity: ${service.fleetInfo!.seats} passengers",
+      ));
+
       if (service.fleetInfo!.airConditioning == true) {
         features.add(_buildFeatureRow(Icons.ac_unit, "Air Conditioning"));
       }
-      if (service.fleetInfo!.luggageSpace == true) {
-        features.add(_buildFeatureRow(Icons.luggage, "Luggage Space"));
-      }
-    }
 
-    if (service.serviceDetails != null) {
-      if (service.serviceDetails!.occasionsCatered.isNotEmpty) {
-        features.add(_buildFeatureRow(
-          Icons.celebration,
-          "Occasions: ${service.serviceDetails!.occasionsCatered.join(", ")}",
-          isExpandable: true,
-        ));
+      if (service.fleetInfo!.wheelchairAccessible == true) {
+        features.add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
       }
+    } else if (service.fleetDetails != null) {
+      features.add(_buildFeatureRow(
+        Icons.directions_car,
+        "Vehicle: ${service.fleetDetails!.makeModel}",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Capacity: ${service.fleetDetails!.seats} passengers",
+      ));
+    } else if (service.carriageDetails != null) {
+      features.add(_buildFeatureRow(
+        Icons.directions_car,
+        "Carriage: ${service.carriageDetails!.carriageType}",
+      ));
+
+      features.add(_buildFeatureRow(
+        Icons.event_seat,
+        "Seats: ${service.carriageDetails!.seats}",
+      ));
     }
 
     return features;
   }
 
-  Widget _buildFeatureRow(IconData icon, String text,
-      {bool isExpandable = false}) {
+  Widget _buildFeatureRow(IconData icon, String text, {bool isExpandable = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: Colors.green),
-          SizedBox(width: 8),
+          Container(
+            padding: EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.yellow.shade100,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: Colors.yellow.shade700,
+            ),
+          ),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               text,
@@ -551,9 +433,8 @@ class ServiceFeaturesWidget extends StatelessWidget {
                 fontSize: 14,
                 color: Colors.grey.shade700,
               ),
-              overflow:
-                  isExpandable ? TextOverflow.visible : TextOverflow.ellipsis,
               maxLines: isExpandable ? null : 2,
+              overflow: isExpandable ? TextOverflow.visible : TextOverflow.ellipsis,
             ),
           ),
         ],

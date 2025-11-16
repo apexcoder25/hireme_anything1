@@ -715,10 +715,10 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
           break;
         case 'Funeral Car Hire':
           Get.to(() => FuneralCarHireService(
-                Category: Rxn<String>(category),
-                SubCategory: Rxn<String>(subcategory),
-                CategoryId: categoryId,
-                SubCategoryId: subcategoryId,
+                category: Rxn<String>(category),
+                subCategory: Rxn<String>(subcategory),
+                categoryId: categoryId,
+                subCategoryId: subcategoryId,
               ));
           break;
         case 'Horse and Carriage Hire':

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/category_sub_model.dart';
 import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
+import 'package:hire_any_thing/data/models/user_side_model/promotedServices_model.dart' as promoted_model;
 import 'package:hire_any_thing/data/services/api_service.dart';
 
 
@@ -11,6 +12,8 @@ class AllServicesController extends GetxController {
 
   // Updated to handle all 6 categories
   var services = <Datum>[].obs;
+    // promoted/featured services
+    var promotedServices = <promoted_model.Datum>[].obs;
   var coachServices = <Datum>[].obs;
   var funeralServices = <Datum>[].obs;
   var horseServices = <Datum>[].obs;
@@ -46,7 +49,31 @@ class AllServicesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchAllServices();
+    // fetch featured/promoted services then main list
+    fetchPromotedServices();
+    // fetchAllServices();
+  }
+
+  Future<void> fetchPromotedServices() async {
+    try {
+      final payload = {
+        "userLocation": null,
+        "categoryId": null,
+        "maxDistance": 50,
+        "limit": 3,
+      };
+      final resp = await _apiService.postApi('/promoted/promoted-services', payload);
+      if (resp != null) {
+        try {
+          final promoted = promoted_model.PromotedServices.fromJson(resp);
+          promotedServices.value = promoted.data;
+        } catch (e) {
+          // ignore parse errors for promoted
+        }
+      }
+    } catch (e) {
+      // ignore network errors for promoted
+    }
   }
 
 
@@ -65,7 +92,7 @@ class AllServicesController extends GetxController {
 
 
       await _fetchWithMultipleApproaches(loadMore);
-    } catch (e, stackTrace) {
+    } catch (e) {
       hasMoreData.value = false;
       Get.snackbar("Error", "Failed to load services: $e");
     } finally {
@@ -111,35 +138,84 @@ class AllServicesController extends GetxController {
 
     for (var approach in approaches) {
       try {
-        final response = await _apiService.postApi(apiUrl, approach);
+          final response = await _apiService.postApi(apiUrl, approach);
 
+          if (response != null) {
+            try {
+              // Normalize known response shapes to the FilterModel expected shape
+              Map<String, dynamic> normalized;
 
-        if (response != null) {
-          final data = FilterModel.fromJson(response);
-          if (data.success == true && data.data.isNotEmpty) {
+              if (response is Map<String, dynamic> && response.containsKey('result')) {
+                // Common shape: { result: ..., data: [...] } or { result: ..., data: { docs: [...], pagination: {...} } }
+                dynamic rawData = response['data'];
+                List<dynamic> items = [];
 
+                if (rawData == null) {
+                  items = [];
+                } else if (rawData is List) {
+                  items = rawData;
+                } else if (rawData is Map<String, dynamic>) {
+                  // handle pagination structures: { docs: [...], pagination: { total: n, ... } }
+                  if (rawData.containsKey('docs') && rawData['docs'] is List) {
+                    items = rawData['docs'];
+                  } else if (rawData.containsKey('data') && rawData['data'] is List) {
+                    items = rawData['data'];
+                  } else {
+                    // fallback: try to find first list-valued key
+                    var firstList = rawData.values.firstWhere(
+                        (v) => v is List, orElse: () => null);
+                    items = firstList is List ? firstList : [];
+                  }
+                }
 
-            if (loadMore) {
-              var newServices = data.data
-                  .where((newService) => !services.any(
-                      (existingService) => existingService.id == newService.id))
-                  .toList();
-              services.addAll(newServices);
-            } else {
-              services.value = data.data;
+                normalized = {
+                  'success': response['result'] == true || response['result'] == 'true',
+                  'count': response['count'] ?? items.length,
+                  'data': items
+                };
+              } else if (response is List) {
+                normalized = {'success': true, 'count': response.length, 'data': response};
+              } else if (response is Map<String, dynamic>) {
+                // fallback: try to extract 'data' or 'docs' as list
+                dynamic rawData = response['data'];
+                if (rawData is List) {
+                  normalized = {'success': true, 'count': rawData.length, 'data': rawData};
+                } else if (rawData is Map<String, dynamic> && rawData['docs'] is List) {
+                  normalized = {'success': true, 'count': (rawData['pagination']?['total']) ?? (rawData['docs'] as List).length, 'data': rawData['docs']};
+                } else {
+                  // Unknown shape, skip this approach
+                  continue;
+                }
+              } else {
+                // Unknown shape, skip this approach
+                continue;
+              }
+
+              final data = FilterModel.fromJson(normalized);
+              if (data.success == true && data.data.isNotEmpty) {
+                if (loadMore) {
+                  var newServices = data.data
+                      .where((newService) => !services.any(
+                          (existingService) => existingService.id == newService.id))
+                      .toList();
+                  services.addAll(newServices);
+                } else {
+                  services.value = data.data;
+                }
+
+                hasMoreData.value = data.data.length >= itemsPerPage.value;
+                _categorizeAllServices();
+
+                if (!loadMore) {
+                  extractCategories();
+                }
+                return;
+              }
+            } catch (e) {
+              // parsing error for this approach - try next
+              continue;
             }
-
-
-            hasMoreData.value = data.data.length >= itemsPerPage.value;
-            _categorizeAllServices();
-
-
-            if (!loadMore) {
-              extractCategories();
-            }
-            return;
           }
-        }
       } catch (e) {
         continue;
       }
@@ -164,19 +240,50 @@ class AllServicesController extends GetxController {
 
 
   void _categorizeAllServices() {
-    coachServices.value =
-        services.where((service) => service.sourceModel == "coach").toList();
-    funeralServices.value =
-        services.where((service) => service.sourceModel == "funeral").toList();
-    horseServices.value =
-        services.where((service) => service.sourceModel == "horse").toList();
-    chauffeurServices.value = services
-        .where((service) => service.sourceModel == "chauffeur")
-        .toList();
-    boatServices.value =
-        services.where((service) => service.sourceModel == "boat").toList();
-    minibusServices.value =
-        services.where((service) => service.sourceModel == "minibus").toList();
+    // Classify using multiple signals because API may use different fields/naming.
+    String lower(String? s) => (s ?? '').toLowerCase();
+
+    coachServices.value = services.where((service) {
+      final src = lower(service.sourceModel);
+      final cat = lower(service.categoryId?.categoryName);
+      final name = lower(service.serviceName ?? service.datumServiceName);
+      return src.contains('coach') || cat.contains('coach') || name.contains('coach');
+    }).toList();
+
+    funeralServices.value = services.where((service) {
+      final src = lower(service.sourceModel);
+      final cat = lower(service.categoryId?.categoryName);
+      final name = lower(service.serviceName ?? service.datumServiceName);
+      return src.contains('funeral') || cat.contains('funeral') || name.contains('funeral');
+    }).toList();
+
+    horseServices.value = services.where((service) {
+      final src = lower(service.sourceModel);
+      final cat = lower(service.categoryId?.categoryName);
+      final name = lower(service.serviceName ?? service.datumServiceName);
+      return src.contains('horse') || cat.contains('horse') || name.contains('horse');
+    }).toList();
+
+    chauffeurServices.value = services.where((service) {
+      final src = lower(service.sourceModel);
+      final cat = lower(service.categoryId?.categoryName);
+      final name = lower(service.serviceName ?? service.datumServiceName);
+      return src.contains('chauffeur') || cat.contains('chauffeur') || name.contains('chauffeur');
+    }).toList();
+
+    boatServices.value = services.where((service) {
+      final src = lower(service.sourceModel);
+      final cat = lower(service.categoryId?.categoryName);
+      final name = lower(service.serviceName ?? service.datumServiceName);
+      return src.contains('boat') || cat.contains('boat') || name.contains('boat');
+    }).toList();
+
+    minibusServices.value = services.where((service) {
+      final src = lower(service.sourceModel);
+      final cat = lower(service.categoryId?.categoryName);
+      final name = lower(service.serviceName ?? service.datumServiceName);
+      return src.contains('minibus') || cat.contains('minibus') || name.contains('minibus');
+    }).toList();
 
 
   }

@@ -339,7 +339,7 @@ class MinibusHireController extends GetxController {
   Future<bool> _validateStep3() async {
     if (makeModelController.text.trim().isEmpty ||
         numberOfSeatsController.text.trim().isEmpty ||
-        luggageCapacityController.text.trim().isEmpty ) {
+        luggageCapacityController.text.trim().isEmpty) {
       _showError('All vehicle information fields are required');
       return false;
     }
@@ -1681,128 +1681,84 @@ class MinibusHireService extends StatelessWidget {
                   return const Iterable<String>.empty();
                 }
                 return Cities.ukCities.where((String city) {
-                  return city.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                  return city
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase());
                 }).take(5);
               },
               onSelected: (String selection) {
                 controller.baseLocationController.text = selection;
               },
-              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+              fieldViewBuilder: (context, textEditingController, focusNode,
+                  onFieldSubmitted) {
                 // Initialize with current value
-                if (textEditingController.text.isEmpty && controller.baseLocationController.text.isNotEmpty) {
-                  textEditingController.text = controller.baseLocationController.text;
+                if (textEditingController.text.isEmpty &&
+                    controller.baseLocationController.text.isNotEmpty) {
+                  textEditingController.text =
+                      controller.baseLocationController.text;
                 }
-                
+
                 // Sync changes back to main controller
                 textEditingController.addListener(() {
-                  if (controller.baseLocationController.text != textEditingController.text) {
-                    controller.baseLocationController.text = textEditingController.text;
+                  if (controller.baseLocationController.text !=
+                      textEditingController.text) {
+                    controller.baseLocationController.text =
+                        textEditingController.text;
                   }
                 });
-                
-                return TextFormField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  validator: (value) {
-                    if (value?.trim().isEmpty ?? true)
-                      return 'Base location is required';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Enter base location or postcode',
-                    hintStyle: const TextStyle(color: AppColors.grey500, fontSize: 14),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.grey300),
+
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
+                    color: Colors.white,
+                  ),
+                  child: TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    onSubmitted: (value) => onFieldSubmitted(),
+                    decoration: const InputDecoration(
+                      hintText: "Enter your base location",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16),
+                      hintStyle: TextStyle(
+                        color: Color(0xFF999999),
+                        fontSize: 16,
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.btnColor, width: 2),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF333333),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.grey300),
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                    suffixIcon: const Icon(Icons.location_city_outlined, color: AppColors.grey500),
                   ),
                 );
               },
               optionsViewBuilder: (context, onSelected, options) {
-                final optionsList = options.toList();
-                return Positioned(
-                  left: 0,
-                  right: 0,
+                return Align(
+                  alignment: Alignment.topLeft,
                   child: Material(
-                    elevation: 4,
+                    elevation: 4.0,
                     borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.grey300, width: 1),
-                      ),
-                      constraints: BoxConstraints(
-                        maxHeight: 260,
-                      ),
+                    child: ConstrainedBox(
+                      constraints:
+                          const BoxConstraints(maxHeight: 200, maxWidth: 300),
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
                         shrinkWrap: true,
-                        itemCount: optionsList.length,
+                        itemCount: options.length,
                         itemBuilder: (context, index) {
-                          final option = optionsList[index];
-                          return Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => onSelected(option),
-                              borderRadius: index == 0 && index == optionsList.length - 1
-                                  ? BorderRadius.circular(8)
-                                  : index == 0
-                                      ? const BorderRadius.only(
-                                          topLeft: Radius.circular(8),
-                                          topRight: Radius.circular(8),
-                                        )
-                                      : index == optionsList.length - 1
-                                          ? const BorderRadius.only(
-                                              bottomLeft: Radius.circular(8),
-                                              bottomRight: Radius.circular(8),
-                                            )
-                                          : BorderRadius.zero,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                decoration: index < optionsList.length - 1
-                                    ? const BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: AppColors.grey200,
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                      )
-                                    : null,
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      color: AppColors.btnColor,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        option,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.grey900,
-                                          height: 1.1,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          final option = options.elementAt(index);
+                          return ListTile(
+                            title: Text(
+                              option,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF333333),
                               ),
                             ),
+                            onTap: () => onSelected(option),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
                           );
                         },
                       ),
@@ -1875,7 +1831,8 @@ class MinibusHireService extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         _buildDateField(
-            context, 'First Registered', controller.firstRegistrationDate, allowFutureDates: false),
+            context, 'First Registered', controller.firstRegistrationDate,
+            allowFutureDates: false),
       ],
     );
   }
@@ -2006,8 +1963,8 @@ class MinibusHireService extends StatelessWidget {
         const SizedBox(height: 24),
         ProfessionalDropdown(
           label: 'Service Status',
-          value: controller.selectedServiceStatus.value == 'Open' 
-              ? 'Open - Available for bookings' 
+          value: controller.selectedServiceStatus.value == 'Open'
+              ? 'Open - Available for bookings'
               : 'Closed - Not accepting bookings',
           items: [
             'Open - Available for bookings',
@@ -2054,37 +2011,40 @@ class MinibusHireService extends StatelessWidget {
           isRequired: true,
         ),
         const SizedBox(height: 24),
-
-        const Text('Special Pricing Calendar', style: TextStyle(fontSize: 16, )),
+        const Text('Special Pricing Calendar',
+            style: TextStyle(
+              fontSize: 16,
+            )),
         const SizedBox(height: 14),
-
-       const Text('Set special prices for specific dates (holidays, peak seasons, events). These will override your standard rates.)'),
-
+        const Text(
+            'Set special prices for specific dates (holidays, peak seasons, events). These will override your standard rates.)'),
         const SizedBox(height: 10),
         Obx(() {
           DateTime focusedDay = controller.calendarController.fromDate.value;
-          DateTime availableFromDate = controller.calendarController.fromDate.value;
+          DateTime availableFromDate =
+              controller.calendarController.fromDate.value;
           DateTime availableToDate = controller.calendarController.toDate.value;
-          
+
           // Ensure focused day is within the available range
           if (focusedDay.isBefore(availableFromDate)) {
             focusedDay = availableFromDate;
           } else if (focusedDay.isAfter(availableToDate)) {
             focusedDay = availableToDate;
           }
-          
+
           return TableCalendar(
             onDaySelected: (selectedDay, focusedDay) {
               // Only allow selection within the available date range (inclusive)
               if (selectedDay.isAtSameMomentAs(availableFromDate) ||
                   selectedDay.isAtSameMomentAs(availableToDate) ||
-                  (selectedDay.isAfter(availableFromDate) && selectedDay.isBefore(availableToDate))) {
+                  (selectedDay.isAfter(availableFromDate) &&
+                      selectedDay.isBefore(availableToDate))) {
                 controller._showSetPriceDialog(selectedDay);
               }
             },
             focusedDay: focusedDay,
             firstDay: availableFromDate, // Link to Available From date
-            lastDay: availableToDate,    // Link to Available To date
+            lastDay: availableToDate, // Link to Available To date
             calendarFormat: CalendarFormat.month,
             availableGestures: AvailableGestures.none,
             headerStyle: const HeaderStyle(formatButtonVisible: false),
@@ -2092,9 +2052,10 @@ class MinibusHireService extends StatelessWidget {
               defaultBuilder: (context, day, focusedDay) {
                 // Check if day is within the available date range (inclusive)
                 bool isWithinRange = day.isAtSameMomentAs(availableFromDate) ||
-                                   day.isAtSameMomentAs(availableToDate) ||
-                                   (day.isAfter(availableFromDate) && day.isBefore(availableToDate));
-                
+                    day.isAtSameMomentAs(availableToDate) ||
+                    (day.isAfter(availableFromDate) &&
+                        day.isBefore(availableToDate));
+
                 if (isWithinRange) {
                   return controller._buildCalendarCell(day, true);
                 }
@@ -2851,8 +2812,8 @@ class MinibusHireService extends StatelessWidget {
     );
   }
 
-  Widget _buildDateField(
-      BuildContext context, String label, Rx<DateTime> date, {bool allowFutureDates = true}) {
+  Widget _buildDateField(BuildContext context, String label, Rx<DateTime> date,
+      {bool allowFutureDates = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2873,7 +2834,9 @@ class MinibusHireService extends StatelessWidget {
             final DateTime today = DateTime.now();
             final DateTime? picked = await showDatePicker(
               context: context,
-              initialDate: allowFutureDates ? date.value : (date.value.isAfter(today) ? today : date.value),
+              initialDate: allowFutureDates
+                  ? date.value
+                  : (date.value.isAfter(today) ? today : date.value),
               firstDate: DateTime(1950),
               lastDate: allowFutureDates ? DateTime(2099, 12, 31) : today,
               builder: (context, child) {
@@ -3193,8 +3156,8 @@ class MinibusHireService extends StatelessWidget {
     );
   }
 
-  Widget _buildTermsCheckboxWithLink(BuildContext context, String title, RxBool value, 
-      Function(bool?) onChanged, String url) {
+  Widget _buildTermsCheckboxWithLink(BuildContext context, String title,
+      RxBool value, Function(bool?) onChanged, String url) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),

@@ -56,32 +56,7 @@ class UserLoginContent extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Transform.scale(
-                  scale: 0.9,
-                  child: GetBuilder<AuthController>(
-                    builder: (controller) => Checkbox(
-                      value: controller.rememberMe,
-                      onChanged: (_) => controller.toggleRememberMe(),
-                      activeColor: AppColors.btnColor,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                ),
-                const Text(
-                  "Remember me",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+           const Spacer(),
             TextButton(
               onPressed: () {},
               child: const Text(

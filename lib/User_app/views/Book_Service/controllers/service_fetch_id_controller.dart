@@ -24,7 +24,6 @@ class VendorServiceController extends GetxController {
         final Map<String, dynamic> jsonData = json.decode(response.body);
         final List<dynamic> servicesJson = jsonData['vendorServices'];
         vendorServices.assignAll(servicesJson.map((e) => VendorServiceModel.fromJson(e)).toList());
-        print('Fetched ${vendorServices.length} services: ${vendorServices.map((s) => s.id).toList()}');
       } else {
         Get.snackbar("Error", "Failed to load data: ${response.statusCode}");
       }
@@ -44,10 +43,8 @@ class VendorServiceController extends GetxController {
         final jsonData = json.decode(response.body);
         final service = VendorServiceModel.fromJson(jsonData);
         addVendorService(service);
-        print('Fetched service by ID $id: ${service.serviceName}');
         return service;
       } else {
-        print('Failed to fetch service by ID $id: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -60,9 +57,7 @@ class VendorServiceController extends GetxController {
 
   // Get a service by ID from the list
   VendorServiceModel? getServiceById(String id) {
-    final service = vendorServices.firstWhereOrNull((service) => service.id == id);
-    print('Getting service by ID $id: ${service != null ? service.serviceName : "Not found"}');
-    return service;
+    return vendorServices.firstWhereOrNull((service) => service.id == id);
   }
 
   // Add a new service

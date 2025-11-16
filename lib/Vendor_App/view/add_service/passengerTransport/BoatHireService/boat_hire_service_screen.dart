@@ -2064,145 +2064,56 @@ class BoatHireService extends StatelessWidget {
                   }
                 });
 
-                return TextFormField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  validator: (value) {
-                    if (value?.trim().isEmpty ?? true)
-                      return 'Base postcode is required';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Enter base postcode or city',
-                    hintStyle:
-                        const TextStyle(color: AppColors.grey500, fontSize: 14),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.grey300),
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
+                    color: Colors.white,
+                  ),
+                  child: TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    onSubmitted: (value) => onFieldSubmitted(),
+                    decoration: const InputDecoration(
+                      hintText: "Enter your base location",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(16),
+                      hintStyle: TextStyle(
+                        color: Color(0xFF999999),
+                        fontSize: 16,
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide:
-                          const BorderSide(color: AppColors.btnColor, width: 2),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF333333),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: AppColors.grey300),
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                    suffixIcon: const Icon(Icons.location_city_outlined,
-                        color: AppColors.grey500),
                   ),
                 );
               },
               optionsViewBuilder: (context, onSelected, options) {
-                final optionsList = options.toList();
-                if (optionsList.isEmpty) {
-                  return Positioned(
-                    left: 0,
-                    right: 0,
-                    child: Material(
-                      elevation: 4,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border:
-                              Border.all(color: AppColors.grey300, width: 1),
-                        ),
-                        child: const Text(
-                          'No cities found',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.grey600,
-                            fontStyle: FontStyle.italic,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                return Positioned(
-                  left: 0,
-                  right: 0,
+                return Align(
+                  alignment: Alignment.topLeft,
                   child: Material(
-                    elevation: 4,
+                    elevation: 4.0,
                     borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.grey300, width: 1),
-                      ),
-                      constraints: BoxConstraints(
-                        maxHeight:
-                            260, // About 5 items * 52 (adjust to your item height)
-                      ),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
                         shrinkWrap: true,
-                        itemCount: optionsList.length,
+                        itemCount: options.length,
                         itemBuilder: (context, index) {
-                          final option = optionsList[index];
-                          return Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => onSelected(option),
-                              borderRadius: index == 0 &&
-                                      index == optionsList.length - 1
-                                  ? BorderRadius.circular(8)
-                                  : index == 0
-                                      ? const BorderRadius.only(
-                                          topLeft: Radius.circular(8),
-                                          topRight: Radius.circular(8),
-                                        )
-                                      : index == optionsList.length - 1
-                                          ? const BorderRadius.only(
-                                              bottomLeft: Radius.circular(8),
-                                              bottomRight: Radius.circular(8),
-                                            )
-                                          : BorderRadius.zero,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 12),
-                                decoration: index < optionsList.length - 1
-                                    ? const BoxDecoration(
-                                        border: Border(
-                                          bottom: BorderSide(
-                                            color: AppColors.grey200,
-                                            width: 0.5,
-                                          ),
-                                        ),
-                                      )
-                                    : null,
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      color: AppColors.btnColor,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        option,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.grey900,
-                                          height: 1.1,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          final option = options.elementAt(index);
+                          return ListTile(
+                            title: Text(
+                              option,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF333333),
                               ),
                             ),
+                            onTap: () => onSelected(option),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                           );
                         },
                       ),
@@ -2855,32 +2766,29 @@ class BoatHireService extends StatelessWidget {
                   (value) =>
                       controller.noContactDetailsShared.value = value ?? false,
                 ),
-                _buildTermsCheckbox(
+                _buildTermsCheckboxWithLink(
                   context,
-                  'I agree to the  Cookies Policy',
+                  'I agree to the Cookies Policy',
                   controller.agreeCookiesPolicy,
                   (value) =>
                       controller.agreeCookiesPolicy.value = value ?? false,
-                  policyUrl:
-                      'https://stage1.hireanything.com/Cookies_Policy_Hire_Anything_Corrected.pdf',
+                  'https://stage1.hireanything.com/Cookies_Policy_Hire_Anything_Corrected.pdf',
                 ),
-                _buildTermsCheckbox(
+                _buildTermsCheckboxWithLink(
                   context,
-                  'I agree to the  Privacy Policy',
+                  'I agree to the Privacy Policy',
                   controller.agreePrivacyPolicy,
                   (value) =>
                       controller.agreePrivacyPolicy.value = value ?? false,
-                  policyUrl:
-                      'https://stage1.hireanything.com/HireAnything_Privacy_Policy_Corrected.pdf',
+                  'https://stage1.hireanything.com/HireAnything_Privacy_Policy_Corrected.pdf',
                 ),
-                _buildTermsCheckbox(
+                _buildTermsCheckboxWithLink(
                   context,
-                  'I agree to the  Cancellation Fee Policy',
+                  'I agree to the Cancellation Fee Policy',
                   controller.agreeCancellationPolicy,
                   (value) =>
                       controller.agreeCancellationPolicy.value = value ?? false,
-                  policyUrl:
-                      'https://stage1.hireanything.com/cancellation-fee-policy',
+                  'https://stage1.hireanything.com/cancellation-fee-policy',
                 ),
               ],
             )),
@@ -3465,17 +3373,51 @@ class BoatHireService extends StatelessWidget {
     );
   }
 
+  Widget _buildTermsCheckboxWithLink(BuildContext context, String title, RxBool value, 
+      Function(bool?) onChanged, String url) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.grey300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Checkbox(
+            value: value.value,
+            onChanged: onChanged,
+            activeColor: AppColors.btnColor,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => _launchURL(url),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.btnColor,
+                        height: 1.3,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      Get.snackbar(
-        'Error',
-        'Could not open the policy document. Please check your internet connection.',
-        backgroundColor: AppColors.error.withOpacity(0.1),
-        colorText: AppColors.error,
-      );
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
     }
   }
 

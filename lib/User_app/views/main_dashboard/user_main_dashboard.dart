@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/User_app/views/HomePage/home_page.dart';
+import 'package:hire_any_thing/User_app/views/BookServices/book_services_screen.dart';
 import 'package:hire_any_thing/User_app/views/UserHomePage/user_home_page.dart';
 import 'package:hire_any_thing/User_app/views/main_dashboard/components/user_drawer.dart';
 import 'package:hire_any_thing/User_app/views/main_dashboard/controllers/user_dashboard_controller.dart';

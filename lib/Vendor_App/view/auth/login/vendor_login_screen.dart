@@ -63,40 +63,7 @@ class VendorLoginContent extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Transform.scale(
-                  scale: 0.9,
-                  child: StatefulBuilder(
-                    builder: (context, setState) {
-                      bool rememberMe = false;
-                      return Checkbox(
-                        value: rememberMe,
-                        onChanged: (value) {
-                          setState(() {
-                            rememberMe = value ?? false;
-                          });
-                        },
-                        activeColor: const Color(0xff0e53ce),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Text(
-                  'Remember me',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
+            const Spacer(),
             TextButton(
               onPressed: () {
                 Get.snackbar(
