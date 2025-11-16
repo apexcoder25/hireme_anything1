@@ -9,6 +9,8 @@ class CityFetchController extends GetxController {
   var placeList = <dynamic>[].obs;
   var sessionToken = '1234567890'.obs;
   final uuid = const Uuid();
+  // store last calculated distance (miles). Null when not set.
+  var lastDistance = RxnDouble();
   static const String G_MAP_API_KEY = 'AIzaSyBKrP4U38qt2EwJuNkSdIlHIL7T1kwFURw';
 
   void onTextChanged(String input) {
@@ -80,9 +82,11 @@ class CityFetchController extends GetxController {
           if (elements['status'] == 'OK') {
             double distanceInMeters = elements['distance']['value'].toDouble();
             double distanceMiles = distanceInMeters / 1609.34; 
+            lastDistance.value = distanceMiles;
             print('Calculated Road Distance: $distanceMiles miles');
             return distanceMiles;
           } else if (elements['status'] == 'ZERO_RESULTS') {
+            lastDistance.value = -1;
             print('No driving route found between locations');
             return -1; 
           } else {
@@ -96,6 +100,7 @@ class CityFetchController extends GetxController {
       }
     } catch (e) {
       print('Error calculating distance: $e');
+      lastDistance.value = null;
       return null;
     }
   }

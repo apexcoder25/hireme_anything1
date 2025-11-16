@@ -59,7 +59,8 @@ class _BookServicesState extends State<BookServices> {
   String? _fromPlaceId;
   String? _toPlaceId;
   bool _isFormValid = false;
-
+  bool _isCalculateEnabled = false;
+  // removed local _calculatedDistance in favor of controller.lastDistance
   @override
   void initState() {
     super.initState();
@@ -90,8 +91,11 @@ class _BookServicesState extends State<BookServices> {
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _fromLocationController.text.isNotEmpty &&
-          _toLocationController.text.isNotEmpty &&
+      // Full form valid (for booking) requires date/time, but calculating distance
+      // should be possible as soon as both locations are entered.
+      _isCalculateEnabled = _fromLocationController.text.isNotEmpty && _toLocationController.text.isNotEmpty;
+
+      _isFormValid = _isCalculateEnabled &&
           pickupDateController.text != "dd-mm-yyyy" &&
           pickupTimeController.text != "--:--";
     });
@@ -135,13 +139,31 @@ class _BookServicesState extends State<BookServices> {
     String pickup = _fromLocationController.text.trim();
     String drop = _toLocationController.text.trim();
 
-    if (pickup.isEmpty ||
-        drop.isEmpty ||
-        _fromPlaceId == null ||
-        _toPlaceId == null) {
+    if (pickup.isEmpty || drop.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Please set valid pickup and delivery locations")),
+        const SnackBar(content: Text("Please set valid pickup and delivery locations")),
+      );
+      return;
+    }
+
+    // If user didn't tap a suggestion, try to fetch suggestions and use the first match as fallback.
+    if (_fromPlaceId == null) {
+      await cityFetchController.getSuggestions(pickup);
+      if (cityFetchController.placeList.isNotEmpty) {
+        _fromPlaceId = cityFetchController.placeList.first['place_id'];
+      }
+    }
+
+    if (_toPlaceId == null) {
+      await cityFetchController.getSuggestions(drop);
+      if (cityFetchController.placeList.isNotEmpty) {
+        _toPlaceId = cityFetchController.placeList.first['place_id'];
+      }
+    }
+
+    if (_fromPlaceId == null || _toPlaceId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select locations from suggestions or enter a more specific address")),
       );
       return;
     }
@@ -200,32 +222,8 @@ class _BookServicesState extends State<BookServices> {
             distanceRange = '${distanceMiles.toStringAsFixed(1)} miles';
             availableFrom =
                 "${formatDateTime(widget.fromDate)} - ${formatDateTime(widget.todate)}";
+            cityFetchController.lastDistance.value = distanceMiles;
           });
-
-          try {
-            double distance = double.parse(distanceMiles.toStringAsFixed(1));
-            Get.to(
-              YourServicesBooking(
-                id: widget.id,
-                distance: distance,
-                fromLocation: _fromLocationController.text,
-                toLocation: _toLocationController.text,
-                pickupTime: pickupTimeController.text,
-                pickupDate: pickupDateController.text,
-                // capacity: widget.capacity,
-                // vehicleTypes: widget.vehicleTypes,
-                // packageOptions: widget.packageOptions,
-                // carriageTypes: widget.carriageTypes,
-                // horseTypes: widget.horseTypes,
-                // vehicleType: widget.vehicleType,
-                // makeModel: widget.makeModel,
-              ),
-            );
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Invalid distance format')),
-            );
-          }
         }
       }
     } else {
@@ -556,11 +554,11 @@ class _BookServicesState extends State<BookServices> {
               ),
               const SizedBox(height: 20),
               Center(
-                child: ElevatedButton(
-                  onPressed: _isFormValid ? _calculateDistance : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isFormValid ? Colors.blue : Colors.grey,
-                    foregroundColor: Colors.white,
+                          child: ElevatedButton(
+                            onPressed: _isCalculateEnabled ? _calculateDistance : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isCalculateEnabled ? Colors.blue : Colors.grey,
+                              foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -577,11 +575,51 @@ class _BookServicesState extends State<BookServices> {
                   color: Colors.orange[100],
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(
-                  'Distance: $distanceRange\nPlease set your pickup and delivery locations above to see final pricing and proceed with checkout.',
-                  style: const TextStyle(fontSize: 14, color: Colors.orange),
-                  textAlign: TextAlign.center,
-                ),
+                child: Obx(() {
+                  final ld = cityFetchController.lastDistance.value;
+                  final visibleDistance = ld != null ? '${ld.toStringAsFixed(1)} miles' : distanceRange;
+                  return Column(
+                    children: [
+                      Text(
+                        'Distance: $visibleDistance',
+                        style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        ld != null
+                            ? 'Available: $availableFrom\nYou can proceed to checkout or calculate again.'
+                            : 'Please set your pickup and delivery locations above to see final pricing and proceed with checkout.',
+                        style: const TextStyle(fontSize: 14, color: Colors.orange),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (ld != null && ld != -1) ...[
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            final double distanceVal = ld;
+                            if (distanceVal > 0) {
+                              Get.to(
+                                YourServicesBooking(
+                                  id: widget.id,
+                                  distance: double.parse(distanceVal.toStringAsFixed(1)),
+                                  fromLocation: _fromLocationController.text,
+                                  toLocation: _toLocationController.text,
+                                  pickupTime: pickupTimeController.text,
+                                  pickupDate: pickupDateController.text,
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text('Proceed to Booking'),
+                        ),
+                      ] else if (ld != null && ld == -1) ...[
+                        const SizedBox(height: 10),
+                        Text('No driving route — showing straight-line distance may help.', style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                      ]
+                    ],
+                  );
+                }),
               ),
               const SizedBox(height: 20),
             ],
