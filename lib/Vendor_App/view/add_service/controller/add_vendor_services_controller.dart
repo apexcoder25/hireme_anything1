@@ -12,9 +12,9 @@ class AddVendorServiceApi {
     'boat': '/vendor/add_boat_service',
     'chauffeur': '/vendor/add_chauffeur_service',
     'coach': '/vendor/add_coach_service',
-    'funeral': '/vendor/add-funeral-partner',
+    'funeral': '/vendor/add_funeral_service',
     'horseCarriage': '/vendor/add_horse_carriage_service',
-    'limousine': '/vendor/add-limousine-partner',
+    'limousine': '/vendor/add_limousine_service',
     'minibus': '/vendor/add_minibus_service',
   };
 

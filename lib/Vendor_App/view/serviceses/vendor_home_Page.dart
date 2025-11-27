@@ -462,35 +462,37 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          if (service.serviceType == "boat") {
-                            Get.to(() =>
-                                BoatHireEditScreen(serviceId: service.id));
-                          }
-                          if (service.serviceType == "horse") {
-                            // Get.to(() => HorseCarriageEditScreen(
-                            //     serviceId: service.id));
-                          }
-                          if (service.serviceType == "limousine") {
-                            // Get.to(() =>
-                            //     LimoHireEditScreen(serviceId: service.id));
-                          }
-                          if (service.serviceType == "funeral") {
-                            // Get.to(() => FuneralCarHireEditScreen(
-                            //     serviceId: service.id));
-                          }
-                        },
-                        icon: const Icon(Icons.edit, size: 16),
-                        label: const Text("Edit"),
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.blue,
-                          backgroundColor: Colors.blue.shade50,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
+                      // ElevatedButton.icon(
+                      //   onPressed: () {
+                      //     if (service.serviceType == "boat") {
+                      //       Get.to(() =>
+                      //           BoatHireEditScreen(serviceId: service.id));
+                      //     }
+                      //     if (service.serviceType == "horse") {
+                      //       // Get.to(() => HorseCarriageEditScreen(
+                      //       //     serviceId: service.id));
+                      //     }
+                      //     if (service.serviceType == "limousine") {
+                      //       // Get.to(() =>
+                      //       //     LimoHireEditScreen(serviceId: service.id));
+                      //     }
+                      //     if (service.serviceType == "funeral") {
+                      //       // Get.to(() => FuneralCarHireEditScreen(
+                      //       //     serviceId: service.id));
+                      //     }
+                      //   },
+                      //   icon: const Icon(Icons.edit, size: 16),
+                      //   label: const Text("Edit"),
+                      //   style: ElevatedButton.styleFrom(
+                      //     foregroundColor: Colors.blue,
+                      //     backgroundColor: Colors.blue.shade50,
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(10),
+                      //     ),
+                      //   ),
+                      // ),
+
+                      Spacer(),
                       ElevatedButton.icon(
                         onPressed: () async {
                           if (service.id.isEmpty) {

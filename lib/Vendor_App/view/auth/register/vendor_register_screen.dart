@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
 import '../controllers/vendor_auth_controller.dart';
 import '../components/auth_input_field.dart';
 import '../components/auth_button.dart';
@@ -493,77 +490,9 @@ class VendorRegisterContent extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Add your business details and create a secure password',
+          'Create a secure password for your account',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 20),
-        VendorAuthInputField(
-          controller: authController.companyNameController,
-          hintText: "Enter your company name",
-          label: "Company Name",
-          isRequired: true,
-          prefixIcon: const Icon(
-            Icons.business,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'City *',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Obx(() => DropdownButtonFormField<String>(
-                    value: authController.selectedCity.value.isEmpty
-                        ? null
-                        : authController.selectedCity.value,
-                    decoration: const InputDecoration(
-                      hintText: 'Select your city',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      prefixIcon: Icon(Icons.location_city, color: Colors.grey),
-                      border: InputBorder.none,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                    ),
-                    items: authController.ukCities.map((String city) {
-                      return DropdownMenuItem<String>(
-                        value: city,
-                        child: Text(city),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        authController.updateSelectedCity(newValue);
-                      }
-                    },
-                  )),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        VendorAuthInputField(
-          controller: authController.streetNameController,
-          hintText: "Enter street address",
-          label: "Street Address",
-          isRequired: true,
-          prefixIcon: const Icon(
-            Icons.location_on_outlined,
             color: Colors.grey,
           ),
         ),
@@ -601,139 +530,6 @@ class VendorRegisterContent extends StatelessWidget {
           prefixIcon: const Icon(
             Icons.lock_outline,
             color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 20),
-        // Business Photos Section
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.photo_camera,
-                    color: Color(0xff0e53ce),
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Business Photos *',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xff0e53ce),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Add photos of your business to build trust with customers',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Add image upload widget
-              GetBuilder<ImageController>(
-                builder: (imageController) => Container(
-                  height: 100,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color: Colors.grey.shade300, style: BorderStyle.solid),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: imageController.selectedImages.isEmpty
-                      ? InkWell(
-                          // onTap: () => imageController.pickImages(),
-                          child: const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add_photo_alternate,
-                                    size: 30, color: Colors.grey),
-                                SizedBox(height: 4),
-                                Text('Tap to add photos',
-                                    style: TextStyle(
-                                        color: Colors.grey, fontSize: 12)),
-                              ],
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: imageController.selectedImages.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index ==
-                                imageController.selectedImages.length) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: InkWell(
-                                  // onTap: () => imageController.pickImages(),
-                                  child: Container(
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.grey.shade300),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.add,
-                                        color: Colors.grey),
-                                  ),
-                                ),
-                              );
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      image: DecorationImage(
-                                        image: FileImage(imageController
-                                            .selectedImages[index] as File),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 4,
-                                    right: 4,
-                                    child: GestureDetector(
-                                      onTap: () =>
-                                          imageController.removeImage(index),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.close,
-                                          color: Colors.white,
-                                          size: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                ),
-              ),
-            ],
           ),
         ),
         const SizedBox(height: 25),

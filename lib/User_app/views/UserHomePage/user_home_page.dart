@@ -17,48 +17,82 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
   final CategoryController controller = Get.put(CategoryController());
   final ScrollController _scrollController = ScrollController();
   final UserProfileController profileController = Get.put(UserProfileController());
+  bool _autoScrollActive = false;
 
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) {
+      // Fire-and-forget loads so initial UI renders immediately.
       profileController.fetchProfile();
       controller.fetchCategories();
-      _startAutoScroll();
+
+      // Start auto-scroll only after categories loaded to avoid blocking
+      // initial rendering with animations and to prevent tight recursion.
+      ever(controller.isLoading, (bool isLoading) {
+        if (isLoading == false && mounted && controller.categories.isNotEmpty) {
+          _startAutoScroll();
+        }
+      });
     });
   }
 
   @override
   void dispose() {
+    _autoScrollActive = false;
     _scrollController.dispose();
     super.dispose();
   }
 
   void _startAutoScroll() {
-    if (_scrollController.hasClients) {
-      _scrollController
-          .animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration:const Duration(seconds: 5),
-        curve: Curves.fastOutSlowIn,
-      )
-          .then((value) {
-        if (mounted) {
-          _scrollController.jumpTo(0);
-          _startAutoScroll();
+    if (_autoScrollActive) return; // don't start twice
+    _autoScrollActive = true;
+
+    Future(() async {
+      try {
+        while (mounted && _autoScrollActive) {
+          if (!_scrollController.hasClients) {
+            await Future.delayed(const Duration(milliseconds: 300));
+            continue;
+          }
+
+          final maxExtent = _scrollController.position.maxScrollExtent;
+          if (maxExtent <= 0) {
+            await Future.delayed(const Duration(seconds: 1));
+            continue;
+          }
+
+          await _scrollController.animateTo(
+            maxExtent,
+            duration: const Duration(seconds: 5),
+            curve: Curves.fastOutSlowIn,
+          );
+
+          await Future.delayed(const Duration(milliseconds: 400));
+          if (!mounted || !_autoScrollActive) break;
+
+          await _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOut,
+          );
+
+          await Future.delayed(const Duration(seconds: 2));
         }
-      });
-    }
+      } catch (_) {
+        _autoScrollActive = false;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[20],
+      backgroundColor: Colors.grey.shade50,
       body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        // Always render the scaffold content immediately. Show small
+        // loading indicators in-place for the category sections so the
+        // screen appears fast even if the network request is slow.
         return RefreshIndicator(
           onRefresh: () async {
             await controller.fetchCategories();
@@ -94,7 +128,13 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildCategoriesCarousel(context, controller.categories),
+                // Inline loading placeholder for categories carousel
+                controller.isLoading.value
+                    ? SizedBox(
+                        height: 180,
+                        child: const Center(child: CircularProgressIndicator()),
+                      )
+                    : _buildCategoriesCarousel(context, controller.categories),
                 const SizedBox(height: 32),
                 const Text(
                   'Find Affordable Options from Nearby Rental Providers',
@@ -105,7 +145,13 @@ class _UserHomePageScreenState extends State<UserHomePageScreen> {
                       fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 15),
-                _buildOfferingsCarousel(context, controller.categories),
+                // Inline loading placeholder for offerings carousel
+                controller.isLoading.value
+                    ? SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.45,
+                        child: const Center(child: CircularProgressIndicator()),
+                      )
+                    : _buildOfferingsCarousel(context, controller.categories),
                 const SizedBox(height: 32),
                 _buildCustomPackageSection(context),
                 const SizedBox(height: 16),

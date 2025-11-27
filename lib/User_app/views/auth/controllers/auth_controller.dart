@@ -417,9 +417,17 @@ class AuthController extends GetxController {
             // Clear registration data
             _registrationData.clear();
 
-            // Navigate to home after brief delay
+            // Navigate to home after brief delay - use post-frame callback to avoid build conflicts
+            _isLoading.value = false;
+            update();
+            
             await Future.delayed(const Duration(milliseconds: 1500));
-            Get.offAllNamed('/auth', arguments: {'initialTab': 'login'});
+            
+            // Schedule navigation after current frame to prevent setState during build
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Get.offAllNamed('/auth', arguments: {'initialTab': 'login'});
+            });
+            
             return true;
           } else {
             showErrorSnackbar("Registration failed. Please try again.");
@@ -439,7 +447,6 @@ class AuthController extends GetxController {
       } else {
         showErrorSnackbar("An error occurred. Please try again.");
       }
-    } finally {
       _isLoading.value = false;
       update();
     }

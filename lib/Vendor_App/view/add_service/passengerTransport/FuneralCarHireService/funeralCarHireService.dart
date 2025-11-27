@@ -505,9 +505,9 @@ class FuneralCarHireController extends GetxController {
     for (var doc in documents) {
       if (!doc.isUploaded) {
         // Upload to cloudinary
-        await imageController.uploadToCloudinary(doc.path);
-        if (imageController.uploadedUrls.isNotEmpty) {
-          doc.uploadUrl = imageController.uploadedUrls.last;
+        final uploaded = await imageController.uploadToCloudinary(doc.path);
+        if (uploaded != null && uploaded.isNotEmpty) {
+          doc.uploadUrl = uploaded;
           doc.isUploaded = true;
         }
       }
@@ -516,8 +516,37 @@ class FuneralCarHireController extends GetxController {
 
   // Prepare API payload with EXACT structure matching the expected payload
   Future<Map<String, dynamic>> _prepareAPIPayload() async {
+    // Normalize availability to match server enum values.
+    // Example: "24/7 Service" -> "24/7", "Weekdays Only" -> "Weekdays Only" (keeps label if already valid)
+    final String normalizedAvailability = (() {
+      final val = selectedAvailability.value.trim();
+      if (val.isEmpty) return val;
+      // If the label ends with ' Service', strip that suffix (handles '24/7 Service')
+      if (val.endsWith(' Service')) {
+        return val.replaceAll(RegExp(r'\s*Service\s*$'), '').trim();
+      }
+      return val;
+    })();
+
+    // Normalize funeralServiceType to server expected enum tokens.
+    // Map verbose UI labels to concise server values, e.g.:
+    // - 'Religious Services Only' -> 'Religious'
+    // - 'Non-Religious Services Only' -> 'Non-Religious'
+    // - 'Both Religious & Non-Religious' -> 'Both'
+    final String normalizedFuneralServiceType = (() {
+      final val = selectedFuneralServiceType.value.trim().toLowerCase();
+      if (val.contains('both') || val.contains('&')) return 'Both';
+      if (val.contains('non')) return 'Non-Religious';
+      if (val.contains('religious')) return 'Religious';
+      return selectedFuneralServiceType.value.trim();
+    })();
+
+    // Ensure mileage limit meets server minimum (100)
+    final int parsedMileage = int.tryParse(mileageLimitController.text.trim()) ?? 100;
+    final int finalMileageLimit = parsedMileage < 100 ? 100 : parsedMileage;
+
     return {
-      "vendorId": vendorId ?? "68f0ef31b65bc1c05680ae9c",
+      "vendorId": vendorId ?? "",
       "listingTitle": listingTitleController.text.trim(),
       "baseLocationPostcode": baseLocationController.text.trim(),
       "locationRadius": int.tryParse(serviceRadiusController.text.trim()) ?? 50,
@@ -532,7 +561,7 @@ class FuneralCarHireController extends GetxController {
         "dayRate": double.tryParse(dayRateController.text.trim()) ?? 0,
         "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
         "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
-        "mileageLimit": int.tryParse(mileageLimitController.text.trim()) ?? 100,
+        "mileageLimit": finalMileageLimit,
         "extraMileageCharge": double.tryParse(extraMileageChargeController.text.trim()) ?? 0,
       },
       "features": {
@@ -678,7 +707,7 @@ class FuneralCarHireController extends GetxController {
       "driversDBSChecked": false,
       "coordinateWithDirectors": false,
       "supportReligious": false,
-      "funeralServiceType": selectedFuneralServiceType.value,
+      "funeralServiceType": normalizedFuneralServiceType,
       "additionalSupportServices": selectedAdditionalServices.toList(),
       "accessibilityAndSpecialServices": selectedAccessibilityServices.toList(),
       "uniqueFeatures": uniqueServiceController.text.trim(),
@@ -688,7 +717,7 @@ class FuneralCarHireController extends GetxController {
       "limousine": funeralVehicles['Limousine (Family Car)']?.value ?? false,
       "otherVehicleType": funeralVehicles['Alternative Vehicle (Motorcycle, Vintage, Other)']?.value ?? false,
       "otherVehicleDescription": otherVehicleController.text.trim(),
-      "availability": selectedAvailability.value,
+      "availability": normalizedAvailability,
       "service_name": listingTitleController.text.trim(),
       "basePostcode": baseLocationController.text.trim(),
       "fleetDetails": {
@@ -700,7 +729,7 @@ class FuneralCarHireController extends GetxController {
       "service_detail": {
         "worksWithFuneralDirectors": false,
         "supportsAllFuneralTypes": false,
-        "funeralServiceType": selectedFuneralServiceType.value,
+        "funeralServiceType": normalizedFuneralServiceType,
         "additionalSupportServices": selectedAdditionalServices.toList()
       },
       "funeralVehicleTypes": {

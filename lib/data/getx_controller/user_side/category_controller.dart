@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:hire_any_thing/data/models/user_side_model/category_model.dart';
@@ -20,7 +21,10 @@ class CategoryController extends GetxController {
   Future<void> fetchCategories() async {
     try {
       isLoading(true);
-      final response = await http.get(Uri.parse(categoryApiUrl));
+      // Set a 10 second timeout so the UI won't be blocked indefinitely
+      final response = await http
+          .get(Uri.parse(categoryApiUrl))
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = json.decode(response.body);
@@ -29,7 +33,11 @@ class CategoryController extends GetxController {
         Get.snackbar("Error", "Failed to load categories: ${response.statusCode}");
       }
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e");
+      if (e is TimeoutException) {
+        Get.snackbar("Error", "Request timed out. Please check your connection.");
+      } else {
+        Get.snackbar("Error", "Something went wrong: $e");
+      }
     } finally {
       isLoading(false);
     }

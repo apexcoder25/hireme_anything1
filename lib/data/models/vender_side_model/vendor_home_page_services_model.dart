@@ -8,6 +8,28 @@ ServicesModel servicesModelFromJson(String str) => ServicesModel.fromJson(json.d
 
 String servicesModelToJson(ServicesModel data) => json.encode(data.toJson());
 
+// Helpers to safely parse numeric JSON values (server may send ints or doubles)
+int _toInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString()) ?? 0;
+}
+
+int? _toNullableInt(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString());
+}
+
+double _toDouble(dynamic v) {
+    if (v == null) return 0.0;
+    if (v is double) return v;
+    if (v is int) return v.toDouble();
+    return double.tryParse(v.toString()) ?? 0.0;
+}
+
 class ServicesModel {
     bool success;
     String message;
@@ -57,7 +79,7 @@ class Data {
         services: json["services"] != null 
             ? List<Service>.from(json["services"].map((x) => Service.fromJson(x)))
             : <Service>[],
-        totalServices: json["totalServices"] ?? 0,
+        totalServices: _toInt(json["totalServices"]),
         serviceStats: json["serviceStats"] != null 
             ? ServiceStats.fromJson(json["serviceStats"])
             : ServiceStats(passengerTransport: 0),
@@ -80,7 +102,7 @@ class ServiceStats {
     });
 
     factory ServiceStats.fromJson(Map<String, dynamic> json) => ServiceStats(
-        passengerTransport: json["Passenger Transport"] ?? 0,
+        passengerTransport: _toInt(json["Passenger Transport"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -218,7 +240,7 @@ class Service {
         serviceName: json["service_name"],
         listingTitle: json["listingTitle"],
         basePostcode: json["basePostcode"],
-        locationRadius: json["locationRadius"] ?? 0,
+        locationRadius: _toInt(json["locationRadius"]),
         pricingDetails: json["pricingDetails"] == null ? null : PricingDetails.fromJson(json["pricingDetails"]),
         accessibilityAndSpecialServices: json["accessibilityAndSpecialServices"] == null ? [] : List<dynamic>.from(json["accessibilityAndSpecialServices"].map((x) => x)),
         funeralPackageOptions: json["funeralPackageOptions"] == null ? null : FuneralPackageOptions.fromJson(json["funeralPackageOptions"]),
@@ -239,7 +261,7 @@ class Service {
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
         serviceType: json["service_type"],
-        numberOfLimousines: json["numberOfLimousines"] ?? 0,
+        numberOfLimousines: _toInt(json["numberOfLimousines"]),
         fleetInfo: json["fleetInfo"] == null ? null : FleetInfo.fromJson(json["fleetInfo"]),
         fleetFeatures: json["fleetFeatures"] == null ? [] : List<String>.from(json["fleetFeatures"].map((x) => x)),
         baseLocationPostcode: json["baseLocationPostcode"],
@@ -250,7 +272,7 @@ class Service {
         marketing: json["marketing"] == null ? null : Marketing.fromJson(json["marketing"]),
         pricing: json["pricing"] == null ? null : Pricing.fromJson(json["pricing"]),
         equipmentSafety: json["equipmentSafety"] == null ? null : EquipmentSafety.fromJson(json["equipmentSafety"]),
-        offeringPrice: json["offering_price"] ?? 0,
+        offeringPrice: _toInt(json["offering_price"]),
         comfort: json["comfort"] == null ? null : ServiceComfort.fromJson(json["comfort"]),
         events: json["events"] == null ? null : Events.fromJson(json["events"]),
         accessibility: json["accessibility"] == null ? null : Accessibility.fromJson(json["accessibility"]),
@@ -262,13 +284,13 @@ class Service {
         boatType: json["boatType"],
         makeAndModel: json["makeAndModel"],
         firstRegistered: json["firstRegistered"] == null ? null : DateTime.parse(json["firstRegistered"]),
-        luggageCapacity: json["luggageCapacity"] ?? 0,
-        seats: json["seats"] ?? 0,
+        luggageCapacity: _toInt(json["luggageCapacity"]),
+        seats: _toInt(json["seats"]),
         hireType: json["hireType"],
         departurePoint: json["departurePoint"],
         postcode: json["postcode"],
         serviceCoverage: json["serviceCoverage"] == null ? [] : List<String>.from(json["serviceCoverage"].map((x) => x)),
-        mileageRadius: json["mileageRadius"] ?? 0,
+        mileageRadius: _toInt(json["mileageRadius"]),
         boatRates: json["boatRates"] == null ? null : BoatRates.fromJson(json["boatRates"]),
         miniBusRates: json["miniBusRates"] == null ? null : MiniBusRates.fromJson(json["miniBusRates"]),
     );
@@ -367,17 +389,17 @@ class Accessibility {
 
     factory Accessibility.fromJson(Map<String, dynamic> json) => Accessibility(
         wheelchairAccessVehicle: json["wheelchairAccessVehicle"],
-        wheelchairAccessPrice: json["wheelchairAccessPrice"] ?? 0,
+        wheelchairAccessPrice: _toInt(json["wheelchairAccessPrice"]),
         childCarSeats: json["childCarSeats"],
-        childCarSeatsPrice: json["childCarSeatsPrice"] ?? 0,
+        childCarSeatsPrice: _toInt(json["childCarSeatsPrice"]),
         petFriendlyService: json["petFriendlyService"],
-        petFriendlyPrice: json["petFriendlyPrice"] ?? 0,
+        petFriendlyPrice: _toInt(json["petFriendlyPrice"]),
         disabledAccessRamp: json["disabledAccessRamp"],
-        disabledAccessRampPrice: json["disabledAccessRampPrice"] ?? 0,
+        disabledAccessRampPrice: _toInt(json["disabledAccessRampPrice"]),
         seniorFriendlyAssistance: json["seniorFriendlyAssistance"],
-        seniorAssistancePrice: json["seniorAssistancePrice"] ?? 0,
+        seniorAssistancePrice: _toInt(json["seniorAssistancePrice"]),
         strollerBuggyStorage: json["strollerBuggyStorage"],
-        strollerStoragePrice: json["strollerStoragePrice"] ?? 0,
+        strollerStoragePrice: _toInt(json["strollerStoragePrice"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -410,10 +432,10 @@ class BoatRates {
     });
 
     factory BoatRates.fromJson(Map<String, dynamic> json) => BoatRates(
-        hourlyRate: json["hourlyRate"] ?? 0,
-        perMileRate: json["perMileRate"] ?? 0,
-        tenHourDayHire: json["tenHourDayHire"] ?? 0,
-        halfDayHire: json["halfDayHire"] ?? 0,
+        hourlyRate: _toInt(json["hourlyRate"]),
+        perMileRate: _toInt(json["perMileRate"]),
+        tenHourDayHire: _toInt(json["tenHourDayHire"]),
+        halfDayHire: _toInt(json["halfDayHire"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -1193,10 +1215,10 @@ class MiniBusRates {
 
     factory MiniBusRates.fromJson(Map<String, dynamic> json) => MiniBusRates(
         hourlyRate: json["hourlyRate"] ?? 0,
-        halfDayRate: json["halfDayRate"]?.toDouble() ?? 0.0,
-        fullDayRate: json["fullDayRate"]?.toDouble() ?? 0.0,
-        additionalMileageFee: json["additionalMileageFee"]?.toDouble() ?? 0.0,
-        mileageLimit: json["mileageLimit"] ?? 0,
+        halfDayRate: _toDouble(json["halfDayRate"]),
+        fullDayRate: _toDouble(json["fullDayRate"]),
+        additionalMileageFee: _toDouble(json["additionalMileageFee"]),
+        mileageLimit: _toInt(json["mileageLimit"]),
     );
 
     Map<String, dynamic> toJson() => {
@@ -1322,20 +1344,20 @@ class PricingDetails {
     });
 
     factory PricingDetails.fromJson(Map<String, dynamic> json) => PricingDetails(
-        dayRate: json["dayRate"]?.toDouble(),
-        mileageLimit: json["mileageLimit"],
-        extraMileageCharge: json["extraMileageCharge"]?.toDouble(),
-        hourlyRate: json["hourlyRate"]?.toDouble(),
-        halfDayRate: json["halfDayRate"],
-        fullDayRate: json["fullDayRate"],
-        weddingPackageRate: json["weddingPackageRate"]?.toDouble(),
-        airportTransferRate: json["airportTransferRate"]?.toDouble(),
-        depositRequired: json["depositRequired"]?.toDouble(),
+        dayRate: _toDouble(json["dayRate"]),
+        mileageLimit: _toInt(json["mileageLimit"]),
+        extraMileageCharge: _toDouble(json["extraMileageCharge"]),
+        hourlyRate: _toDouble(json["hourlyRate"]),
+        halfDayRate: _toInt(json["halfDayRate"]),
+        fullDayRate: _toNullableInt(json["fullDayRate"]),
+        weddingPackageRate: _toDouble(json["weddingPackageRate"]),
+        airportTransferRate: _toDouble(json["airportTransferRate"]),
+        depositRequired: _toDouble(json["depositRequired"]),
         fuelIncluded: json["fuelIncluded"],
         mileageLimitApplicable: json["mileageLimitApplicable"],
-        additionalMileageFee: json["additionalMileageFee"],
+        additionalMileageFee: _toInt(json["additionalMileageFee"]),
         waitingChargesApplicable: json["waitingChargesApplicable"],
-        waitingChargesPerHour: json["waitingChargesPerHour"]?.toDouble(),
+        waitingChargesPerHour: _toDouble(json["waitingChargesPerHour"]),
     );
 
     Map<String, dynamic> toJson() => {

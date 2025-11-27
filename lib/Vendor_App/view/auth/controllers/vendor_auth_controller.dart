@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/api_service/api_service_vender_side.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
-import 'package:hire_any_thing/constants_file/uk_cities.dart';
 
 class VendorAuthController extends GetxController {
   final ImageController imageController = Get.put(ImageController());
@@ -22,15 +21,10 @@ class VendorAuthController extends GetxController {
   final phoneOtpController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-  final companyNameController = TextEditingController();
-  final countryRegionController = TextEditingController();
-  final cityNameController = TextEditingController();
-  final streetNameController = TextEditingController();
 
   // Phone data
   String? phoneNumber;
   String? countryCode;
-  var selectedCity = ''.obs;
 
   // Password validation
   final RegExp passwordRegex = RegExp(
@@ -40,8 +34,6 @@ class VendorAuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Set default country to UK
-    countryRegionController.text = "UK";
     imageController.selectedImages.clear();
     imageController.uploadedUrls.clear();
   }
@@ -56,10 +48,6 @@ class VendorAuthController extends GetxController {
     phoneOtpController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
-    companyNameController.dispose();
-    countryRegionController.dispose();
-    cityNameController.dispose();
-    streetNameController.dispose();
     super.onClose();
   }
 
@@ -94,11 +82,6 @@ class VendorAuthController extends GetxController {
     obscureConfirmPassword.value = !obscureConfirmPassword.value;
   }
 
-  void updateSelectedCity(String city) {
-    selectedCity.value = city;
-    cityNameController.text = city;
-  }
-
   // Step navigation
   void nextStep() {
     if (currentStep.value < 5) {
@@ -121,10 +104,6 @@ class VendorAuthController extends GetxController {
     phoneOtpController.clear();
     passwordController.clear();
     confirmPasswordController.clear();
-    companyNameController.clear();
-    cityNameController.clear();
-    streetNameController.clear();
-    selectedCity.value = '';
     phoneNumber = null;
     countryCode = null;
     passwordError.value = '';
@@ -330,10 +309,7 @@ class VendorAuthController extends GetxController {
       isLoading.value = true;
       
       // Validate all required fields
-      if (companyNameController.text.trim().isEmpty ||
-          selectedCity.value.isEmpty ||
-          streetNameController.text.trim().isEmpty ||
-          passwordController.text.trim().isEmpty ||
+      if (passwordController.text.trim().isEmpty ||
           confirmPasswordController.text.trim().isEmpty) {
         Get.snackbar(
           'Error',
@@ -378,13 +354,6 @@ class VendorAuthController extends GetxController {
         "country_code": countryCode,
         "password": password,
         "confirmPassword": confirmPassword,
-        // "company_name": companyNameController.text.trim(),
-        // "city_name": selectedCity.value,
-        // "country": countryRegionController.text.trim(),
-        // "state": "",
-        // "street_name": streetNameController.text.trim(),
-        // "pincode": "",
-        // "photos": imageController.uploadedUrls[0].toString(),
         "otp": emailOtpController.text.trim(),
       };
 
@@ -472,6 +441,4 @@ class VendorAuthController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  List<String> get ukCities => Cities.ukCities;
 }
