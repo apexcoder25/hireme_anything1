@@ -21,7 +21,7 @@ class AccountDetailsModel {
     required this.ibanNumber,
     required this.bankAccountHolderName,
     required this.swiftCode,
-    required this.paypalId,
+    this.paypalId = '',
     required this.createdAt,
     required this.updatedAt,
     required this.v,
@@ -29,18 +29,18 @@ class AccountDetailsModel {
 
   factory AccountDetailsModel.fromJson(Map<String, dynamic> json) {
     return AccountDetailsModel(
-      id: json['_id'],
-      vendorId: json['vendorId'],
-      bankName: json['bankName'],
-      accountNumber: json['accountNumber'],
-      ifscCode: json['ifscCode'],
-      ibanNumber: json['ibanNumber'],
-      bankAccountHolderName: json['bankAccountHolderName'],
-      swiftCode: json['swiftCode'],
-      paypalId: json['paypalId'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      v: json['__v'],
+      id: json['_id'] ?? '',
+      vendorId: json['vendorId'] ?? '',
+      bankName: json['bankName'] ?? '',
+      accountNumber: json['accountNumber'] ?? '',
+      ifscCode: json['ifscCode'] ?? '',
+      ibanNumber: json['ibanNumber'] ?? '',
+      bankAccountHolderName: json['bankAccountHolderName'] ?? '',
+      swiftCode: json['swiftCode'] ?? '',
+      paypalId: json['paypalId'] ?? '',
+      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
+      v: json['__v'] ?? 0,
     );
   }
 

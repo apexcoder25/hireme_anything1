@@ -6,6 +6,7 @@ import 'package:hire_any_thing/Vendor_App/view/main_dashboard/components/vendor_
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/controllers/vendor_dashboard_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/profile_page.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
+import 'package:hire_any_thing/Vendor_App/view/company_info/company_info_screen.dart';
 import 'package:hire_any_thing/Vendor_App/view/accounts_and_payment/accounts_and_payment.dart';
 import 'package:hire_any_thing/utilities/colors.dart';
 
@@ -81,6 +82,8 @@ class VendorMainDashboard extends StatelessWidget {
       case 3:
         return 'Booking Status';
       case 4:
+        return 'Company Info';
+      case 5:
         return 'Account & Payment';
       default:
         return 'Dashboard';
@@ -98,6 +101,8 @@ class VendorMainDashboard extends StatelessWidget {
       case 3:
         return BookingStatusScreen();
       case 4:
+        return CompanyInfoScreen();
+      case 5:
         return AccountsAndManagementScreen();
       default:
         return HomePageAddService();

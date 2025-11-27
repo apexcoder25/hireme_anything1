@@ -23,7 +23,7 @@ class AccountsAndManagementController extends GetxController with GetSingleTicke
   var isEditing = false.obs;
   var accountDetails = Rxn<AccountDetailsModel>();
   var vendorId = "".obs;
-  var selectedTab = 0.obs; // 0 = Bank Details, 1 = PayPal
+  var selectedTab = 0.obs; 
   var isAnimationInitialized = false.obs;
 
   final SessionVendorSideManager sessionManager = SessionVendorSideManager();
@@ -120,17 +120,29 @@ class AccountsAndManagementController extends GetxController with GetSingleTicke
       print("GET Response: $response");
 
       if (response != null) {
-        final data = response is Map<String, dynamic> ? response : response['data'];
-        accountDetails.value = AccountDetailsModel.fromJson(data);
-        hasAccountDetails.value = true;
-        _populateControllers();
+        try {
+          final data = response is Map<String, dynamic> ? response : response['data'];
+          print("Parsing data: $data");
+          accountDetails.value = AccountDetailsModel.fromJson(data);
+          hasAccountDetails.value = true;
+          _populateControllers();
+          print("Account details loaded successfully");
+        } catch (parseError) {
+          print("Error parsing account details: $parseError");
+          hasAccountDetails.value = false;
+          _clearControllers();
+          _showErrorSnackbar("Error parsing account details");
+        }
       } else {
+        print("No response data received");
         hasAccountDetails.value = false;
         _clearControllers();
       }
     } on ApiException catch (e) {
+      print("API Exception: ${e.message}");
       _showErrorSnackbar("Failed to fetch account details: ${e.message}");
     } catch (e) {
+      print("Unexpected error: $e");
       _showErrorSnackbar("An error occurred while fetching account details");
     } finally {
       isLoading.value = false;
@@ -338,9 +350,18 @@ class AccountsAndManagementController extends GetxController with GetSingleTicke
   }
 
   void toggleEditMode() {
+    print("Toggle edit mode called. Current state: ${isEditing.value}");
     isEditing.value = !isEditing.value;
+    print("New edit state: ${isEditing.value}");
+    
     if (isEditing.value) {
-      animationController.forward();
+      if (isAnimationInitialized.value) {
+        animationController.reset();
+        animationController.forward();
+      }
+      print("Edit mode enabled - form should show");
+    } else {
+      print("Edit mode disabled - view should show");
     }
   }
 

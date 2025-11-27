@@ -85,7 +85,7 @@ class AccountsAndManagementScreen extends StatelessWidget {
   Widget _buildContent(AccountsAndManagementController controller) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      child: Column(
+      child: Obx(() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeaderSection(controller),
@@ -97,7 +97,7 @@ class AccountsAndManagementScreen extends StatelessWidget {
             _buildAccountDetailsForm(controller),
           ],
         ],
-      ),
+      )),
     );
   }
 
@@ -324,14 +324,14 @@ class AccountsAndManagementScreen extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                _buildDetailCard("Bank Name", controller.accountDetails.value!.bankName, Icons.account_balance),
-                _buildDetailCard("Account Holder", controller.accountDetails.value!.bankAccountHolderName, Icons.person_outline),
-                _buildDetailCard("Account Number", _maskAccountNumber(controller.accountDetails.value!.accountNumber), Icons.credit_card),
-                _buildDetailCard("Sort Code/IFSC", controller.accountDetails.value!.ifscCode, Icons.code),
-                _buildDetailCard("IBAN Number", _maskIBAN(controller.accountDetails.value!.ibanNumber), Icons.account_balance_wallet),
-                _buildDetailCard("SWIFT Code", controller.accountDetails.value!.swiftCode, Icons.swap_horiz),
-                if (controller.accountDetails.value!.paypalId.isNotEmpty)
-                  _buildDetailCard("PayPal ID", controller.accountDetails.value!.paypalId, Icons.payment),
+                _buildDetailCard("Bank Name", controller.accountDetails.value?.bankName ?? "", Icons.account_balance),
+                _buildDetailCard("Account Holder", controller.accountDetails.value?.bankAccountHolderName ?? "", Icons.person_outline),
+                _buildDetailCard("Account Number", _maskAccountNumber(controller.accountDetails.value?.accountNumber ?? ""), Icons.credit_card),
+                _buildDetailCard("Sort Code/IFSC", controller.accountDetails.value?.ifscCode ?? "", Icons.code),
+                _buildDetailCard("IBAN Number", _maskIBAN(controller.accountDetails.value?.ibanNumber ?? ""), Icons.account_balance_wallet),
+                _buildDetailCard("SWIFT Code", controller.accountDetails.value?.swiftCode ?? "", Icons.swap_horiz),
+                if ((controller.accountDetails.value?.paypalId ?? "").isNotEmpty)
+                  _buildDetailCard("PayPal ID", controller.accountDetails.value?.paypalId ?? "", Icons.payment),
               ],
             ),
           ),

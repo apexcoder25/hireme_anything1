@@ -32,6 +32,9 @@ class VendorDashboardController extends GetxController {
           
           break;
         case 4:
+          // Refresh company info
+          break;
+        case 5:
           // Refresh accounts
           break;
       }
@@ -55,6 +58,8 @@ class VendorDashboardController extends GetxController {
       case 3:
         return '/booking_status_screen';
       case 4:
+        return '/company_info_screen';
+      case 5:
         return '/accounts_and_management_screen';
       default:
         return '/vendor_dashboard';

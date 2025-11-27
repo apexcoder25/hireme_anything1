@@ -151,4 +151,49 @@ class ApiServiceVenderSide implements BaseApiServices {
       );
     }
   }
+
+  // Company Info APIs
+  Future<dynamic> getCompanyInfo(String token) async {
+    try {
+      final response = await _dio.get(
+        'company-info',
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<dynamic> saveCompanyInfo(String token, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.post(
+        'company-info',
+        data: data,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  Future<dynamic> updateCompanyInfo(String token, Map<String, dynamic> data) async {
+    try {
+      final response = await _dio.put(
+        'company-info',
+        data: data,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      return _handleResponse(response);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
 }

@@ -8,12 +8,10 @@ class ProfileInfoSection extends StatelessWidget {
   final TextEditingController mobileNoController;
   final TextEditingController countryCodeController;
   final TextEditingController genderController;
-  final TextEditingController companyNameController;
   final TextEditingController cityNameController;
   final TextEditingController streetNameController;
   final TextEditingController countryNameController;
   final TextEditingController pincodeController;
-  final TextEditingController descriptionController;
 
   const ProfileInfoSection({
     super.key,
@@ -23,12 +21,10 @@ class ProfileInfoSection extends StatelessWidget {
     required this.mobileNoController,
     required this.countryCodeController,
     required this.genderController,
-    required this.companyNameController,
     required this.cityNameController,
     required this.streetNameController,
     required this.countryNameController,
     required this.pincodeController,
-    required this.descriptionController,
   });
 
   @override
@@ -42,13 +38,11 @@ class ProfileInfoSection extends StatelessWidget {
           _buildInfoRow(Icons.wc_outlined, "Gender", genderController),
         ]),
         const SizedBox(height: 24),
-        _buildInfoCard("Business Information", [
-          _buildInfoRow(Icons.business_outlined, "Company Name", companyNameController),
+        _buildInfoCard("Address Details", [
           _buildInfoRow(Icons.location_city_outlined, "City", cityNameController),
           _buildInfoRow(Icons.location_on_outlined, "Street Address", streetNameController),
           _buildInfoRow(Icons.flag_outlined, "Country", countryNameController),
-          _buildInfoRow(Icons.pin_drop_outlined, "Postal Code", pincodeController),
-          _buildDescriptionRow(),
+          _buildInfoRow(Icons.pin_drop_outlined, "Post Code", pincodeController),
         ]),
       ],
     );
@@ -178,10 +172,10 @@ class ProfileInfoSection extends StatelessWidget {
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: Text(
-                    controller.text.isNotEmpty ? controller.text : 'Not provided',
+                    _getDisplayText(controller.text),
                     style: TextStyle(
                       fontSize: 16,
-                      color: controller.text.isNotEmpty 
+                      color: _hasValidData(controller.text)
                           ? Colors.black87 
                           : Colors.grey.shade500,
                       fontWeight: FontWeight.w500,
@@ -310,82 +304,27 @@ class ProfileInfoSection extends StatelessWidget {
     );
   }
 
-  Widget _buildDescriptionRow() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.description_outlined,
-                size: 20,
-                color: Colors.grey.shade600,
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'Business Description',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          isEditing
-              ? TextField(
-                  controller: descriptionController,
-                  maxLines: 4,
-                  style: const TextStyle(fontSize: 16),
-                  decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: const EdgeInsets.all(18),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: AppColors.btnColor, width: 2),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    hintText: 'Describe your business, services, and expertise...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
-                  ),
-                )
-              : Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.grey.shade200),
-                  ),
-                  child: Text(
-                    descriptionController.text.isNotEmpty 
-                        ? descriptionController.text 
-                        : 'No business description provided',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: descriptionController.text.isNotEmpty 
-                          ? Colors.black87 
-                          : Colors.grey.shade500,
-                      fontWeight: FontWeight.w500,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-        ],
-      ),
-    );
+
+
+  // Helper methods to check for placeholder values
+  bool _hasValidData(String text) {
+    if (text.isEmpty) return false;
+    
+    // List of placeholder values that should be treated as "not provided"
+    final placeholders = [
+      'No Company',
+      'No Street',
+      'No City',
+      'No Country',
+      'Not Specified',
+      'Unknown',
+      'No Email',
+    ];
+    
+    return !placeholders.contains(text);
+  }
+
+  String _getDisplayText(String text) {
+    return _hasValidData(text) ? text : 'Not provided';
   }
 }

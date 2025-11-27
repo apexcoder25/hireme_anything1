@@ -247,10 +247,16 @@ class _VendorDrawerState extends State<VendorDrawer> {
                     index: 3,
                   ),
                   _buildNavigationItem(
+                    icon: Icons.business_outlined,
+                    activeIcon: Icons.business,
+                    title: 'Company Info',
+                    index: 4,
+                  ),
+                  _buildNavigationItem(
                     icon: Icons.payment_outlined,
                     activeIcon: Icons.payment,
                     title: 'Account & Payment',
-                    index: 4,
+                    index: 5,
                   ),
 
                   // Divider

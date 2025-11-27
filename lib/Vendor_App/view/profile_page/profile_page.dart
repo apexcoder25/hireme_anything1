@@ -26,6 +26,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   final ImageController imgController = Get.put(ImageController(), tag: 'imageController');
   final DocumentController docController = Get.put(DocumentController(), tag: 'documentController');
   bool isEditing = false;
+  bool openedFromValidation = false;
 
   late AnimationController _animationController;
   late AnimationController _editButtonController;
@@ -36,13 +37,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileNoController = TextEditingController();
   final TextEditingController countryCodeController = TextEditingController();
-  final TextEditingController companyNameController = TextEditingController();
   final TextEditingController cityNameController = TextEditingController();
   final TextEditingController streetNameController = TextEditingController();
   final TextEditingController countryNameController = TextEditingController();
   final TextEditingController pincodeController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
 
   @override
   void initState() {
@@ -82,6 +81,15 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   void _initializeController() {
     controller = Get.put(ProfileController(apiService: apiService), tag: 'profileController');
 
+    // Check if opened from validation dialog
+    final args = Get.arguments;
+    if (args != null && args is Map) {
+      if (args['openCompanyInfo'] == true || args['openBankDetails'] == true) {
+        openedFromValidation = true;
+        isEditing = true; // Automatically enable edit mode
+      }
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _animationController.forward();
       _editButtonController.forward();
@@ -99,13 +107,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     emailController.text = profile.email;
     mobileNoController.text = profile.mobileNo;
     countryCodeController.text = profile.countryCode;
-    companyNameController.text = profile.companyName;
     cityNameController.text = profile.cityName;
     streetNameController.text = profile.streetName;
     countryNameController.text = profile.countryName;
     pincodeController.text = profile.pincode;
     genderController.text = profile.gender;
-    descriptionController.text = profile.description;
 
     docController.setDocumentsFromProfile(profile.legalDocuments);
     imgController.setVendorImage(profile.vendorImage);
@@ -125,17 +131,28 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     emailController.dispose();
     mobileNoController.dispose();
     countryCodeController.dispose();
-    companyNameController.dispose();
     cityNameController.dispose();
     streetNameController.dispose();
     countryNameController.dispose();
     pincodeController.dispose();
     genderController.dispose();
-    descriptionController.dispose();
   }
 
   void _toggleEditMode() async {
     if (isEditing) {
+      // Validate required company fields if opened from validation
+      if (openedFromValidation && !_validateRequiredFields()) {
+        Get.snackbar(
+          'Required Information',
+          'Please fill in all required company information fields',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+        return;
+      }
+      
       await _saveProfile();
     }
     
@@ -147,6 +164,11 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     _editButtonController.forward();
   }
 
+  bool _validateRequiredFields() {
+    return cityNameController.text.trim().isNotEmpty &&
+           streetNameController.text.trim().isNotEmpty;
+  }
+
   Future<void> _saveProfile() async {
     final profile = controller.profile.value!;
     
@@ -156,13 +178,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       email: emailController.text.trim(),
       mobileNo: mobileNoController.text.trim(),
       countryCode: countryCodeController.text.trim(),
-      companyName: companyNameController.text.trim(),
+      companyName: profile.companyName,
       streetName: streetNameController.text.trim(),
       cityName: cityNameController.text.trim(),
       countryName: countryNameController.text.trim(),
       pincode: pincodeController.text.trim(),
       gender: genderController.text.trim(),
-      description: descriptionController.text.trim(),
+      description: profile.description,
       vendorImage: imgController.vendorImage.value,
       legalDocuments: docController.uploadedDocumentUrls.toList(),
       vehicleImages: imgController.vehicleImages.toList(),
@@ -177,22 +199,39 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      floatingActionButton: FloatingEditButton(
-        isEditing: isEditing,
-        animation: _editButtonAnimation,
-        onToggle: _toggleEditMode,
+    return WillPopScope(
+      onWillPop: () async {
+        // If opened from validation and required fields not filled, prevent back navigation
+        if (openedFromValidation && !_validateRequiredFields()) {
+          Get.snackbar(
+            'Required Information',
+            'Please complete all required company information before going back',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
+        floatingActionButton: FloatingEditButton(
+          isEditing: isEditing,
+          animation: _editButtonAnimation,
+          onToggle: _toggleEditMode,
+        ),
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            return const ProfileLoadingWidget();
+          }
+          if (controller.profile.value == null) {
+            return ProfileErrorWidget(onRetry: controller.fetchProfile);
+          }
+          return _buildProfileContent(controller.profile.value!);
+        }),
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const ProfileLoadingWidget();
-        }
-        if (controller.profile.value == null) {
-          return ProfileErrorWidget(onRetry: controller.fetchProfile);
-        }
-        return _buildProfileContent(controller.profile.value!);
-      }),
     );
   }
 
@@ -231,23 +270,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                       mobileNoController: mobileNoController,
                       countryCodeController: countryCodeController,
                       genderController: genderController,
-                      companyNameController: companyNameController,
                       cityNameController: cityNameController,
                       streetNameController: streetNameController,
                       countryNameController: countryNameController,
                       pincodeController: pincodeController,
-                      descriptionController: descriptionController,
                     ),
-                    const SizedBox(height: 24),
-                    DocumentUploadSection(
-                      isEditing: isEditing,
-                      docController: docController,
-                    ),
-                    const SizedBox(height: 24),
-                    VehicleGallerySection(
-                      isEditing: isEditing,
-                      imgController: imgController,
-                    ),
+                   
                   ]),
                 ),
               ),

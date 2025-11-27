@@ -11,6 +11,7 @@ import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/ho
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/lumosineHireService/limousine_hire_service.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/minibusHireService/minibus_hire_services.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/passenger_transpost.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/widgets/profile_validation_dialog.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/vender_side_getx_controller.dart';
 import 'package:hire_any_thing/utilities/colors.dart';
 
@@ -35,6 +36,7 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
   void initState() {
     super.initState();
     _initializeData();
+    _checkProfileValidation();
   }
 
   void _initializeData() {
@@ -42,6 +44,16 @@ class _AddServiceScreenFirstState extends State<AddServiceScreenFirst> {
       if (controller.categories.isEmpty) {
         controller.refreshData();
       }
+    });
+  }
+
+  void _checkProfileValidation() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const ProfileValidationDialog(),
+      );
     });
   }
 
