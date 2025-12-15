@@ -106,22 +106,45 @@ class PricingOptionsWidget extends StatelessWidget {
 
     List<Widget> pricingRows = [];
 
-    // Standard rates - use actual property names from BoatRates model
-    pricingRows.add(_buildRateRow([
-      _buildRateColumn("Hourly", service.boatRates!.hourlyRate.toDouble()),
-      _buildRateColumn("Half Day", service.boatRates!.halfDayHire.toDouble()),
-      _buildRateColumn("10 Hour Day", service.boatRates!.tenHourDayHire.toDouble()),
-    ]));
+    // Build list of available rates
+    List<Widget> rateColumns = [];
+    
+    if (service.boatRates!.hourlyRate != null) {
+      rateColumns.add(_buildRateColumn("Hourly", service.boatRates!.hourlyRate));
+    }
+    if (service.boatRates!.threeHourRate != null) {
+      rateColumns.add(_buildRateColumn("3 Hours", service.boatRates!.threeHourRate));
+    }
+    if (service.boatRates!.halfDayRate != null) {
+      rateColumns.add(_buildRateColumn("Half Day", service.boatRates!.halfDayRate));
+    }
+    if (service.boatRates!.fullDayRate != null) {
+      rateColumns.add(_buildRateColumn("Full Day", service.boatRates!.fullDayRate));
+    }
+    
+    // Fallback to old fields if new ones aren't available
+    if (rateColumns.isEmpty) {
+      if (service.boatRates!.halfDayHire != null) {
+        rateColumns.add(_buildRateColumn("Half Day", service.boatRates!.halfDayHire));
+      }
+      if (service.boatRates!.tenHourDayHire != null) {
+        rateColumns.add(_buildRateColumn("10 Hour Day", service.boatRates!.tenHourDayHire));
+      }
+    }
+
+    if (rateColumns.isNotEmpty) {
+      pricingRows.add(_buildRateRow(rateColumns));
+    }
 
     // Per mile rate
-    if (service.boatRates!.perMileRate > 0) {
+    if (service.boatRates!.perMileRate != null && service.boatRates!.perMileRate! > 0) {
       pricingRows.add(SizedBox(height: 12));
       pricingRows.add(_buildSingleRate(
-          "Per Mile", service.boatRates!.perMileRate.toDouble(),
+          "Per Mile", service.boatRates!.perMileRate!,
           isDecimal: true));
     }
 
-    return pricingRows;
+    return pricingRows.isNotEmpty ? pricingRows : [_noPricingWidget()];
   }
 
   List<Widget> _buildHorsePricing() {

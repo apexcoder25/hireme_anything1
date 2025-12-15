@@ -698,10 +698,16 @@ class BoatHireController extends GetxController {
           _showSubmissionError('Failed to submit service. Please try again.');
         }
       } catch (e) {
-        // Close progress dialog on any error
-        if (Get.isDialogOpen == true) {
-          Get.back();
-        }
+        // Close progress dialog on any error - use multiple methods to ensure it closes
+        try {
+          if (Get.isDialogOpen == true) {
+            Get.back();
+          }
+          // Additional safety: close any remaining dialogs
+          while (Get.isDialogOpen ?? false) {
+            Get.back();
+          }
+        } catch (_) {}
         _showSubmissionError(e.toString());
       }
     } finally {
@@ -730,16 +736,24 @@ class BoatHireController extends GetxController {
   }
 
   Future<void> _uploadDocumentList(RxList<DocumentFile> documents) async {
-    for (var doc in documents) {
-      if (!doc.isUploaded) {
-        // Upload to cloudinary
-        await imageController.uploadToCloudinary(doc.path);
-        if (imageController.uploadedUrls.isNotEmpty) {
-          doc.uploadUrl = imageController.uploadedUrls.last;
-          doc.isUploaded = true;
-        }
-      }
-    }
+    // Upload all documents in parallel for better performance
+    final uploadFutures = documents
+        .where((doc) => !doc.isUploaded)
+        .map((doc) async {
+          try {
+            final uploadedUrl = await imageController.uploadToCloudinary(doc.path);
+            if (uploadedUrl != null && uploadedUrl.isNotEmpty) {
+              doc.uploadUrl = uploadedUrl;
+              doc.isUploaded = true;
+              print('Uploaded ${doc.name}: $uploadedUrl');
+            }
+          } catch (e) {
+            print('Failed to upload ${doc.name}: $e');
+          }
+        })
+        .toList();
+    
+    await Future.wait(uploadFutures);
   }
 
   // CORRECTED: Prepare API payload with EXACT structure matching your real payload
@@ -926,11 +940,17 @@ class BoatHireController extends GetxController {
       "makeAndModel": makeModelController.text.trim(),
       "firstRegistered": firstRegistrationDate.value.toIso8601String(),
       "seats": int.tryParse(numberOfSeatsController.text.trim()) ?? 4,
-      "luggageCapacity":
-          int.tryParse(luggageCapacityController.text.trim()) ?? 2,
+      "luggageCapacity": {
+        "largeSuitcases": 0,
+        "mediumSuitcases": 0,
+        "smallSuitcases": int.tryParse(luggageCapacityController.text.trim()) ?? 2,
+      },
       "boatRates": {
         "hourlyRate": double.tryParse(hourlyRateController.text.trim()) ?? 0,
         "perMileRate": double.tryParse(perMileRateController.text.trim()) ?? 0,
+        "threeHourRate": (double.tryParse(hourlyRateController.text.trim()) ?? 0),
+        "halfDayRate": double.tryParse(halfDayRateController.text.trim()) ?? 0,
+        "fullDayRate": double.tryParse(tenHourDayRateController.text.trim()) ?? 0,
         "tenHourDayHire":
             double.tryParse(tenHourDayRateController.text.trim()) ?? 0,
         "halfDayHire": double.tryParse(halfDayRateController.text.trim()) ?? 0,
@@ -1048,6 +1068,12 @@ class BoatHireController extends GetxController {
               const SizedBox(height: 8),
               Text(
                 'Please wait while we process your service...',
+                style: TextStyle(fontSize: 12, color: AppColors.grey600),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'This may take few minutes depending on your internet connection.',
                 style: TextStyle(fontSize: 12, color: AppColors.grey600),
                 textAlign: TextAlign.center,
               ),
@@ -1606,11 +1632,11 @@ class BoatHireService extends StatelessWidget {
             text:
                 controller.currentStep.value == 10 ? 'Submit Service' : 'Next',
             onPressed:
-                controller.isLoading.value || controller.isNavigating.value
+                controller.isLoading.value || controller.isNavigating.value || controller.isSubmitting.value
                     ? null
                     : () => _handleNextAction(),
             isLoading:
-                controller.isLoading.value || controller.isNavigating.value,
+                controller.isLoading.value || controller.isNavigating.value || controller.isSubmitting.value,
           ),
         ),
       ],

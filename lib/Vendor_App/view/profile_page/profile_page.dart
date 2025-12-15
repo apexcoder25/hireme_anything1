@@ -32,6 +32,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   late AnimationController _editButtonController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _editButtonAnimation;
+  
+  Worker? _profileWorker;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -79,7 +81,14 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   void _initializeController() {
-    controller = Get.put(ProfileController(apiService: apiService), tag: 'profileController');
+    // Try to find existing controller first, if not found, create new one
+    if (Get.isRegistered<ProfileController>(tag: 'profileController')) {
+      controller = Get.find<ProfileController>(tag: 'profileController');
+      // Refresh profile data when navigating back
+      controller.fetchProfile();
+    } else {
+      controller = Get.put(ProfileController(apiService: apiService), tag: 'profileController');
+    }
 
     // Check if opened from validation dialog
     final args = Get.arguments;
@@ -94,8 +103,14 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       _animationController.forward();
       _editButtonController.forward();
       
-      ever(controller.profile, (ProfileModel? profile) {
-        if (profile != null) {
+      // Populate controllers if profile already exists
+      if (controller.profile.value != null) {
+        _populateControllers(controller.profile.value!);
+      }
+      
+      // Store the worker so we can dispose it later
+      _profileWorker = ever(controller.profile, (ProfileModel? profile) {
+        if (profile != null && mounted) {
           _populateControllers(profile);
         }
       });
@@ -103,6 +118,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   }
 
   void _populateControllers(ProfileModel profile) {
+    if (!mounted) return;
+    
     nameController.text = profile.name;
     emailController.text = profile.email;
     mobileNoController.text = profile.mobileNo;
@@ -120,6 +137,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
 
   @override
   void dispose() {
+    // Dispose the GetX worker first to stop listening to profile changes
+    _profileWorker?.dispose();
     _animationController.dispose();
     _editButtonController.dispose();
     _disposeControllers();

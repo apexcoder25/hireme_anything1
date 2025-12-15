@@ -30,6 +30,13 @@ double _toDouble(dynamic v) {
     return double.tryParse(v.toString()) ?? 0.0;
 }
 
+double? _toNullableDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is double) return v;
+    if (v is int) return v.toDouble();
+    return double.tryParse(v.toString());
+}
+
 class ServicesModel {
     bool success;
     String message;
@@ -161,7 +168,7 @@ class Service {
     String? boatType;
     String? makeAndModel;
     DateTime? firstRegistered;
-    int? luggageCapacity;
+    LuggageCapacity? luggageCapacity;
     int? seats;
     String? hireType;
     String? departurePoint;
@@ -284,7 +291,7 @@ class Service {
         boatType: json["boatType"],
         makeAndModel: json["makeAndModel"],
         firstRegistered: json["firstRegistered"] == null ? null : DateTime.parse(json["firstRegistered"]),
-        luggageCapacity: _toInt(json["luggageCapacity"]),
+        luggageCapacity: json["luggageCapacity"] == null ? null : (json["luggageCapacity"] is Map ? LuggageCapacity.fromJson(json["luggageCapacity"]) : null),
         seats: _toInt(json["seats"]),
         hireType: json["hireType"],
         departurePoint: json["departurePoint"],
@@ -419,30 +426,66 @@ class Accessibility {
 }
 
 class BoatRates {
-    int hourlyRate;
-    int perMileRate;
-    int tenHourDayHire;
-    int halfDayHire;
+    double? fullDayRate;
+    double? halfDayRate;
+    double? threeHourRate;
+    double? hourlyRate;
+    double? perMileRate;
+    double? tenHourDayHire;
+    double? halfDayHire;
 
     BoatRates({
-        required this.hourlyRate,
-        required this.perMileRate,
-        required this.tenHourDayHire,
-        required this.halfDayHire,
+        this.fullDayRate,
+        this.halfDayRate,
+        this.threeHourRate,
+        this.hourlyRate,
+        this.perMileRate,
+        this.tenHourDayHire,
+        this.halfDayHire,
     });
 
     factory BoatRates.fromJson(Map<String, dynamic> json) => BoatRates(
-        hourlyRate: _toInt(json["hourlyRate"]),
-        perMileRate: _toInt(json["perMileRate"]),
-        tenHourDayHire: _toInt(json["tenHourDayHire"]),
-        halfDayHire: _toInt(json["halfDayHire"]),
+        fullDayRate: _toNullableDouble(json["fullDayRate"]),
+        halfDayRate: _toNullableDouble(json["halfDayRate"]),
+        threeHourRate: _toNullableDouble(json["threeHourRate"]),
+        hourlyRate: _toNullableDouble(json["hourlyRate"]),
+        perMileRate: _toNullableDouble(json["perMileRate"]),
+        tenHourDayHire: _toNullableDouble(json["tenHourDayHire"]),
+        halfDayHire: _toNullableDouble(json["halfDayHire"]),
     );
 
     Map<String, dynamic> toJson() => {
-        "hourlyRate": hourlyRate,
-        "perMileRate": perMileRate,
-        "tenHourDayHire": tenHourDayHire,
-        "halfDayHire": halfDayHire,
+        "fullDayRate": fullDayRate,
+        "halfDayRate": halfDayRate,
+        "threeHourRate": threeHourRate,
+        if (hourlyRate != null) "hourlyRate": hourlyRate,
+        if (perMileRate != null) "perMileRate": perMileRate,
+        if (tenHourDayHire != null) "tenHourDayHire": tenHourDayHire,
+        if (halfDayHire != null) "halfDayHire": halfDayHire,
+    };
+}
+
+class LuggageCapacity {
+    int largeSuitcases;
+    int mediumSuitcases;
+    int smallSuitcases;
+
+    LuggageCapacity({
+        required this.largeSuitcases,
+        required this.mediumSuitcases,
+        required this.smallSuitcases,
+    });
+
+    factory LuggageCapacity.fromJson(Map<String, dynamic> json) => LuggageCapacity(
+        largeSuitcases: _toInt(json["largeSuitcases"]),
+        mediumSuitcases: _toInt(json["mediumSuitcases"]),
+        smallSuitcases: _toInt(json["smallSuitcases"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "largeSuitcases": largeSuitcases,
+        "mediumSuitcases": mediumSuitcases,
+        "smallSuitcases": smallSuitcases,
     };
 }
 
@@ -826,14 +869,14 @@ class Events {
     });
 
     factory Events.fromJson(Map<String, dynamic> json) => Events(
-        weddingDecor: json["weddingDecor"],
+        weddingDecor: json["weddingDecor"] == null ? false : json["weddingDecor"],
         weddingDecorPrice: json["weddingDecorPrice"],
         partyLightingSystem: json["partyLightingSystem"],
         partyLightingPrice: json["partyLightingPrice"],
         champagnePackages: json["champagnePackages"],
         champagnePackagePrice: json["champagnePackagePrice"],
-        champagneBrand: json["champagneBrand"],
-        champagneBottles: json["champagneBottles"],
+        champagneBrand: json["champagneBrand"] == null ? "" : json["champagneBrand"],
+        champagneBottles: json["champagneBottles"] == null ? 0 : json["champagneBottles"],
         champagnePackageDetails: json["champagnePackageDetails"],
         photographyPackages: json["photographyPackages"],
         photographyPackagePrice: json["photographyPackagePrice"],
@@ -962,7 +1005,7 @@ class FeaturesComfort {
         bluetoothUsb: json["bluetoothUsb"],
         redCarpetService: json["redCarpetService"],
         chauffeurInUniform: json["chauffeurInUniform"],
-        onboardRestroom: json["onboardRestroom"],
+        onboardRestroom: json["onboardRestroom"] == null ? false : json["onboardRestroom"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -1011,7 +1054,7 @@ class Security {
         vehicleTrackingGps: json["vehicleTrackingGps"],
         cctvFitted: json["cctvFitted"],
         publicLiabilityInsurance: json["publicLiabilityInsurance"],
-        safetyCertifiedDrivers: json["safetyCertifiedDrivers"],
+        safetyCertifiedDrivers: json["safetyCertifiedDrivers"]  == null ? false : json["safetyCertifiedDrivers"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -1082,7 +1125,7 @@ class FleetInfo {
     factory FleetInfo.fromJson(Map<String, dynamic> json) => FleetInfo(
         makeAndModel: json["makeAndModel"],
         seats: json["seats"],
-        luggageCapacity: json["luggageCapacity"],
+        luggageCapacity: json["luggageCapacity"] == null ? 0 : json["luggageCapacity"],
         firstRegistration: json["firstRegistration"] == null ? null : DateTime.parse(json["firstRegistration"]),
         firstRegistered: json["firstRegistered"] == null ? null : DateTime.parse(json["firstRegistered"]),
         largeSuitcases: json["largeSuitcases"],
