@@ -197,25 +197,52 @@ class FuneralCarHireController extends GetxController {
   // Document upload
   Future<void> pickDocument(RxList<DocumentFile> targetList) async {
     try {
+      // Allow multiple file selection for service images, single for others
+      bool allowMultiple = targetList == serviceImages;
+      
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
-        allowMultiple: false,
+        allowMultiple: allowMultiple,
       );
-      if (result != null && result.files.single.path != null) {
-        final file = result.files.single;
-        final doc = DocumentFile(
-          path: file.path!,
-          name: file.name,
-          type: file.extension?.toLowerCase() ?? '',
-          size: file.size,
-        );
-        targetList.add(doc);
-        Get.snackbar('Success', 'Document uploaded successfully',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: AppColors.success,
-            colorText: AppColors.white,
-            duration: const Duration(seconds: 2));
+      
+      if (result != null && result.files.isNotEmpty) {
+        int addedCount = 0;
+        int failedCount = 0;
+        
+        for (var file in result.files) {
+          if (file.path == null) continue;
+          
+          final fileSize = file.size;
+          if (fileSize > 5 * 1024 * 1024) { // 5MB limit
+            failedCount++;
+            continue;
+          }
+          
+          final doc = DocumentFile(
+            path: file.path!,
+            name: file.name,
+            type: file.extension?.toLowerCase() ?? '',
+            size: file.size,
+          );
+          targetList.add(doc);
+          addedCount++;
+        }
+        
+        if (addedCount > 0) {
+          Get.snackbar('Success', '$addedCount document(s) added successfully',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: AppColors.success,
+              colorText: AppColors.white,
+              duration: const Duration(seconds: 2));
+        }
+        
+        if (failedCount > 0) {
+          Get.snackbar('Error', '$failedCount file(s) exceeded 5MB limit',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: AppColors.error,
+              colorText: AppColors.white);
+        }
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to pick document: $e',
@@ -473,10 +500,16 @@ class FuneralCarHireController extends GetxController {
           _showSubmissionError('Failed to submit service. Please try again.');
         }
       } catch (e) {
-        // Close progress dialog on any error
-        if (Get.isDialogOpen == true) {
-          Get.back();
-        }
+        // Close progress dialog on any error - use multiple methods to ensure it closes
+        try {
+          if (Get.isDialogOpen == true) {
+            Get.back();
+          }
+          // Additional safety: close any remaining dialogs
+          while (Get.isDialogOpen ?? false) {
+            Get.back();
+          }
+        } catch (_) {}
         _showSubmissionError(e.toString());
       }
     } finally {
@@ -502,16 +535,24 @@ class FuneralCarHireController extends GetxController {
   }
 
   Future<void> _uploadDocumentList(RxList<DocumentFile> documents) async {
-    for (var doc in documents) {
-      if (!doc.isUploaded) {
-        // Upload to cloudinary
-        final uploaded = await imageController.uploadToCloudinary(doc.path);
-        if (uploaded != null && uploaded.isNotEmpty) {
-          doc.uploadUrl = uploaded;
-          doc.isUploaded = true;
-        }
-      }
-    }
+    // Upload all documents in parallel for better performance
+    final uploadFutures = documents
+        .where((doc) => !doc.isUploaded)
+        .map((doc) async {
+          try {
+            final uploadedUrl = await imageController.uploadToCloudinary(doc.path);
+            if (uploadedUrl != null && uploadedUrl.isNotEmpty) {
+              doc.uploadUrl = uploadedUrl;
+              doc.isUploaded = true;
+              print('Uploaded ${doc.name}: $uploadedUrl');
+            }
+          } catch (e) {
+            print('Failed to upload ${doc.name}: $e');
+          }
+        })
+        .toList();
+    
+    await Future.wait(uploadFutures);
   }
 
   // Prepare API payload with EXACT structure matching the expected payload

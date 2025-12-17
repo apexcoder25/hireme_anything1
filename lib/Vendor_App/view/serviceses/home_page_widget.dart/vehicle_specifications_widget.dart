@@ -60,7 +60,7 @@ class VehicleSpecificationsWidget extends StatelessWidget {
   bool _hasVehicleSpecifications() {
     switch (service.serviceType.toLowerCase()) {
       case 'boat':
-        return service.fleetInfo != null;
+        return service.makeAndModel != null || service.seats != null || service.luggageCapacity != null;
       case 'horse':
         return service.carriageDetails != null;
       case 'funeral':
@@ -101,6 +101,47 @@ class VehicleSpecificationsWidget extends StatelessWidget {
   }
 
   List<Widget> _buildBoatSpecifications() {
+    List<Widget> specs = [];
+
+    // Boat services use direct properties, not fleetInfo
+    if (service.makeAndModel != null) {
+      specs.add(_buildSpecRow("Make & Model", service.makeAndModel!));
+    }
+    if (service.seats != null) {
+      specs.add(_buildSpecRow("Seats", "${service.seats} passengers"));
+    }
+    if (service.luggageCapacity != null) {
+      specs.add(_buildSpecRow("Large Suitcases", "${service.luggageCapacity!.largeSuitcases}"));
+      specs.add(_buildSpecRow("Medium Suitcases", "${service.luggageCapacity!.mediumSuitcases}"));
+      specs.add(_buildSpecRow("Small Suitcases", "${service.luggageCapacity!.smallSuitcases}"));
+    }
+    if (service.firstRegistered != null) {
+      specs.add(_buildSpecRow("First Registered", "${service.firstRegistered!.year}"));
+    }
+    if (service.boatType != null) {
+      specs.add(_buildSpecRow("Boat Type", service.boatType!));
+    }
+    if (service.hireType != null) {
+      specs.add(_buildSpecRow("Hire Type", service.hireType!.replaceAll('-', ' ').toUpperCase()));
+    }
+    
+    // Features from service.features
+    if (service.features != null) {
+      if (service.features!.airConditioning == true) {
+        specs.add(_buildSpecRow("Air Conditioning", 'Yes'));
+      }
+      if (service.features!.wifi == true) {
+        specs.add(_buildSpecRow("WiFi", 'Yes'));
+      }
+      if (service.features!.toilet == true) {
+        specs.add(_buildSpecRow("Toilet", 'Yes'));
+      }
+    }
+
+    return specs.isNotEmpty ? specs : [_noDataWidget()];
+  }
+
+  List<Widget> _buildBoatSpecificationsOld() {
     if (service.fleetInfo == null) return [_noDataWidget()];
 
     return [

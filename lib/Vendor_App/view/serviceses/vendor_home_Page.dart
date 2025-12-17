@@ -293,24 +293,43 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                             );
                           },
                         )
-                      : Image.network(
-                          service.serviceImages?.isNotEmpty == true
-                              ? service.serviceImages!.first.trim()
-                              : "https://via.placeholder.com/400x200",
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            print("Image load error: $error");
-                            return Container(
+                      : service.serviceType == "boat"
+                          ? Image.network(
+                              service.serviceImage?.isNotEmpty == true
+                                  ? service.serviceImage!.first.trim()
+                                  : "https://via.placeholder.com/400x200",
                               height: 200,
                               width: double.infinity,
-                              color: Colors.grey.shade300,
-                              child: Center(
-                                  child: Icon(Icons.error, color: Colors.red)),
-                            );
-                          },
-                        ),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                print("Image load error: $error");
+                                return Container(
+                                  height: 200,
+                                  width: double.infinity,
+                                  color: Colors.grey.shade300,
+                                  child: const Center(
+                                      child: Icon(Icons.error, color: Colors.red)),
+                                );
+                              },
+                            )
+                          : Image.network(
+                              service.serviceImages?.isNotEmpty == true
+                                  ? service.serviceImages!.first.trim()
+                                  : "https://via.placeholder.com/400x200",
+                              height: 200,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                print("Image load error: $error");
+                                return Container(
+                                  height: 200,
+                                  width: double.infinity,
+                                  color: Colors.grey.shade300,
+                                  child: Center(
+                                      child: Icon(Icons.error, color: Colors.red)),
+                                );
+                              },
+                            ),
                 ),
 
                 // Gradient overlay for better text visibility
@@ -546,14 +565,24 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
   String _getPriceDisplay(Service service) {
     switch (service.serviceType) {
       case "boat":
-        if (service.boatRates?.tenHourDayHire != null) {
-          return "£${service.boatRates!.tenHourDayHire}/day";
+        if (service.boatRates?.fullDayRate != null) {
+          return "£${service.boatRates!.fullDayRate!.toStringAsFixed(0)}/day";
         }
-        if (service.boatRates?.halfDayHire != null) {
-          return "£${service.boatRates!.halfDayHire}/half day";
+        if (service.boatRates?.halfDayRate != null) {
+          return "£${service.boatRates!.halfDayRate!.toStringAsFixed(0)}/half day";
+        }
+        if (service.boatRates?.threeHourRate != null) {
+          return "£${service.boatRates!.threeHourRate!.toStringAsFixed(0)}/3 hours";
         }
         if (service.boatRates?.hourlyRate != null) {
-          return "£${service.boatRates!.hourlyRate}/hour";
+          return "£${service.boatRates!.hourlyRate!.toStringAsFixed(0)}/hour";
+        }
+        // Fallback to old fields
+        if (service.boatRates?.tenHourDayHire != null) {
+          return "£${service.boatRates!.tenHourDayHire!.toStringAsFixed(0)}/day";
+        }
+        if (service.boatRates?.halfDayHire != null) {
+          return "£${service.boatRates!.halfDayHire!.toStringAsFixed(0)}/half day";
         }
         break;
       case "horse":
@@ -598,8 +627,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         }
         break;
       case "chauffeur":
-        if (service.pricingDetails?.fullDayRate != null) {
-          return "£${service.pricingDetails!.fullDayRate}/day";
+        if (service.pricingDetails?.dayRate != null) {
+          return "£${service.pricingDetails!.dayRate}/day";
         }
         if (service.pricingDetails?.halfDayRate != null) {
           return "£${service.pricingDetails!.halfDayRate}/half day";
@@ -609,8 +638,8 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         }
         break;
       case "coach":
-        if (service.pricingDetails?.dayRate != null) {
-          return "£${service.pricingDetails!.dayRate}/day";
+        if (service.pricingDetails?.fullDayRate != null) {
+          return "£${service.pricingDetails!.fullDayRate}/day";
         }
         if (service.pricingDetails?.hourlyRate != null) {
           return "£${service.pricingDetails!.hourlyRate}/hour";
@@ -625,7 +654,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
     
     switch (service.serviceType) {
       case 'boat':
-        locations = service.areasCovered ?? [];
+        locations = service.serviceCoverage ?? service.areasCovered ?? [];
         break;
       case 'horse':
         locations = service.areasCovered ?? [];
@@ -638,7 +667,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
     if (locations.isNotEmpty) {
       return "${locations.first}${locations.length > 1 ? ' + ${locations.length - 1} more' : ''}";
     } else {
-      return service.basePostcode ?? service.baseLocationPostcode ?? "Location not specified";
+      return service.postcode ?? service.basePostcode ?? service.baseLocationPostcode ?? "Location not specified";
     }
   }
 }

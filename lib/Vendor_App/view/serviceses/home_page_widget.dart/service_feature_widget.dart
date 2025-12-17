@@ -60,7 +60,7 @@ class ServiceFeaturesWidget extends StatelessWidget {
   bool _hasServiceFeatures() {
     switch (service.serviceType.toLowerCase()) {
       case 'boat':
-        return service.fleetInfo != null || service.areasCovered?.isNotEmpty == true;
+        return service.features != null || service.areasCovered?.isNotEmpty == true || service.boatType != null;
       case 'horse':
         return service.carriageDetails != null;
       case 'funeral':
@@ -109,26 +109,59 @@ class ServiceFeaturesWidget extends StatelessWidget {
       "Professional Boat Service",
     ));
 
-    if (service.fleetInfo != null) {
-      if (service.fleetInfo!.airConditioning == true) {
+    if (service.boatType != null) {
+      features.add(_buildFeatureRow(Icons.sailing, "Boat Type: ${service.boatType}"));
+    }
+
+    if (service.hireType != null) {
+      features.add(_buildFeatureRow(Icons.badge, "Hire Type: ${service.hireType!.replaceAll('-', ' ').toUpperCase()}"));
+    }
+
+    if (service.seats != null && service.seats! > 0) {
+      features.add(_buildFeatureRow(Icons.event_seat, "Seats: ${service.seats} passengers"));
+    }
+
+    // Features from service.features
+    if (service.features != null) {
+      if (service.features!.airConditioning == true) {
         features.add(_buildFeatureRow(Icons.ac_unit, "Air Conditioning"));
       }
-      if (service.fleetInfo!.wheelchairAccessible == true) {
-        features.add(_buildFeatureRow(Icons.accessible, "Wheelchair Accessible"));
+      if (service.features!.wifi == true) {
+        features.add(_buildFeatureRow(Icons.wifi, "WiFi Available"));
       }
-      if (service.fleetInfo!.luggageSpace == true) {
-        features.add(_buildFeatureRow(Icons.luggage, "Luggage Space Available"));
+      if (service.features!.tv == true) {
+        features.add(_buildFeatureRow(Icons.tv, "Television"));
       }
-      if (service.fleetInfo!.seats > 0) {
-        features.add(_buildFeatureRow(Icons.event_seat, "Seats: ${service.fleetInfo!.seats}"));
+      if (service.features!.toilet == true) {
+        features.add(_buildFeatureRow(Icons.wc, "Toilet Facilities"));
+      }
+      if (service.features!.musicSystem == true) {
+        features.add(_buildFeatureRow(Icons.music_note, "Music System"));
+      }
+      if (service.features!.cateringFacilities == true) {
+        features.add(_buildFeatureRow(Icons.restaurant, "Catering Facilities"));
+      }
+      if (service.features!.sunDeck == true) {
+        features.add(_buildFeatureRow(Icons.wb_sunny, "Sun Deck"));
+      }
+      if (service.features!.overnightStayCabins == true) {
+        features.add(_buildFeatureRow(Icons.hotel, "Overnight Stay Cabins"));
       }
     }
 
-    if (service.areasCovered?.isNotEmpty == true) {
+    if (service.luggageCapacity != null) {
+      int totalLuggage = service.luggageCapacity!.largeSuitcases + 
+                        service.luggageCapacity!.mediumSuitcases + 
+                        service.luggageCapacity!.smallSuitcases;
+      if (totalLuggage > 0) {
+        features.add(_buildFeatureRow(Icons.luggage, "Luggage Capacity: $totalLuggage suitcases"));
+      }
+    }
+
+    if (service.serviceCoverage?.isNotEmpty == true) {
       features.add(_buildFeatureRow(
         Icons.location_on,
-        "Areas Covered: ${service.areasCovered!.join(", ")}",
-        isExpandable: true,
+        "Service Coverage: ${service.serviceCoverage!.length} areas",
       ));
     }
 
