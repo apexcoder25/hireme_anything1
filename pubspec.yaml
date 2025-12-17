@@ -127,7 +127,7 @@ dev_dependencies:
   google_fonts: any
   lottie: any
   cool_alert: any
-  connectivity: any
+
   firebase_auth: any
   cloud_firestore: any
   firebase_messaging: any
@@ -138,7 +138,7 @@ dev_dependencies:
   curved_navigation_bar: any
   flutter_ringtone_player: any
   autocomplete_textfield: any
-  connectivity_plus: any
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

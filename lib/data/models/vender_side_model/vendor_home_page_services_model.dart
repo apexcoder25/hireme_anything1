@@ -826,14 +826,14 @@ class Events {
     });
 
     factory Events.fromJson(Map<String, dynamic> json) => Events(
-        weddingDecor: json["weddingDecor"],
+        weddingDecor: json["weddingDecor"] == null ? false : json["weddingDecor"],
         weddingDecorPrice: json["weddingDecorPrice"],
         partyLightingSystem: json["partyLightingSystem"],
         partyLightingPrice: json["partyLightingPrice"],
         champagnePackages: json["champagnePackages"],
         champagnePackagePrice: json["champagnePackagePrice"],
-        champagneBrand: json["champagneBrand"],
-        champagneBottles: json["champagneBottles"],
+        champagneBrand: json["champagneBrand"] == null ? "" : json["champagneBrand"],
+        champagneBottles: json["champagneBottles"] == null ? 0 : json["champagneBottles"],
         champagnePackageDetails: json["champagnePackageDetails"],
         photographyPackages: json["photographyPackages"],
         photographyPackagePrice: json["photographyPackagePrice"],
@@ -962,7 +962,7 @@ class FeaturesComfort {
         bluetoothUsb: json["bluetoothUsb"],
         redCarpetService: json["redCarpetService"],
         chauffeurInUniform: json["chauffeurInUniform"],
-        onboardRestroom: json["onboardRestroom"],
+        onboardRestroom: json["onboardRestroom"] == null ? false : json["onboardRestroom"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -1011,7 +1011,7 @@ class Security {
         vehicleTrackingGps: json["vehicleTrackingGps"],
         cctvFitted: json["cctvFitted"],
         publicLiabilityInsurance: json["publicLiabilityInsurance"],
-        safetyCertifiedDrivers: json["safetyCertifiedDrivers"],
+        safetyCertifiedDrivers: json["safetyCertifiedDrivers"]  == null ? false : json["safetyCertifiedDrivers"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -1082,7 +1082,7 @@ class FleetInfo {
     factory FleetInfo.fromJson(Map<String, dynamic> json) => FleetInfo(
         makeAndModel: json["makeAndModel"],
         seats: json["seats"],
-        luggageCapacity: json["luggageCapacity"],
+        luggageCapacity: json["luggageCapacity"] == null ? 0 : json["luggageCapacity"],
         firstRegistration: json["firstRegistration"] == null ? null : DateTime.parse(json["firstRegistration"]),
         firstRegistered: json["firstRegistered"] == null ? null : DateTime.parse(json["firstRegistered"]),
         largeSuitcases: json["largeSuitcases"],

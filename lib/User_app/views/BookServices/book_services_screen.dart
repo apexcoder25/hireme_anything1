@@ -1,11 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:async';
-import 'package:hire_any_thing/Vendor_App/uiltis/color.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/controllers/category_controller.dart';
 import 'package:hire_any_thing/User_app/views/BookServices/controller/all_services_controller.dart';
-import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
 import 'package:hire_any_thing/User_app/views/BookServices/services_card.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/controllers/category_controller.dart';
+import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
 import 'package:hire_any_thing/utilities/colors.dart';
 import 'package:intl/intl.dart';
 
