@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/category_sub_model.dart';
-import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
+import 'package:hire_any_thing/data/models/user_side_model/unifiedOfferingsModel.dart';
 import 'package:hire_any_thing/data/models/user_side_model/promotedServices_model.dart' as promoted_model;
 import 'package:hire_any_thing/data/services/api_service.dart';
 
@@ -31,7 +31,8 @@ class AllServicesController extends GetxController {
   var selectedSubcategoryId = Rxn<String>();
 
 
-  final String apiUrl = "https://stag-api.hireanything.com/user/global-filter";
+  // final String apiUrl = "https://stag-api.hireanything.com/user/global-filter";
+  final String apiUrl = "https://stag-api.hireanything.com/user/unified-offerings";
 
 
   var subcategoryMap = <String, List<Model1>>{}.obs;
@@ -40,7 +41,7 @@ class AllServicesController extends GetxController {
   // Pagination variables
   var currentPage = 1.obs;
   var hasMoreData = true.obs;
-  var itemsPerPage = 50.obs;
+  var itemsPerPage = 20.obs;
 
 
   final ApiService _apiService = ApiService();
@@ -49,9 +50,14 @@ class AllServicesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // fetch featured/promoted services then main list
-    fetchPromotedServices();
-    // fetchAllServices();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    // 1. Fetch promoted services first (lighter request)
+    await fetchPromotedServices();
+    // 2. Then fetch the heavy unified services list
+    fetchAllServices();
   }
 
   Future<void> fetchPromotedServices() async {
@@ -90,8 +96,7 @@ class AllServicesController extends GetxController {
         currentPage.value++;
       }
 
-
-      await _fetchWithMultipleApproaches(loadMore);
+      await _fetchUnifiedOfferings(loadMore);
     } catch (e) {
       hasMoreData.value = false;
       Get.snackbar("Error", "Failed to load services: $e");
@@ -104,127 +109,59 @@ class AllServicesController extends GetxController {
     }
   }
 
-
-  Future<void> _fetchWithMultipleApproaches(bool loadMore) async {
-    List<Map<String, dynamic>> approaches = [
-      // Approach 1: No category filter (get all)
-      {
-        "categoryId": "",
-        "subCategoryId": "",
-        "minBudget": null,
-        "maxBudget": null,
+  Future<void> _fetchUnifiedOfferings(bool loadMore) async {
+    try {
+      final payload = {
+        "categoryName": selectedCategory.value ?? "",
+        "subCategoryName": selectedSubcategory.value ?? "",
+        "date": "",
+        "userLocation": null,
         "page": currentPage.value,
         "limit": itemsPerPage.value,
-      },
-      // Approach 2: Null category filter
-      {
-        "categoryId": null,
-        "subCategoryId": null,
-        "minBudget": null,
-        "maxBudget": null,
-        "page": currentPage.value,
-        "limit": itemsPerPage.value,
-      },
-      // Approach 3: Remove category filter entirely
-      {
-        "subCategoryId": "",
-        "minBudget": null,
-        "maxBudget": null,
-        "page": currentPage.value,
-        "limit": itemsPerPage.value,
-      },
-    ];
+        "maxDistance": null,
+        "sortBy": "relevance"
+      };
 
+      print("Fetching unified offerings with payload: $payload");
+      final response = await _apiService.postApi(apiUrl, payload);
+      print("Unified offerings response: $response");
 
-    for (var approach in approaches) {
-      try {
-          final response = await _apiService.postApi(apiUrl, approach);
-
-          if (response != null) {
-            try {
-              // Normalize known response shapes to the FilterModel expected shape
-              Map<String, dynamic> normalized;
-
-              if (response is Map<String, dynamic> && response.containsKey('result')) {
-                // Common shape: { result: ..., data: [...] } or { result: ..., data: { docs: [...], pagination: {...} } }
-                dynamic rawData = response['data'];
-                List<dynamic> items = [];
-
-                if (rawData == null) {
-                  items = [];
-                } else if (rawData is List) {
-                  items = rawData;
-                } else if (rawData is Map<String, dynamic>) {
-                  // handle pagination structures: { docs: [...], pagination: { total: n, ... } }
-                  if (rawData.containsKey('docs') && rawData['docs'] is List) {
-                    items = rawData['docs'];
-                  } else if (rawData.containsKey('data') && rawData['data'] is List) {
-                    items = rawData['data'];
-                  } else {
-                    // fallback: try to find first list-valued key
-                    var firstList = rawData.values.firstWhere(
-                        (v) => v is List, orElse: () => null);
-                    items = firstList is List ? firstList : [];
-                  }
-                }
-
-                normalized = {
-                  'success': response['result'] == true || response['result'] == 'true',
-                  'count': response['count'] ?? items.length,
-                  'data': items
-                };
-              } else if (response is List) {
-                normalized = {'success': true, 'count': response.length, 'data': response};
-              } else if (response is Map<String, dynamic>) {
-                // fallback: try to extract 'data' or 'docs' as list
-                dynamic rawData = response['data'];
-                if (rawData is List) {
-                  normalized = {'success': true, 'count': rawData.length, 'data': rawData};
-                } else if (rawData is Map<String, dynamic> && rawData['docs'] is List) {
-                  normalized = {'success': true, 'count': (rawData['pagination']?['total']) ?? (rawData['docs'] as List).length, 'data': rawData['docs']};
-                } else {
-                  // Unknown shape, skip this approach
-                  continue;
-                }
-              } else {
-                // Unknown shape, skip this approach
-                continue;
-              }
-
-              final data = FilterModel.fromJson(normalized);
-              if (data.success == true && data.data.isNotEmpty) {
-                if (loadMore) {
-                  var newServices = data.data
-                      .where((newService) => !services.any(
-                          (existingService) => existingService.id == newService.id))
-                      .toList();
-                  services.addAll(newServices);
-                } else {
-                  services.value = data.data;
-                }
-
-                hasMoreData.value = data.data.length >= itemsPerPage.value;
-                _categorizeAllServices();
-
-                if (!loadMore) {
-                  extractCategories();
-                }
-                return;
-              }
-            } catch (e) {
-              // parsing error for this approach - try next
-              continue;
-            }
+      if (response != null) {
+        final data = UnifiedOffering.fromJson(response);
+        print("Parsed data success: ${data.success}, count: ${data.count}, data length: ${data.data.length}");
+        
+        if (data.success == true && data.data.isNotEmpty) {
+          if (loadMore) {
+            var newServices = data.data
+                .where((newService) => !services.any(
+                    (existingService) => existingService.id == newService.id))
+                .toList();
+            services.addAll(newServices);
+          } else {
+            services.value = data.data;
           }
-      } catch (e) {
-        continue;
+
+          hasMoreData.value = data.data.length >= itemsPerPage.value;
+          _categorizeAllServices();
+
+          if (!loadMore) {
+            extractCategories();
+          }
+        } else {
+          hasMoreData.value = false;
+          if (!loadMore) {
+             // If it's the first page and no data, ensure services is cleared (though it should be already)
+             // services.clear(); // Already cleared in fetchAllServices
+          }
+        }
+      } else {
+        print("Response is null");
+        hasMoreData.value = false;
       }
-    }
-
-
-    hasMoreData.value = false;
-    if (!loadMore) {
-      throw Exception("Failed to load services with any approach");
+    } catch (e, stackTrace) {
+      hasMoreData.value = false;
+      print("Error fetching unified offerings: $e");
+      print("Stack trace: $stackTrace");
     }
   }
 
@@ -240,54 +177,57 @@ class AllServicesController extends GetxController {
 
 
   void _categorizeAllServices() {
-    // Classify using multiple signals because API may use different fields/naming.
-    String lower(String? s) => (s ?? '').toLowerCase();
+    String lower(dynamic s) => (s?.toString() ?? '').toLowerCase();
+    print("Categorizing ${services.length} services...");
 
     coachServices.value = services.where((service) {
       final src = lower(service.sourceModel);
       final cat = lower(service.categoryId?.categoryName);
-      final name = lower(service.serviceName ?? service.datumServiceName);
-      return src.contains('coach') || cat.contains('coach') || name.contains('coach');
+      final name = lower(service.serviceName);
+      return src.contains('coach') || cat.contains('coach') || name.contains('coach') || cat.contains('bus');
     }).toList();
+    print("Coach services: ${coachServices.length}");
 
     funeralServices.value = services.where((service) {
       final src = lower(service.sourceModel);
       final cat = lower(service.categoryId?.categoryName);
-      final name = lower(service.serviceName ?? service.datumServiceName);
+      final name = lower(service.serviceName);
       return src.contains('funeral') || cat.contains('funeral') || name.contains('funeral');
     }).toList();
+    print("Funeral services: ${funeralServices.length}");
 
     horseServices.value = services.where((service) {
       final src = lower(service.sourceModel);
       final cat = lower(service.categoryId?.categoryName);
-      final name = lower(service.serviceName ?? service.datumServiceName);
+      final name = lower(service.serviceName);
       return src.contains('horse') || cat.contains('horse') || name.contains('horse');
     }).toList();
+    print("Horse services: ${horseServices.length}");
 
     chauffeurServices.value = services.where((service) {
       final src = lower(service.sourceModel);
       final cat = lower(service.categoryId?.categoryName);
-      final name = lower(service.serviceName ?? service.datumServiceName);
+      final name = lower(service.serviceName);
       return src.contains('chauffeur') || cat.contains('chauffeur') || name.contains('chauffeur');
     }).toList();
+    print("Chauffeur services: ${chauffeurServices.length}");
 
     boatServices.value = services.where((service) {
       final src = lower(service.sourceModel);
       final cat = lower(service.categoryId?.categoryName);
-      final name = lower(service.serviceName ?? service.datumServiceName);
+      final name = lower(service.serviceName);
       return src.contains('boat') || cat.contains('boat') || name.contains('boat');
     }).toList();
+    print("Boat services: ${boatServices.length}");
 
     minibusServices.value = services.where((service) {
       final src = lower(service.sourceModel);
       final cat = lower(service.categoryId?.categoryName);
-      final name = lower(service.serviceName ?? service.datumServiceName);
+      final name = lower(service.serviceName);
       return src.contains('minibus') || cat.contains('minibus') || name.contains('minibus');
     }).toList();
-
-
+    print("Minibus services: ${minibusServices.length}");
   }
-
 
   Future<void> loadMoreServices() async {
     if (hasMoreData.value && !isLoadingMore.value) {
@@ -295,17 +235,14 @@ class AllServicesController extends GetxController {
     }
   }
 
-
   void extractCategories() {
     var categorySet = <String>{};
     subcategoryMap.clear();
 
-
     for (var service in services) {
-      String categoryName = service.categoryId?.categoryName ?? "Unknown";
+      String categoryName = service.categoryId?.categoryName?.toString() ?? "Unknown";
       String subcategoryName =
-          service.subcategoryId?.subcategoryName ?? "Unknown";
-
+          service.subcategoryId?.subcategoryName?.toString() ?? "Unknown";
 
       categorySet.add(categoryName);
       subcategoryMap
@@ -313,10 +250,8 @@ class AllServicesController extends GetxController {
           .add(Model1(subcategoryName: subcategoryName));
     }
 
-
     categories.value = categorySet.toList();
   }
-
 
   Future<void> applyFilter({
     String? categoryId,
@@ -331,92 +266,16 @@ class AllServicesController extends GetxController {
       services.clear();
       _clearAllCategoryServices();
 
+      // Update selected values
+      selectedCategory.value = categoryId;
+      selectedSubcategory.value = subCategoryId;
 
-      double? minBudget;
-      double? maxBudget;
-      if (budgetRange != null && budgetRange.isNotEmpty) {
-        final parts = budgetRange.split('-');
-        if (parts.length == 2) {
-          minBudget = double.tryParse(parts[0]) ?? 0.0;
-          maxBudget = double.tryParse(parts[1]) ?? 0.0;
-        } else if (budgetRange == "200+") {
-          minBudget = 200.0;
-          maxBudget = null;
-        }
-      }
-
-
-      await _fetchAllFilteredServices(
-        categoryId: categoryId,
-        subCategoryId: subCategoryId ?? "",
-        minBudget: minBudget,
-        maxBudget: maxBudget,
-      );
+      await _fetchUnifiedOfferings(false);
     } catch (e) {
       Get.snackbar("Error", "Failed to apply filters: $e");
     } finally {
       isLoading(false);
     }
-  }
-
-
-  Future<void> _fetchAllFilteredServices({
-    String? categoryId,
-    required String subCategoryId,
-    double? minBudget,
-    double? maxBudget,
-  }) async {
-    int page = 1;
-    bool hasMore = true;
-    List<Datum> allFilteredServices = [];
-
-
-    while (hasMore && page <= 10) {
-      try {
-        final requestPayload = {
-          if (categoryId != null && categoryId.isNotEmpty)
-            "categoryId": categoryId,
-          "subCategoryId": subCategoryId,
-          "minBudget": minBudget,
-          "maxBudget": maxBudget,
-          "page": page,
-          "limit": itemsPerPage.value,
-        };
-
-
-
-
-        final response = await _apiService.postApi(apiUrl, requestPayload);
-
-
-        if (response != null) {
-          final data = FilterModel.fromJson(response);
-          if (data.success == true && data.data.isNotEmpty) {
-            var newServices = data.data
-                .where((newService) => !allFilteredServices.any(
-                    (existingService) => existingService.id == newService.id))
-                .toList();
-
-
-            allFilteredServices.addAll(newServices);
-            hasMore = data.data.length >= itemsPerPage.value;
-            page++;
-
-
-          } else {
-            hasMore = false;
-          }
-        } else {
-          hasMore = false;
-        }
-      } catch (e) {
-        hasMore = false;
-      }
-    }
-
-
-    services.value = allFilteredServices;
-    _categorizeAllServices();
   }
 
 
