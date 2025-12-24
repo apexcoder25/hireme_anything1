@@ -10,6 +10,7 @@ import 'package:hire_any_thing/data/models/vender_side_model/vendor_home_page_se
 import 'package:hire_any_thing/utilities/colors.dart';
 import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/controllers/vendor_dashboard_controller.dart';
+import 'package:hire_any_thing/constants_file/app_vendor_side_urls.dart';
 
 class HomePageAddService extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class HomePageAddService extends StatefulWidget {
 
 class _HomePageAddServiceState extends State<HomePageAddService> {
   late final ServiceController controller;
+  final AppUrlsVendorSide appUrlsVendorSide = AppUrlsVendorSide();
 
   @override
   void initState() {
@@ -203,7 +205,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
 
         List<Service> passengerTransportServices = controller.serviceList
             .where((service) =>
-                service.categoryId.categoryName == CategoryName.PASSENGER_TRANSPORT)
+                service.categoryId?.categoryName == CategoryName.PASSENGER_TRANSPORT)
             .toList();
 
         List<Service> displayedServices = passengerTransportServices;
@@ -271,65 +273,22 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                 ClipRRect(
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(15)),
-                  child: service.serviceType == "funeral"
-                      ? Image.network(
-                          service.uploadedDocuments?.fleetPhotos.isNotEmpty ==
-                                  true
-                              ? (service.uploadedDocuments?.fleetPhotos[0]
-                                      .trim() ??
-                                  "https://via.placeholder.com/400x200")
-                              : "https://via.placeholder.com/400x200",
-                          height: 200,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            print("Image load error: $error");
-                            return Container(
-                              height: 200,
-                              width: double.infinity,
-                              color: Colors.grey.shade300,
-                              child: const Center(
-                                  child: Icon(Icons.error, color: Colors.red)),
-                            );
-                          },
-                        )
-                      : service.serviceType == "boat"
-                          ? Image.network(
-                              service.serviceImage?.isNotEmpty == true
-                                  ? service.serviceImage!.first.trim()
-                                  : "https://via.placeholder.com/400x200",
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                print("Image load error: $error");
-                                return Container(
-                                  height: 200,
-                                  width: double.infinity,
-                                  color: Colors.grey.shade300,
-                                  child: const Center(
-                                      child: Icon(Icons.error, color: Colors.red)),
-                                );
-                              },
-                            )
-                          : Image.network(
-                              service.serviceImages?.isNotEmpty == true
-                                  ? service.serviceImages!.first.trim()
-                                  : "https://via.placeholder.com/400x200",
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                print("Image load error: $error");
-                                return Container(
-                                  height: 200,
-                                  width: double.infinity,
-                                  color: Colors.grey.shade300,
-                                  child: Center(
-                                      child: Icon(Icons.error, color: Colors.red)),
-                                );
-                              },
-                            ),
+                  child: Image.network(
+                    _resolveImageUrl(service),
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      print("Image load error: $error");
+                      return Container(
+                        height: 200,
+                        width: double.infinity,
+                        color: Colors.grey.shade300,
+                        child: const Center(
+                            child: Icon(Icons.error, color: Colors.red)),
+                      );
+                    },
+                  ),
                 ),
 
                 // Gradient overlay for better text visibility
@@ -389,7 +348,7 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          service.subcategoryId.subcategoryName,
+                          service.subcategoryId!.subcategoryName,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,
@@ -560,6 +519,40 @@ class _HomePageAddServiceState extends State<HomePageAddService> {
         ),
       ),
     );
+  }
+
+  String _resolveImageUrl(Service service) {
+    const String placeholder = "https://via.placeholder.com/400x200";
+
+    String? raw;
+
+    // Prefer `serviceImage` then `serviceImages`
+    if (service.serviceImage != null && service.serviceImage!.isNotEmpty) {
+      raw = service.serviceImage!.first;
+    } else if (service.serviceImages != null && service.serviceImages!.isNotEmpty) {
+      raw = service.serviceImages!.first;
+    } else if (service.uploadedDocuments?.fleetPhotos.isNotEmpty == true) {
+      final first = service.uploadedDocuments!.fleetPhotos.first;
+      if (first is String) {
+        raw = first;
+      } else if (first is Map) {
+        // Try common keys if backend sent an object
+        raw = (first['url'] ?? first['path'] ?? first['image'])?.toString();
+      } else {
+        raw = first.toString();
+      }
+    }
+
+    if (raw == null || raw.trim().isEmpty) return placeholder;
+
+    String url = raw.trim();
+    // Normalize potential leading slashes to avoid double // with base
+    url = url.replaceAll("\\", "/");
+    if (!url.startsWith("http")) {
+      final normalized = url.startsWith("/") ? url.substring(1) : url;
+      return "${appUrlsVendorSide.baseUrlImages}$normalized";
+    }
+    return url;
   }
 
   String _getPriceDisplay(Service service) {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/data/models/user_side_model/filter_model_services.dart';
+import 'package:hire_any_thing/data/models/user_side_model/unifiedOfferingsModel.dart';
 import 'package:hire_any_thing/User_app/views/Book_Service/book_service.dart';
 import 'package:hire_any_thing/User_app/views/services_details/services_details.dart';
 import 'package:intl/intl.dart';
+import 'package:hire_any_thing/utilities/colors.dart';
 
 class ServiceCard extends StatefulWidget {
   final Datum service;
@@ -15,384 +16,386 @@ class ServiceCard extends StatefulWidget {
 }
 
 class _ServiceCardState extends State<ServiceCard> {
+  
+  String _getFuneralVehicleTypes(FuneralVehicleTypes? types) {
+    if (types == null) return 'N/A';
+    List<String> available = [];
+    if (types.traditionalHearse == true) available.add('Traditional Hearse');
+    if (types.horseDrawnHearse == true) available.add('Horse Drawn Hearse');
+    if (types.limousine == true) available.add('Limousine');
+    if (types.alternativeVehicle == true) available.add('Alternative Vehicle');
+    if (available.isEmpty) return 'N/A';
+    return available.join(', ');
+  }
+
+  String _getPriceString() {
+    double? price;
+    String unit = 'day';
+
+    if (widget.service.offeringPrice != null) {
+      price = widget.service.offeringPrice!.toDouble();
+    } else if (widget.service.pricingDetails?.hourlyRate != null) {
+      price = widget.service.pricingDetails!.hourlyRate.toDouble();
+      unit = 'hour';
+    } else if (widget.service.pricing?.hourlyRate != null) {
+      price = widget.service.pricing!.hourlyRate!.toDouble();
+      unit = 'hour';
+    } else if (widget.service.pricingDetails?.dayRate != null) {
+      price = widget.service.pricingDetails!.dayRate!.toDouble();
+      unit = 'day';
+    }
+
+    if (price == null) return 'Price on Request';
+    return '/';
+  }
+
+  String _getLocationString() {
+    if (widget.service.city != null && widget.service.city!.isNotEmpty) {
+      return widget.service.city!;
+    }
+    if (widget.service.baseLocationPostcode != null && widget.service.baseLocationPostcode!.isNotEmpty) {
+      return widget.service.baseLocationPostcode!;
+    }
+    if (widget.service.basePostcode != null && widget.service.basePostcode!.isNotEmpty) {
+      return widget.service.basePostcode!;
+    }
+    return 'Location N/A';
+  }
+
+  String _getAvailabilityString() {
+    final DateFormat dateFormat = DateFormat('d MMM yyyy');
+    DateTime? from;
+    DateTime? to;
+
+    if (widget.service.bookingAvailabilityDateFrom != null) {
+      from = widget.service.bookingAvailabilityDateFrom;
+      to = widget.service.bookingAvailabilityDateTo;
+    } else {
+      from = widget.service.bookingDateFrom;
+      to = widget.service.bookingDateTo;
+    }
+
+    if (from == null) return 'Check Availability';
+    String fromStr = dateFormat.format(from.toLocal());
+    String toStr = to != null ? dateFormat.format(to.toLocal()) : '';
+    
+    return '';
+  }
+
+  void _navigateToDetails() {
+    if (widget.service.categoryId != null && widget.service.subcategoryId != null) {
+      if (widget.service.sourceModel == 'funeral') {
+        Get.to(() => ServicesDetails(
+              categoryId: widget.service.categoryId!.id ?? '',
+              subcategoryId: widget.service.subcategoryId!.id,
+              categoryName: widget.service.categoryId!.categoryName ?? '',
+              subcategoryName: widget.service.subcategoryId!.subcategoryName,
+              serviceName: widget.service.listingTitle ?? 'Unknown Service',
+              cityNames: widget.service.areasCovered?.join(', ') ?? '',
+              kmPrice: (widget.service.pricingDetails?.hourlyRate ?? 0).toDouble().toStringAsFixed(2),
+              minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
+              maxDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
+              description: widget.service.businessProfile?.promotionalDescription ?? '',
+              airon_fitted: widget.service.features?.comfort?.airConditioning == true ? 'yes' : 'no',
+              wheelChair: widget.service.features?.accessibility?.wheelchairAccessVehicle == true ? 'yes' : 'no',
+              bookingDateFrom: widget.service.bookingAvailabilityDateFrom?.toIso8601String() ?? '',
+              bookingDateTo: widget.service.bookingAvailabilityDateTo?.toIso8601String() ?? '',
+              makeAndModel: widget.service.fleetDetails?.makeModel ?? '',
+              registration: '',
+              noOfSeats: widget.service.fleetDetails?.seats,
+              serviceImage: (widget.service.serviceImage?.isNotEmpty ?? false) ? widget.service.serviceImage![0] : '',
+              service: widget.service,
+              vehicleTypes: _getFuneralVehicleTypes(widget.service.funeralVehicleTypes),
+              packageOptions: 'Standard: , VIP: ',
+            ));
+      } else if (widget.service.sourceModel == 'horse') {
+        Get.to(() => ServicesDetails(
+              categoryId: widget.service.categoryId!.id ?? '',
+              subcategoryId: widget.service.subcategoryId!.id,
+              categoryName: widget.service.categoryId!.categoryName ?? '',
+              subcategoryName: widget.service.subcategoryId!.subcategoryName,
+              serviceName: widget.service.listingTitle ?? 'Unknown Service',
+              cityNames: widget.service.serviceCoverage?.join(', ') ?? '',
+              kmPrice: (widget.service.pricing?.hourlyRate ?? 0).toDouble().toStringAsFixed(2),
+              minDistance: 'N/A',
+              maxDistance: 'N/A',
+              description: widget.service.marketing?.description ?? '',
+              airon_fitted: 'no',
+              wheelChair: 'no',
+              bookingDateFrom: widget.service.bookingAvailabilityDateFrom?.toIso8601String() ?? '',
+              bookingDateTo: widget.service.bookingAvailabilityDateTo?.toIso8601String() ?? '',
+              makeAndModel: '',
+              registration: '',
+              noOfSeats: null,
+              serviceImage: (widget.service.serviceImages?.isNotEmpty ?? false) ? widget.service.serviceImages![0] : '',
+              service: widget.service,
+              carriageTypes: widget.service.carriageDetails?.carriageType ?? '',
+              horseTypes: widget.service.carriageDetails?.horseBreeds.join(', ') ?? '',
+            ));
+      } else if (widget.service.sourceModel == 'chauffeur') {
+        Get.to(() => ServicesDetails(
+              categoryId: widget.service.categoryId!.id ?? '',
+              subcategoryId: widget.service.subcategoryId!.id,
+              categoryName: widget.service.categoryId!.categoryName ?? '',
+              subcategoryName: widget.service.subcategoryId!.subcategoryName,
+              serviceName: widget.service.listingTitle ?? 'Unknown Service',
+              cityNames: widget.service.areasCovered?.join(', ') ?? '',
+              kmPrice: (widget.service.pricingDetails?.hourlyRate ?? 0).toDouble().toStringAsFixed(2),
+              minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
+              maxDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
+              description: widget.service.businessProfile?.promotionalDescription ?? '',
+              airon_fitted: widget.service.features?.comfort?.airConditioning == true ? 'yes' : 'no',
+              wheelChair: widget.service.features?.accessibility?.wheelchairAccessVehicle == true ? 'yes' : 'no',
+              bookingDateFrom: widget.service.bookingDateFrom?.toIso8601String() ?? '',
+              bookingDateTo: widget.service.bookingDateTo?.toIso8601String() ?? '',
+              makeAndModel: widget.service.fleetInfo?.makeAndModel ?? '',
+              registration: '',
+              noOfSeats: widget.service.fleetInfo?.seats,
+              serviceImage: (widget.service.serviceImage?.isNotEmpty ?? false) ? widget.service.serviceImage![0] : '',
+              service: widget.service,
+              vehicleType: widget.service.fleetType ?? '',
+            ));
+      } else {
+         Get.to(() => ServicesDetails(
+              categoryId: widget.service.categoryId?.id ?? '',
+              subcategoryId: widget.service.subcategoryId?.id ?? '',
+              categoryName: widget.service.categoryId?.categoryName ?? '',
+              subcategoryName: widget.service.subcategoryId?.subcategoryName ?? '',
+              serviceName: widget.service.listingTitle ?? widget.service.serviceName ?? 'Service',
+              cityNames: widget.service.city ?? '',
+              kmPrice: '0.00',
+              description: widget.service.description ?? '',
+              bookingDateFrom: widget.service.bookingDateFrom?.toIso8601String() ?? '',
+              bookingDateTo: widget.service.bookingDateTo?.toIso8601String() ?? '',
+              serviceImage: (widget.service.serviceImage?.isNotEmpty ?? false) ? widget.service.serviceImage![0] : '',
+              service: widget.service,
+            ));
+      }
+    } else {
+      Get.snackbar('Error', 'Category or Subcategory is missing');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    const double rating = 0.0; // Placeholder; update if rating is added to Datum
-    print("Rendering card for: ${widget.service.serviceName}, _sourceModel: ${widget.service.sourceModel}");
-
-    // Date formatting
-    final DateFormat dateFormat = DateFormat('d MMM yyyy');
-    String formattedFromDate = widget.service.sourceModel == "horse"
-        ? (widget.service.availabilityPeriod?.from != null ? dateFormat.format(widget.service.availabilityPeriod!.from!.toLocal()) : 'Start')
-        : widget.service.sourceModel == "funeral"
-            ? (widget.service.bookingAvailabilityDateFrom != null ? dateFormat.format(widget.service.bookingAvailabilityDateFrom!.toLocal()) : 'Start')
-            : (widget.service.datumBookingDateFrom != null ? dateFormat.format(widget.service.datumBookingDateFrom!.toLocal()) : 'Start');
-    String formattedToDate = widget.service.sourceModel == "horse"
-        ? (widget.service.availabilityPeriod?.to != null ? dateFormat.format(widget.service.availabilityPeriod!.to!.toLocal()) : 'End')
-        : widget.service.sourceModel == "funeral"
-            ? (widget.service.bookingAvailabilityDateTo != null ? dateFormat.format(widget.service.bookingAvailabilityDateTo!.toLocal()) : 'End')
-            : (widget.service.datumBookingDateTo != null
-                ? dateFormat.format(DateTime.parse(widget.service.datumBookingDateTo!).toLocal())
-                : 'End');
-
-    // Determine banner content
-    String bannerText = (widget.service.coupons?.isNotEmpty ?? false)
-        ? "Special Offer"
-        : widget.service.sourceModel == "funeral"
-            ? "Hourly: £${widget.service.pricingDetails?.hourlyRate?.toStringAsFixed(2) ?? 'N/A'}"
-            : widget.service.sourceModel == "horse"
-                ? "Hourly: £${widget.service.pricing?.hourlyRate?.toStringAsFixed(2) ?? 'N/A'} (incl. Fuel)"
-                : "Hourly: £${widget.service.pricingDetails?.hourlyRate?.toStringAsFixed(2) ?? 'N/A'} (per Seat)";
+    String imageUrl = (widget.service.serviceImage?.isNotEmpty ?? false)
+        ? widget.service.serviceImage![0]
+        : (widget.service.primaryImage?.isNotEmpty ?? false)
+            ? widget.service.primaryImage!
+            : 'https://hireanything.com/image/about.png';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.only(bottom: 20, left: 10, right: 10),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 3),
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 15,
+              offset: Offset(0, 5),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Image Section
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                   child: Image.network(
-                    widget.service.serviceImage.isNotEmpty
-                        ? widget.service.serviceImage[0]
-                        : "https://hireanything.com/image/about.png",
-                    height: 140,
+                    imageUrl,
+                    height: 200,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Image.network(
-                      "https://hireanything.com/image/about.png",
-                      fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 200,
+                      color: Colors.grey[200],
+                      child: Icon(Icons.image_not_supported, color: Colors.grey),
                     ),
                   ),
                 ),
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                      gradient: LinearGradient(
-                        colors: [Colors.transparent, Colors.black87],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
-                ),
-                if (widget.service.categoryId?.categoryName != null)
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: _buildLabel(widget.service.categoryId!.categoryName!, Colors.green),
-                  ),
-                if ((widget.service.coupons?.isNotEmpty ?? false))
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: _buildLabel("Special Offer", Colors.redAccent),
-                  ),
-                // Hourly rate or special offer banner
-                if (!(widget.service.coupons?.isNotEmpty ?? false))
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.yellow[700],
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        bannerText,
-                        style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
+                // Verified Badge
                 Positioned(
-                  bottom: 10,
-                  left: 10,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.service.sourceModel == "horse"
-                            ? (widget.service.serviceName ?? '')
-                            : (widget.service.datumServiceName ?? widget.service.serviceName ?? 'Unknown Service'),
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      if (widget.service.fleetInfo?.seats != null)
-                        Row(
-                          children: [
-                            Icon(Icons.event_seat, color: Colors.white, size: 14),
-                            SizedBox(width: 4),
-                            Text(
-                              widget.service.fleetInfo!.seats.toString(),
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.verified_user_outlined, color: Colors.white, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          'Verified',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
-                    ],
+                      ],
+                    ),
+                  ),
+                ),
+                // Favorite Icon
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 18,
+                    child: Icon(Icons.favorite_border, color: Colors.grey, size: 20),
+                  ),
+                ),
+                // Price Overlay
+                Positioned(
+                  bottom: 12,
+                  right: 12,
+                  child: Text(
+                    _getPriceString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 1),
+                          blurRadius: 3.0,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
+
+            // Content Section
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Tags
                   Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
-                      if (widget.service.subcategoryId?.subcategoryName != null)
-                        _buildBadge(widget.service.subcategoryId!.subcategoryName!, Colors.blue),
                       if (widget.service.categoryId?.categoryName != null)
-                        _buildBadge(widget.service.categoryId!.categoryName!, Colors.green),
+                        _buildTag(widget.service.categoryId!.categoryName!),
+                      if (widget.service.subcategoryId?.subcategoryName != null)
+                        _buildTag(widget.service.subcategoryId!.subcategoryName!),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 12),
+                  
+                  // Title
+                  Text(
+                    widget.service.serviceName ?? widget.service.listingTitle ?? 'Service Name',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 16),
+
+                  // Location
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
+                      Icon(Icons.location_on_outlined, color: Colors.grey[600], size: 20),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          widget.service.sourceModel == "horse"
-                              ? "${widget.service.serviceAreas?.isNotEmpty == true ? widget.service.serviceAreas!.take(3).join(', ') : 'N/A'}${widget.service.serviceAreas?.length != null && widget.service.serviceAreas!.length > 3 ? ' +${widget.service.serviceAreas!.length - 3} more' : ''}"
-                              : "${widget.service.areasCovered?.isNotEmpty == true ? widget.service.areasCovered!.take(3).join(', ') : 'N/A'}${widget.service.areasCovered?.length != null && widget.service.areasCovered!.length > 3 ? ' +${widget.service.areasCovered!.length - 3} more' : ''}",
-                          style: TextStyle(fontSize: 13),
+                          '  +682 more', // Hardcoded suffix as per image request
+                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Icon(Icons.star, color: Colors.amber, size: 16),
-                      const SizedBox(width: 4),
-                      Text("New", style: TextStyle(fontWeight: FontWeight.w600)),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
+
+                  // Availability
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 14, color: Colors.grey),
-                      const SizedBox(width: 6),
-                      Text(
-                        "$formattedFromDate - $formattedToDate",
-                        style: TextStyle(fontSize: 13),
+                      Icon(Icons.calendar_today_outlined, color: Colors.grey[600], size: 18),
+                      SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Available',
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14
+                            ),
+                          ),
+                          Text(
+                            _getAvailabilityString(),
+                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  // Specific details and pricing based on _sourceModel
-                  if (widget.service.sourceModel == "funeral")
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Vehicle Types: ${widget.service.funeralVehicleTypes?.join(', ') ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Packages: Standard: ${widget.service.funeralPackageOptions?.standard ?? 0}, VIP: ${widget.service.funeralPackageOptions?.vipExecutive ?? 0}", style: TextStyle(fontSize: 13)),
-                        const SizedBox(height: 4),
-                        Text("Pricing Details:", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                        Text("Day Rate: £${widget.service.pricingDetails?.dayRate?.toStringAsFixed(2) ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Half Day Rate: £${widget.service.pricingDetails?.halfDayRate?.toStringAsFixed(2) ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Hourly Rate: £${widget.service.pricingDetails?.hourlyRate?.toStringAsFixed(2) ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Mileage Limit: ${widget.service.pricingDetails?.mileageLimit?.toString() ?? 'N/A'} miles", style: TextStyle(fontSize: 13)),
-                        Text("Extra Mileage: £${widget.service.pricingDetails?.extraMileageCharge?.toStringAsFixed(2) ?? 'N/A'}/mile", style: TextStyle(fontSize: 13)),
-                        Text("Wait Time Fee: £${widget.service.pricingDetails?.waitTimeFeePerHour?.toStringAsFixed(2) ?? 'N/A'}/hr", style: TextStyle(fontSize: 13)),
-                        Text("Floral Service Fee: £${widget.service.pricingDetails?.decoratingFloralServiceFee?.toStringAsFixed(2) ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                      ],
-                    ),
-                  if (widget.service.sourceModel == "horse")
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Carriage Types: ${widget.service.serviceDetails?.carriageTypes?.join(', ') ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Horse Types: ${widget.service.serviceDetails?.horseTypes?.join(', ') ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Number of Carriages: ${widget.service.serviceDetails?.numberOfCarriages?.toString() ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        const SizedBox(height: 4),
-                        Text("Pricing Details:", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                        Text("Day Rate: £${widget.service.pricing?.fullDayRate?.toStringAsFixed(2) ?? 'N/A'} (incl. Fuel)", style: TextStyle(fontSize: 13)),
-                        Text("Half Day Rate: £${widget.service.pricing?.halfDayRate?.toStringAsFixed(2) ?? 'N/A'} (incl. Fuel)", style: TextStyle(fontSize: 13)),
-                        Text("Hourly Rate: £${widget.service.pricing?.hourlyRate?.toStringAsFixed(2) ?? 'N/A'} (incl. Fuel)", style: TextStyle(fontSize: 13)),
-                      ],
-                    ),
-                  if (widget.service.sourceModel == "chauffeur")
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Vehicle Type: ${widget.service.vehicleType ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Make/Model: ${widget.service.fleetInfo?.makeAndModel ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        Text("Seats: ${widget.service.fleetInfo?.seats?.toString() ?? 'N/A'}", style: TextStyle(fontSize: 13)),
-                        const SizedBox(height: 4),
-                        Text("Pricing Details:", style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                        Text("Day Rate: £${widget.service.pricingDetails?.dayRate?.toStringAsFixed(2) ?? 'N/A'} (per Seat)", style: TextStyle(fontSize: 13)),
-                        Text("Half Day Rate: £${widget.service.pricingDetails?.halfDayRate?.toStringAsFixed(2) ?? 'N/A'} (per Seat)", style: TextStyle(fontSize: 13)),
-                        Text("Hourly Rate: £${widget.service.pricingDetails?.hourlyRate?.toStringAsFixed(2) ?? 'N/A'} (per Seat)", style: TextStyle(fontSize: 13)),
-                      ],
-                    ),
-                  const SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: () {
-                      if (widget.service.categoryId != null && widget.service.subcategoryId != null) {
-                        if (widget.service.sourceModel == "funeral") {
-                          Get.to(() => ServicesDetails(
-                                categoryId: widget.service.categoryId!.id ?? "",
-                                subcategoryId: widget.service.subcategoryId!.id ?? "",
-                                categoryName: widget.service.categoryId!.categoryName ?? "",
-                                subcategoryName: widget.service.subcategoryId!.subcategoryName ?? "",
-                                serviceName: widget.service.serviceName ?? widget.service.datumServiceName ?? 'Unknown Service',
-                                cityNames: widget.service.areasCovered.join(", "),
-                                kmPrice: (widget.service.pricingDetails?.hourlyRate ?? 0.0).toStringAsFixed(2),
-                                minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                maxDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                description: widget.service.businessProfile?.description ?? "",
-                                airon_fitted: widget.service.features?.comfort?.airConditioning == true ? "yes" : "no",
-                                wheelChair: widget.service.features?.accessibility?.wheelchairAccessVehicle == true ? "yes" : "no",
-                                bookingDateFrom: widget.service.bookingAvailabilityDateFrom?.toIso8601String() ?? "",
-                                bookingDateTo: widget.service.bookingAvailabilityDateTo?.toIso8601String() ?? "",
-                                makeAndModel: widget.service.fleetDetails?.makeModel ?? "",
-                                registration: widget.service.fleetDetails?.notes ?? "",
-                                noOfSeats: widget.service.fleetDetails?.capacity,
-                                serviceImage: widget.service.serviceImage.isNotEmpty ? widget.service.serviceImage[0] : "",
-                                service: widget.service,
-                                vehicleTypes: widget.service.funeralVehicleTypes?.join(", ") ?? "",
-                                packageOptions: "Standard: ${widget.service.funeralPackageOptions?.standard ?? 0}, VIP: ${widget.service.funeralPackageOptions?.vipExecutive ?? 0}",
-                              ));
-                        } else if (widget.service.sourceModel == "horse") {
-                          Get.to(() => ServicesDetails(
-                                categoryId: widget.service.categoryId!.id ?? "",
-                                subcategoryId: widget.service.subcategoryId!.id ?? "",
-                                categoryName: widget.service.categoryId!.categoryName ?? "",
-                                subcategoryName: widget.service.subcategoryId!.subcategoryName ?? "",
-                                serviceName: widget.service.serviceName ?? 'Unknown Service',
-                                cityNames: widget.service.serviceAreas.join(", "),
-                                kmPrice: (widget.service.pricing?.hourlyRate ?? 0.0).toStringAsFixed(2),
-                                minDistance: "N/A",
-                                maxDistance: "N/A",
-                                description: widget.service.marketing?.description ?? "",
-                                airon_fitted: "no", // Assuming no air conditioning for horses
-                                wheelChair: "no", // Assuming no wheelchair access for horses
-                                bookingDateFrom: widget.service.availabilityPeriod?.from?.toIso8601String() ?? "",
-                                bookingDateTo: widget.service.availabilityPeriod?.to?.toIso8601String() ?? "",
-                                makeAndModel: "",
-                                registration: "",
-                                noOfSeats: null,
-                                serviceImage: widget.service.images.isNotEmpty ? widget.service.images[0] : "",
-                                service: widget.service,
-                                carriageTypes: widget.service.serviceDetails?.carriageTypes?.join(", ") ?? "",
-                                horseTypes: widget.service.serviceDetails?.horseTypes?.join(", ") ?? "",
-                              ));
-                        } else if (widget.service.sourceModel == "chauffeur") {
-                          Get.to(() => ServicesDetails(
-                                categoryId: widget.service.categoryId!.id ?? "",
-                                subcategoryId: widget.service.subcategoryId!.id ?? "",
-                                categoryName: widget.service.categoryId!.categoryName ?? "",
-                                subcategoryName: widget.service.subcategoryId!.subcategoryName ?? "",
-                                serviceName: widget.service.serviceName ?? widget.service.datumServiceName ?? 'Unknown Service',
-                                cityNames: widget.service.areasCovered.join(", "),
-                                kmPrice: (widget.service.pricingDetails?.hourlyRate ?? 0.0).toStringAsFixed(2),
-                                minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                maxDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                description: widget.service.businessProfile?.description ?? "",
-                                airon_fitted: widget.service.features?.comfort?.airConditioning == true ? "yes" : "no",
-                                wheelChair: widget.service.features?.accessibility?.wheelchairAccessVehicle == true ? "yes" : "no",
-                                bookingDateFrom: widget.service.datumBookingDateFrom?.toIso8601String() ?? "",
-                                bookingDateTo: widget.service.datumBookingDateTo != null
-                                    ? DateTime.tryParse(widget.service.datumBookingDateTo!)?.toIso8601String() ?? ""
-                                    : "",
-                                makeAndModel: widget.service.fleetInfo?.makeAndModel ?? "",
-                                registration: widget.service.fleetInfo?.chauffeurName ?? "",
-                                noOfSeats: widget.service.fleetInfo?.seats,
-                                serviceImage: widget.service.serviceImage.isNotEmpty ? widget.service.serviceImage[0] : "",
-                                service: widget.service,
-                                vehicleType: widget.service.vehicleType ?? "",
-                              ));
-                        }
-                      } else {
-                        Get.snackbar("Error", "Category or Subcategory is missing");
-                      }
-                    },
-                    child: Center(
-                      child: Text(
-                        "Show more details",
-                        style: TextStyle(color: Colors.grey),
+                  SizedBox(height: 12),
+
+                  // Status
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle_outline, color: Colors.green, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        'Available Now',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 20),
+
+                  // Button
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        if (widget.service.categoryId != null && widget.service.subcategoryId != null) {
-                          if (widget.service.sourceModel == "funeral") {
-                            Get.to(() => BookServices(
-                                  id: widget.service.id ?? "",
-                                  categoryId: widget.service.categoryId!.id ?? "",
-                                  subcategoryId: widget.service.subcategoryId!.id ?? "",
-                                  fromDate: widget.service.bookingAvailabilityDateFrom?.toIso8601String() ?? "",
-                                  todate: widget.service.bookingAvailabilityDateTo?.toIso8601String() ?? "",
-                                  capacity: widget.service.fleetDetails?.capacity?.toString() ?? "0",
-                                  minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                  maxDistsnce: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                  ServiceCities: widget.service.areasCovered.join(", "),
-                                  vehicleTypes: widget.service.funeralVehicleTypes?.join(", ") ?? "",
-                                  packageOptions: "Standard: ${widget.service.funeralPackageOptions?.standard ?? 0}, VIP: ${widget.service.funeralPackageOptions?.vipExecutive ?? 0}",
-                                ));
-                          } else if (widget.service.sourceModel == "horse") {
-                            Get.to(() => BookServices(
-                                  id: widget.service.id ?? "",
-                                  categoryId: widget.service.categoryId!.id ?? "",
-                                  subcategoryId: widget.service.subcategoryId!.id ?? "",
-                                  fromDate: widget.service.availabilityPeriod?.from?.toIso8601String() ?? "",
-                                  todate: widget.service.availabilityPeriod?.to?.toIso8601String() ?? "",
-                                  capacity: widget.service.serviceDetails?.numberOfCarriages?.toString() ?? "0",
-                                  minDistance: "N/A",
-                                  maxDistsnce: "N/A",
-                                  ServiceCities: widget.service.serviceAreas.join(", "),
-                                  carriageTypes: widget.service.serviceDetails?.carriageTypes?.join(", ") ?? "",
-                                  horseTypes: widget.service.serviceDetails?.horseTypes?.join(", ") ?? "",
-                                ));
-                          } else if (widget.service.sourceModel == "chauffeur") {
-                            Get.to(() => BookServices(
-                                  id: widget.service.id ?? "",
-                                  categoryId: widget.service.categoryId!.id ?? "",
-                                  subcategoryId: widget.service.subcategoryId!.id ?? "",
-                                  fromDate: widget.service.datumBookingDateFrom?.toIso8601String() ?? "",
-                                  todate: widget.service.datumBookingDateTo != null
-                                      ? DateTime.tryParse(widget.service.datumBookingDateTo!)?.toIso8601String() ?? ""
-                                      : "",
-                                  capacity: widget.service.fleetInfo?.seats?.toString() ?? "0",
-                                  minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                  maxDistsnce: widget.service.pricingDetails?.mileageLimit?.toString() ?? "0",
-                                  ServiceCities: widget.service.areasCovered.join(", "),
-                                  vehicleType: widget.service.vehicleType ?? "",
-                                  makeModel: widget.service.fleetInfo?.makeAndModel ?? "",
-                                ));
-                          }
-                        } else {
-                          Get.snackbar("Error", "Category or Subcategory is missing");
-                        }
-                      },
-                      icon: Icon(Icons.info_outline, color: Colors.black),
+                    child: ElevatedButton(
+                      onPressed: _navigateToDetails,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade100,
-                        padding: EdgeInsets.symmetric(vertical: 12),
+                        backgroundColor: Color(0xFF1976D2), // Blue color from image
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
                       ),
-                      label: Text(
-                        "Booking & Details",
-                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Booking and Details',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.arrow_forward, size: 20),
+                        ],
                       ),
                     ),
                   ),
@@ -405,27 +408,20 @@ class _ServiceCardState extends State<ServiceCard> {
     );
   }
 
-  Widget _buildLabel(String text, Color color) {
+  Widget _buildTag(String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(text, style: TextStyle(color: Colors.white, fontSize: 12)),
-    );
-  }
-
-  Widget _buildBadge(String text, Color color) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: Color(0xFFE3F2FD), // Light blue
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         text,
-        style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w500),
+        style: TextStyle(
+          color: Color(0xFF1976D2), // Blue text
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
       ),
     );
   }
