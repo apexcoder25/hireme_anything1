@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Auth/agree.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/AddServiceWizardScreen.dart';
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/controllers/vendor_dashboard_controller.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/profile_controller.dart';
 import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
@@ -58,8 +59,7 @@ class _VendorDrawerState extends State<VendorDrawer> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
               child: Text(
                 "Cancel",
@@ -71,11 +71,8 @@ class _VendorDrawerState extends State<VendorDrawer> {
             ),
             ElevatedButton(
               onPressed: () async {
-                // Show loading
                 Get.dialog(
-                  const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  const Center(child: CircularProgressIndicator()),
                   barrierDismissible: false,
                 );
 
@@ -83,14 +80,10 @@ class _VendorDrawerState extends State<VendorDrawer> {
                   final sessionManager = SessionVendorSideManager();
                   await sessionManager.deleteSession();
 
-                  // Close loading dialog
-                  Get.back();
-                  // Close logout dialog
-                  Get.back();
-                  // Close drawer
-                  Get.back();
+                  Get.back(); // Close loading
+                  Get.back(); // Close dialog
+                  Get.back(); // Close drawer
 
-                  // Navigate to login screen
                   Get.offAll(() => const Agree_screen());
 
                   Get.snackbar(
@@ -102,9 +95,7 @@ class _VendorDrawerState extends State<VendorDrawer> {
                     duration: const Duration(seconds: 2),
                   );
                 } catch (e) {
-                  // Close loading dialog
-                  Get.back();
-
+                  Get.back(); // Close loading
                   Get.snackbar(
                     'Error',
                     'Failed to logout. Please try again.',
@@ -116,18 +107,12 @@ class _VendorDrawerState extends State<VendorDrawer> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade600,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text(
                 "Logout",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
               ),
             ),
           ],
@@ -150,64 +135,43 @@ class _VendorDrawerState extends State<VendorDrawer> {
 
     return Drawer(
       child: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xff1D1E22),
-        ),
+        decoration: const BoxDecoration(color: Color(0xff1D1E22)),
         child: Column(
           children: [
-            // Header with profile info
+            // Header with profile
             Obx(() {
               var profile = profileController.profile.value;
               return DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Color(0xff1D1E22),
-                ),
+                decoration: const BoxDecoration(color: Color(0xff1D1E22)),
                 child: Column(
                   children: [
-                    // Profile Image with border
                     Container(
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 2,
-                        ),
+                        border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
                       ),
                       child: CircleAvatar(
-                        backgroundImage: profile?.vendorImage != null &&
-                                profile!.vendorImage.isNotEmpty
+                        backgroundImage: profile?.vendorImage != null && profile!.vendorImage.isNotEmpty
                             ? NetworkImage(profile.vendorImage)
-                            : const AssetImage('assets/image_new/user.png')
-                                as ImageProvider,
+                            : const AssetImage('assets/image_new/user.png') as ImageProvider,
                         radius: 35,
                         backgroundColor: Colors.grey.shade300,
-                        onBackgroundImageError: (exception, stackTrace) {
-                          print('Profile image load error: $exception');
-                        },
+                        onBackgroundImageError: (_, __) {},
                       ),
                     ),
                     const SizedBox(height: 10),
-                    // Name
                     Text(
                       profile?.name ?? 'Vendor Name',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    // const SizedBox(height: 5),
                     if (profile?.email != null)
                       Text(
                         profile!.email,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -234,16 +198,21 @@ class _VendorDrawerState extends State<VendorDrawer> {
                     title: 'Vendor Profile',
                     index: 1,
                   ),
+                  // NEW: Add Services → Wizard
                   _buildNavigationItem(
-                    icon: Icons.miscellaneous_services_outlined,
-                    activeIcon: Icons.miscellaneous_services,
+                    icon: Icons.add_business_outlined,
+                    activeIcon: Icons.add_business,
                     title: 'Add Services',
                     index: 2,
+                    onTapOverride: () {
+                      Navigator.of(context).pop(); // Close drawer
+                      Get.to(() => AddServiceWizardScreen()); // Open wizard
+                    },
                   ),
                   _buildNavigationItem(
                     icon: Icons.stacked_line_chart_outlined,
                     activeIcon: Icons.stacked_line_chart,
-                    title: 'Booking Status',
+                    title: 'Booking',
                     index: 3,
                   ),
                   _buildNavigationItem(
@@ -259,13 +228,9 @@ class _VendorDrawerState extends State<VendorDrawer> {
                     index: 5,
                   ),
 
-                  // Divider
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Divider(
-                      color: Colors.white24,
-                      thickness: 0.5,
-                    ),
+                    child: Divider(color: Colors.white24, thickness: 0.5),
                   ),
 
                   _buildLogoutItem(),
@@ -278,18 +243,11 @@ class _VendorDrawerState extends State<VendorDrawer> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  const Divider(
-                    color: Colors.white24,
-                    thickness: 0.5,
-                  ),
+                  const Divider(color: Colors.white24, thickness: 0.5),
                   const SizedBox(height: 10),
                   Text(
                     'HireAnything Vendor',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
                   ),
                 ],
               ),
@@ -305,6 +263,7 @@ class _VendorDrawerState extends State<VendorDrawer> {
     required IconData activeIcon,
     required String title,
     required int index,
+    VoidCallback? onTapOverride,
   }) {
     return Obx(() {
       bool isSelected = widget.controller.selectedIndex.value == index;
@@ -313,12 +272,10 @@ class _VendorDrawerState extends State<VendorDrawer> {
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color:
-              isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
         ),
         child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           leading: Icon(
             isSelected ? activeIcon : icon,
             color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
@@ -336,19 +293,15 @@ class _VendorDrawerState extends State<VendorDrawer> {
               ? Container(
                   width: 6,
                   height: 6,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                 )
               : null,
-          onTap: () {
-            widget.controller.changeTab(index);
-            Navigator.of(context).pop(); // Close drawer
-          },
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          onTap: onTapOverride ??
+              () {
+                widget.controller.changeTab(index);
+                Navigator.of(context).pop(); // Close drawer
+              },
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           hoverColor: Colors.white.withOpacity(0.05),
           splashColor: Colors.white.withOpacity(0.1),
         ),
@@ -359,31 +312,15 @@ class _VendorDrawerState extends State<VendorDrawer> {
   Widget _buildLogoutItem() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.transparent,
-      ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        leading: Icon(
-          Icons.logout_outlined,
-          color: Colors.red.shade400,
-          size: 22,
-        ),
+        leading: Icon(Icons.logout_outlined, color: Colors.red.shade400, size: 22),
         title: Text(
           'Logout',
-          style: TextStyle(
-            color: Colors.red.shade400,
-            fontSize: 15,
-            fontWeight: FontWeight.w400,
-          ),
+          style: TextStyle(color: Colors.red.shade400, fontSize: 15),
         ),
-        onTap: () {
-          _showLogoutDialog(context);
-        },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        onTap: () => _showLogoutDialog(context),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         hoverColor: Colors.white.withOpacity(0.05),
         splashColor: Colors.white.withOpacity(0.1),
       ),

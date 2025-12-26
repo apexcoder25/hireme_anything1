@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
-import 'package:hire_any_thing/Vendor_App/view/profile_page/components/document_upload_section.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/components/profile_header.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/components/profile_info_section.dart';
-import 'package:hire_any_thing/Vendor_App/view/profile_page/components/vehicle_gallery_section.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/widgets/floating_edit_button.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/widgets/profile_error_widget.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/widgets/profile_loading_widget.dart';
@@ -27,12 +25,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   final DocumentController docController = Get.put(DocumentController(), tag: 'documentController');
   bool isEditing = false;
   bool openedFromValidation = false;
+  final GlobalKey<ProfileInfoSectionState> _infoSectionKey = GlobalKey<ProfileInfoSectionState>();
 
   late AnimationController _animationController;
   late AnimationController _editButtonController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _editButtonAnimation;
-  
+
   Worker? _profileWorker;
 
   final TextEditingController nameController = TextEditingController();
@@ -44,6 +43,10 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
   final TextEditingController countryNameController = TextEditingController();
   final TextEditingController pincodeController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+
+  // Public GlobalKey to access ProfileInfoSection state safely
+  
 
   @override
   void initState() {
@@ -57,58 +60,45 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     _editButtonController = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    );
 
-    _editButtonAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _editButtonController,
-      curve: Curves.elasticOut,
-    ));
+    _editButtonAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _editButtonController, curve: Curves.elasticOut),
+    );
   }
 
   void _initializeController() {
-    // Try to find existing controller first, if not found, create new one
     if (Get.isRegistered<ProfileController>(tag: 'profileController')) {
       controller = Get.find<ProfileController>(tag: 'profileController');
-      // Refresh profile data when navigating back
       controller.fetchProfile();
     } else {
       controller = Get.put(ProfileController(apiService: apiService), tag: 'profileController');
     }
 
-    // Check if opened from validation dialog
     final args = Get.arguments;
     if (args != null && args is Map) {
       if (args['openCompanyInfo'] == true || args['openBankDetails'] == true) {
         openedFromValidation = true;
-        isEditing = true; // Automatically enable edit mode
+        isEditing = true;
       }
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _animationController.forward();
       _editButtonController.forward();
-      
-      // Populate controllers if profile already exists
+
       if (controller.profile.value != null) {
         _populateControllers(controller.profile.value!);
       }
-      
-      // Store the worker so we can dispose it later
+
       _profileWorker = ever(controller.profile, (ProfileModel? profile) {
         if (profile != null && mounted) {
           _populateControllers(profile);
@@ -119,33 +109,28 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
 
   void _populateControllers(ProfileModel profile) {
     if (!mounted) return;
-    
-    nameController.text = profile.name;
-    emailController.text = profile.email;
-    mobileNoController.text = profile.mobileNo;
-    countryCodeController.text = profile.countryCode;
-    cityNameController.text = profile.cityName;
-    streetNameController.text = profile.streetName;
-    countryNameController.text = profile.countryName;
-    pincodeController.text = profile.pincode;
-    genderController.text = profile.gender;
 
-    docController.setDocumentsFromProfile(profile.legalDocuments);
-    imgController.setVendorImage(profile.vendorImage);
-    imgController.setVehicleImages(profile.vehicleImages);
+    nameController.text = profile.name ?? '';
+    emailController.text = profile.email ?? '';
+    mobileNoController.text = profile.mobileNo ?? '';
+    countryCodeController.text = profile.countryCode ?? '';
+    cityNameController.text = profile.cityName ?? '';
+    streetNameController.text = profile.streetName ?? '';
+    countryNameController.text = profile.countryName ?? 'United Kingdom';
+    pincodeController.text = profile.pincode ?? '';
+    genderController.text = profile.gender ?? '';
+    descriptionController.text = profile.description ?? '';
+
+    docController.setDocumentsFromProfile(profile.legalDocuments ?? []);
+    imgController.setVendorImage(profile.vendorImage ?? '');
+    imgController.setVehicleImages(profile.vehicleImages ?? []);
   }
 
   @override
   void dispose() {
-    // Dispose the GetX worker first to stop listening to profile changes
     _profileWorker?.dispose();
     _animationController.dispose();
     _editButtonController.dispose();
-    _disposeControllers();
-    super.dispose();
-  }
-
-  void _disposeControllers() {
     nameController.dispose();
     emailController.dispose();
     mobileNoController.dispose();
@@ -155,11 +140,12 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     countryNameController.dispose();
     pincodeController.dispose();
     genderController.dispose();
+    descriptionController.dispose();
+    super.dispose();
   }
 
   void _toggleEditMode() async {
     if (isEditing) {
-      // Validate required company fields if opened from validation
       if (openedFromValidation && !_validateRequiredFields()) {
         Get.snackbar(
           'Required Information',
@@ -171,14 +157,14 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
         );
         return;
       }
-      
+
       await _saveProfile();
     }
-    
+
     setState(() {
       isEditing = !isEditing;
     });
-    
+
     _editButtonController.reset();
     _editButtonController.forward();
   }
@@ -187,40 +173,58 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
     return cityNameController.text.trim().isNotEmpty &&
            streetNameController.text.trim().isNotEmpty;
   }
+Future<void> _saveProfile() async {
+  final currentProfile = controller.profile.value!;
+  final oldEmail = currentProfile.email?.trim().toLowerCase() ?? '';
+  final newEmail = emailController.text.trim().toLowerCase();
 
-  Future<void> _saveProfile() async {
-    final profile = controller.profile.value!;
-    
-    final updatedProfile = ProfileModel(
-      id: profile.id,
-      name: nameController.text.trim(),
-      email: emailController.text.trim(),
-      mobileNo: mobileNoController.text.trim(),
-      countryCode: countryCodeController.text.trim(),
-      companyName: profile.companyName,
-      streetName: streetNameController.text.trim(),
-      cityName: cityNameController.text.trim(),
-      countryName: countryNameController.text.trim(),
-      pincode: pincodeController.text.trim(),
-      gender: genderController.text.trim(),
-      description: profile.description,
-      vendorImage: imgController.vendorImage.value,
-      legalDocuments: docController.uploadedDocumentUrls.toList(),
-      vehicleImages: imgController.vehicleImages.toList(),
-    );
-
-    await controller.updateProfile(
-      updatedProfile,
-      docController.uploadedDocumentUrls.toList(),
-      imgController.vehicleImages.toList(),
-    );
+  // Check if email changed
+  if (oldEmail != newEmail && newEmail.isNotEmpty) {
+    final state = _infoSectionKey.currentState;
+    if (state is ProfileInfoSectionState) {
+      if (!state.isEmailVerified) {
+        Get.snackbar(
+          "Email Verification Required",
+          "Please verify your new email address before saving.",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 4),
+        );
+        return;
+      }
+    }
   }
+
+  // Proceed with saving...
+  final updatedProfile = ProfileModel(
+    id: currentProfile.id,
+    name: nameController.text.trim(),
+    email: emailController.text.trim(),
+    mobileNo: mobileNoController.text.trim(),
+    countryCode: countryCodeController.text.trim(),
+    companyName: currentProfile.companyName,
+    streetName: streetNameController.text.trim(),
+    cityName: cityNameController.text.trim(),
+    countryName: countryNameController.text.trim(), // From dropdown
+    pincode: pincodeController.text.trim(),
+    gender: genderController.text.trim(),
+    description: descriptionController.text.trim(),
+    vendorImage: imgController.vendorImage.value,
+    legalDocuments: docController.uploadedDocumentUrls.toList(),
+    vehicleImages: imgController.vehicleImages.toList(),
+  );
+
+  await controller.updateProfile(
+    updatedProfile,
+    docController.uploadedDocumentUrls.toList(),
+    imgController.vehicleImages.toList(),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // If opened from validation and required fields not filled, prevent back navigation
         if (openedFromValidation && !_validateRequiredFields()) {
           Get.snackbar(
             'Required Information',
@@ -283,6 +287,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     ProfileInfoSection(
+                      key: _infoSectionKey, // Attach the key here
                       isEditing: isEditing,
                       nameController: nameController,
                       emailController: emailController,
@@ -293,8 +298,8 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
                       streetNameController: streetNameController,
                       countryNameController: countryNameController,
                       pincodeController: pincodeController,
+                      descriptionController: descriptionController,
                     ),
-                   
                   ]),
                 ),
               ),

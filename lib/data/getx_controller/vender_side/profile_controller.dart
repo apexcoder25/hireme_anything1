@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/data/models/vender_side_model/profile_model.dart';
 import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
@@ -8,6 +9,7 @@ class ProfileController extends GetxController {
   var isLoading = true.obs;
   var token = "".obs;
   final ApiServiceVenderSide apiService;
+  
 
   ProfileController({required this.apiService});
 
@@ -93,65 +95,111 @@ class ProfileController extends GetxController {
       isLoading(false);
     }
   }
+// Add this method inside ProfileController class
 
-  Future<void> updateProfile(
-      ProfileModel updatedProfile,
-      List<Map<String, String>> legalDocuments,
-      List<String> vehicleImages) async {
-    if (token.value.isEmpty) {
-      print("Token is empty, cannot update profile!");
-      Get.snackbar("Error", "Authentication token is missing");
-      return;
-    }
-
-    // Validate required data
-    if (updatedProfile.id == null || updatedProfile.id!.isEmpty) {
-      
-      Get.snackbar("Error", "Profile ID is required for update");
-      return;
-    }
-
-    try {
-      isLoading(true);
-
-      // Prepare payload
-      var payload = updatedProfile.toJson();
-      payload['legal_documents'] = legalDocuments;
-      payload['vehicle_image'] = vehicleImages;
-
-      print("Update Profile Payload: $payload");
-
-      // Set headers
-      apiService.setRequestHeaders({"Authorization": "Bearer ${token.value}"});
-
-      final response = await apiService.putApi(
-        "vendors/${updatedProfile.id}",
-        payload,
-      );
-
-      print("Update Profile Response: $response");
-
-      if (response != null) {
-        if (response["vendor"] != null && response["vendor"]["_id"] != null) {
-          profile.value = ProfileModel.fromJson(response["vendor"]);
-          Get.snackbar("Success", "Profile updated successfully");
-          Get.back();
-        } else if (response["error"] != null) {
-          Get.snackbar(
-              "Error", response["message"] ?? "Failed to update profile");
-        } else {
-          Get.snackbar("Error", "Failed to update profile: Invalid response");
-        }
-      } else {
-        Get.snackbar(
-            "Error", "Failed to update profile: No response from server");
-      }
-    } catch (e) {
-      Get.snackbar("Error", "Failed to update profile: ${e.toString()}");
-    } finally {
-      isLoading(false);
-    }
+Future<void> updateProfile(
+    ProfileModel updatedProfile,
+    List<Map<String, String>> legalDocuments,
+    List<String> vehicleImages) async {
+  if (token.value.isEmpty) {
+    Get.snackbar("Error", "Authentication token is missing");
+    return;
   }
+
+  if (updatedProfile.id == null || updatedProfile.id!.isEmpty) {
+    Get.snackbar("Error", "Profile ID is required for update");
+    return;
+  }
+
+  try {
+    isLoading(true);
+
+    var payload = updatedProfile.toJson();
+    payload['legal_documents'] = legalDocuments;
+    payload['vehicle_image'] = vehicleImages;
+
+    apiService.setRequestHeaders({"Authorization": "Bearer ${token.value}"});
+
+    final response = await apiService.putApi("vendors/${updatedProfile.id}", payload);
+
+    if (response != null && response["vendor"] != null && response["vendor"]["_id"] != null) {
+      profile.value = ProfileModel.fromJson(response["vendor"]);
+
+      // Check if email was changed
+      final oldEmail = currentProfile?.email?.toLowerCase() ?? "";
+      final newEmail = updatedProfile.email.toLowerCase();
+
+      if (oldEmail != newEmail && newEmail.isNotEmpty) {
+        await _verifyEmailAfterEdit(newEmail);
+      }
+
+      Get.snackbar("Success", "Profile updated successfully");
+      Get.back();
+    } else {
+      Get.snackbar("Error", response["message"] ?? "Failed to update profile");
+    }
+  } catch (e) {
+    Get.snackbar("Error", "Failed to update profile: ${e.toString()}");
+  } finally {
+    isLoading(false);
+  }
+}
+
+Future<void> _verifyEmailAfterEdit(String newEmail) async {
+  try {
+    final sent = await apiService.sendOtpEmail(newEmail);
+    if (!sent) {
+      Get.snackbar("Error", "Failed to send OTP to new email");
+      return;
+    }
+
+    String? otp;
+    await Get.dialog(
+      AlertDialog(
+        title: const Text("Verify New Email"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("An OTP has been sent to $newEmail"),
+            const SizedBox(height: 16),
+            TextField(
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: "Enter 6-digit OTP",
+              ),
+              onChanged: (value) => otp = value,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () {
+              if (otp != null && otp!.length == 6) Get.back();
+            },
+            child: const Text("Verify"),
+          ),
+        ],
+      ),
+    );
+
+    if (otp == null || otp!.length != 6) {
+      Get.snackbar("Cancelled", "Email verification cancelled");
+      return;
+    }
+
+    final verified = await apiService.verifyOtpEmail(newEmail, otp!);
+    if (verified) {
+      Get.snackbar("Success", "New email verified successfully!");
+    } else {
+      Get.snackbar("Failed", "Invalid OTP. Please try again.");
+    }
+  } catch (e) {
+    Get.snackbar("Error", "Email verification failed");
+  }
+}
 
   Future<void> refreshProfile() async {
     await fetchProfile();

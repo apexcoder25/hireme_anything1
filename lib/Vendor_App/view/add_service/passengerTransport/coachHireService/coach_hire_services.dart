@@ -1,21 +1,22 @@
 import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/calenderController.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/controller/add_vendor_services_controller.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupanController.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupon_list.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/coupondialog.dart';
-import 'package:hire_any_thing/Vendor_App/view/add_service/controller/add_vendor_services_controller.dart';
+import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/image_controller.dart';
 import 'package:hire_any_thing/constants_file/uk_cities.dart';
-import 'package:hire_any_thing/res/routes/routes.dart';
-import 'package:hire_any_thing/utilities/colors.dart';
 import 'package:hire_any_thing/data/getx_controller/vender_side/service_controller.dart';
 import 'package:hire_any_thing/data/session_manage/session_vendor_side_manager.dart';
+import 'package:hire_any_thing/res/routes/routes.dart';
+import 'package:hire_any_thing/utilities/colors.dart';
 import 'package:intl/intl.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -67,6 +68,7 @@ class CoachHireController extends GetxController {
       TextEditingController();
   final TextEditingController mediumSuitcasesController =
       TextEditingController();
+      final TextEditingController otherTypeController = TextEditingController();
   final TextEditingController smallSuitcasesController =
       TextEditingController();
   final TextEditingController dayRateController = TextEditingController();
@@ -136,7 +138,24 @@ class CoachHireController extends GetxController {
   // Luggage capacity
   var totalLuggageCapacity = 0.obs;
   int mileageLimit = 200; // Fixed as per your requirement
+  // ADD THESE LINES - Events & Extras Price Controllers
+  final TextEditingController partyLightingPriceController = TextEditingController();
 
+  // Types of Hire Map (you already have this, but make sure it's there)
+  final Map<String, bool> typesOfHire = {
+    'Corporate hire': false,
+    'School trips': false,
+    'Airport transfers': false,
+    'Weddings': false,
+    'Funeral service': false,
+    'Tourism & day trips': false,
+    'Concerts & events': false,
+    'Sports teams': false,
+    'Shuttle/commuter runs': false,
+    'VIP/celebrity': false,
+    'Accessible transport': false,
+    'Other': false,
+  }.obs;
   // Basic Features (matching your payload)
   var comfortLuxuryFeatures = {
     'leatherInterior': false,
@@ -285,7 +304,8 @@ class CoachHireController extends GetxController {
   Future<bool> _validateCurrentStep() async {
     switch (currentStep.value) {
       case 1:
-        return await _validateStep1(); // Documents
+        return true;
+         // Documents
       case 2:
         return await _validateStep2(); // Listing Details
       case 3:
@@ -309,17 +329,17 @@ class CoachHireController extends GetxController {
     }
   }
 
-  Future<bool> _validateStep1() async {
-    if (publicLiabilityDocs.isEmpty) {
-      _showError('Public Liability Insurance document is required');
-      return false;
-    }
-    if (operatorLicenceDocs.isEmpty) {
-      _showError('Operator Licence document is required');
-      return false;
-    }
-    return true;
-  }
+  // Future<bool> _validateStep1() async {
+  //   if (publicLiabilityDocs.isEmpty) {
+  //     _showError('Public Liability Insurance document is required');
+  //     return false;
+  //   }
+  //   if (operatorLicenceDocs.isEmpty) {
+  //     _showError('Operator Licence document is required');
+  //     return false;
+  //   }
+  //   return true;
+  // }
 
   Future<bool> _validateStep2() async {
     if (listingTitleController.text.trim().isEmpty) {
@@ -544,57 +564,37 @@ class CoachHireController extends GetxController {
       ),
     );
   }
+Widget _buildCalendarCell(DateTime day, bool isVisible) {
+  final defaultRate = double.tryParse(dayRateController.text) ?? 0.0;
+  final specialPrice = calendarController.specialPrices
+      .firstWhereOrNull((entry) => isSameDay(entry['date'] as DateTime, day))
+      ?['price'] as double?;
+  final displayPrice = specialPrice ?? defaultRate;
 
-  // Calendar cell builder
-  Widget _buildCalendarCell(DateTime day, bool isVisible) {
-    final specialPrice = calendarController.specialPrices
-        .where((entry) =>
-            DateFormat('yyyy-MM-dd').format(entry['date'] as DateTime) ==
-            DateFormat('yyyy-MM-dd').format(day))
-        .map((entry) => entry['price'] as double?)
-        .firstOrNull;
-
-    return Container(
-      margin: EdgeInsets.all(2),
-      padding: EdgeInsets.all(4),
-      decoration: BoxDecoration(
+  return Container(
+    margin: const EdgeInsets.all(2),
+    padding: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: isVisible
+          ? (specialPrice != null ? Colors.green.shade100 : Colors.blue.shade100)
+          : Colors.grey.shade200,
+      borderRadius: BorderRadius.circular(6),
+      border: Border.all(
         color: isVisible
-            ? (specialPrice != null
-                ? Colors.green.shade100
-                : Colors.blue.shade100)
-            : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: isVisible
-              ? (specialPrice != null ? Colors.green : Colors.blue)
-              : Colors.grey,
-        ),
+            ? (specialPrice != null ? Colors.green : Colors.blue)
+            : Colors.grey,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '${day.day}',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: isVisible ? Colors.black : Colors.grey,
-            ),
-          ),
-          if (specialPrice != null)
-            Text(
-              '£${specialPrice.toStringAsFixed(0)}',
-              style: TextStyle(
-                fontSize: 8,
-                color: Colors.green.shade700,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
+    ),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('${day.day}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: isVisible ? Colors.black : Colors.grey)),
+        if (displayPrice > 0)
+          Text('£${displayPrice.toStringAsFixed(0)}', style: TextStyle(fontSize: 9, color: specialPrice != null ? Colors.green.shade700 : Colors.blue.shade700, fontWeight: FontWeight.bold)),
+      ],
+    ),
+  );
+}
   // Enhanced form submission with EXACT API payload structure
   Future<void> submitForm() async {
     if (!await _validateStep10()) return;
@@ -976,6 +976,7 @@ class CoachHireController extends GetxController {
   void onClose() {
     // Dispose controllers
     listingTitleController.dispose();
+    partyLightingPriceController.dispose(); 
     baseLocationController.dispose();
     makeModelController.dispose();
     numberOfSeatsController.dispose();
@@ -1503,256 +1504,117 @@ class CoachHireService extends StatelessWidget {
   }
 
   // Step 1: Required Documents
-  Widget _buildStep1(BuildContext context) {
-    return Column(
-      key: const ValueKey('step1'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(context, 'Required Documents',
-            'Upload required documents to proceed'),
-
-        // Required Documents Section
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.error.withOpacity(0.3)),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.error_outline, color: AppColors.error, size: 20),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '2 required',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.error,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'These documents are mandatory for your service listing',
-                      style: TextStyle(fontSize: 12, color: AppColors.grey700),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+ Widget _buildStep1(BuildContext context) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildStepHeader(context, 'Required Documents', 'Upload required documents to proceed'),
+      // Changed to "4 optional"
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.btnColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.btnColor.withOpacity(0.3)),
         ),
-
-        const SizedBox(height: 24),
-
-        _buildDocumentUploadSection(
-          'Operator Licence',
-          controller.operatorLicenceDocs,
-          isRequired: true,
-        ),
-
-        const SizedBox(height: 20),
-
-        _buildDocumentUploadSection(
-          'Public Liability Insurance',
-          controller.publicLiabilityDocs,
-          isRequired: true,
-        ),
-
-        const SizedBox(height: 32),
-
-        // Optional Documents Section
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.btnColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.btnColor.withOpacity(0.3)),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.info_outline,
-                  color: AppColors.primaryDark, size: 20),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '2 optional',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primaryDark,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Additional documents to enhance your service credibility',
-                      style: TextStyle(fontSize: 12, color: AppColors.grey700),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 24),
-
-        _buildDocumentUploadSection(
-            'Driver Licences And D B S', controller.driverLicencesDocs),
-        const SizedBox(height: 20),
-        _buildDocumentUploadSection(
-            'Vehicle M O T And Insurance', controller.vehicleMOTDocs),
-      ],
-    );
-  }
-
-  // Step 2: Listing Details
-  Widget _buildStep2(BuildContext context) {
-    return Column(
-      key: const ValueKey('step2'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(context, 'Listing Details',
-            'Create an attractive listing for customers'),
-        ProfessionalInput(
-          label: 'Listing Title',
-          controller: controller.listingTitleController,
-          hintText: 'Example: Executive Coach Hire Service',
-          isRequired: true,
-          validator: (value) {
-            if (value?.trim().isEmpty ?? true) return 'Title is required';
-            if (value!.length < 3) return 'Title must be at least 3 characters';
-            return null;
-          },
-        ),
-        const SizedBox(height: 24),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: const Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: RichText(
-                text: const TextSpan(
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.grey900,
-                  ),
-                  children: [
-                    TextSpan(text: 'Base Location'),
-                    TextSpan(
-                      text: ' *',
-                      style: TextStyle(
-                        color: AppColors.error,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+            Icon(Icons.info_outline, color: AppColors.primaryDark, size: 20),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('4 optional', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primaryDark)),
+                  SizedBox(height: 4),
+                  Text('Additional documents to enhance your service credibility', style: TextStyle(fontSize: 12, color: AppColors.grey700)),
+                ],
               ),
-            ),
-            Autocomplete<String>(
-              optionsBuilder: (TextEditingValue textEditingValue) {
-                if (textEditingValue.text.length < 2) {
-                  return const Iterable<String>.empty();
-                }
-                return Cities.ukCities.where((String city) {
-                  return city
-                      .toLowerCase()
-                      .contains(textEditingValue.text.toLowerCase());
-                }).take(5);
-              },
-              onSelected: (String selection) {
-                controller.baseLocationController.text = selection;
-              },
-              fieldViewBuilder: (context, textEditingController, focusNode,
-                  onFieldSubmitted) {
-                // Initialize with current value
-                if (textEditingController.text.isEmpty &&
-                    controller.baseLocationController.text.isNotEmpty) {
-                  textEditingController.text =
-                      controller.baseLocationController.text;
-                }
-
-                // Sync changes back to main controller
-                textEditingController.addListener(() {
-                  if (controller.baseLocationController.text !=
-                      textEditingController.text) {
-                    controller.baseLocationController.text =
-                        textEditingController.text;
-                  }
-                });
-
-                return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
-                    color: Colors.white,
-                  ),
-                  child: TextField(
-                    controller: textEditingController,
-                    focusNode: focusNode,
-                    onSubmitted: (value) => onFieldSubmitted(),
-                    decoration: const InputDecoration(
-                      hintText: "Enter your base location",
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
-                      hintStyle: TextStyle(
-                        color: Color(0xFF999999),
-                        fontSize: 16,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFF333333),
-                    ),
-                  ),
-                );
-              },
-              optionsViewBuilder: (context, onSelected, options) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    elevation: 4.0,
-                    borderRadius: BorderRadius.circular(8),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: options.length,
-                        itemBuilder: (context, index) {
-                          final option = options.elementAt(index);
-                          return ListTile(
-                            title: Text(
-                              option,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF333333),
-                              ),
-                            ),
-                            onTap: () => onSelected(option),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                );
-              },
             ),
           ],
         ),
-      ],
-    );
-  }
+      ),
+      const SizedBox(height: 24),
+      _buildDocumentUploadSection('Operator Licence', controller.operatorLicenceDocs),
+      const SizedBox(height: 20),
+      _buildDocumentUploadSection('Public Liability Insurance', controller.publicLiabilityDocs),
+      const SizedBox(height: 20),
+      _buildDocumentUploadSection('Driver Licences And D B S', controller.driverLicencesDocs),
+      const SizedBox(height: 20),
+      _buildDocumentUploadSection('Vehicle M O T And Insurance', controller.vehicleMOTDocs),
+    ],
+  );
+}
+
+Widget _buildStep2(BuildContext context) {
+  // Add this controller inside the CoachHireController class (with other controllers)
+  // final TextEditingController otherTypeController = TextEditingController();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildStepHeader(context, 'Listing Details', 'Create an attractive listing for customers'),
+      ProfessionalInput(
+        label: 'Listing Title',
+        controller: controller.listingTitleController,
+        hintText: 'Example: Executive Coach Hire Service',
+        isRequired: true,
+      ),
+      const SizedBox(height: 24),
+      const Text('Type of Hire *', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+      const SizedBox(height: 8),
+      const Text('Help operators plan the right driver and vehicle mix (school trips, corporate hire, events, funerals, etc.)', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+      const SizedBox(height: 16),
+      Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: controller.typesOfHire.keys.map((type) {
+          return Obx(() {
+            final isSelected = controller.typesOfHire[type]!;
+            return FilterChip(
+              label: Text(type),
+              selected: isSelected,
+              onSelected: (selected) {
+                controller.typesOfHire[type] = selected;
+                // If "Other" is deselected, clear the text field
+                if (type == 'Other' && !selected) {
+                  controller.otherTypeController.clear();
+                }
+              },
+              selectedColor: AppColors.btnColor,
+              checkmarkColor: Colors.white,
+              backgroundColor: Colors.grey.shade100,
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            );
+          });
+        }).toList(),
+      ),
+      const SizedBox(height: 20),
+      // Show text field only when "Other" is selected
+      Obx(() {
+        if (controller.typesOfHire['Other'] == true) {
+          return ProfessionalInput(
+            label: 'Please specify',
+            controller: controller.otherTypeController,
+            hintText: 'Enter your custom type of hire',
+            isRequired: true,
+          );
+        }
+        return const SizedBox.shrink();
+      }),
+      const SizedBox(height: 24),
+      ProfessionalInput(
+        label: 'Base Location',
+        controller: controller.baseLocationController,
+        hintText: 'Enter postcode or address',
+        isRequired: true,
+      ),
+    ],
+  );
+}
 
   // Step 3: Vehicle Information
   Widget _buildStep3(BuildContext context) {
@@ -2153,180 +2015,99 @@ class CoachHireService extends StatelessWidget {
   }
 
   // Step 7: Features & Services
-  Widget _buildStep7(BuildContext context) {
-    return Column(
-      key: const ValueKey('step7'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStepHeader(context, 'Features & Services',
-            'Select features and services your coach offers'),
-
-        const Text('Comfort & Luxury',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        Column(
-          children: [
-            _buildFeatureCheckbox('Leather Interior',
-                controller.comfortLuxuryFeatures, 'leatherInterior'),
-            _buildFeatureCheckbox(
-                'Wifi Access', controller.comfortLuxuryFeatures, 'wifiAccess'),
-            _buildFeatureCheckbox('Air Conditioning',
-                controller.comfortLuxuryFeatures, 'airConditioning'),
-            _buildFeatureCheckbox('Complimentary Drinks',
-                controller.comfortLuxuryFeatures, 'complimentaryDrinks'),
-            _buildFeatureCheckbox('Onboard Entertainment System',
-                controller.comfortLuxuryFeatures, 'onboardEntertainmentSystem'),
-            _buildFeatureCheckbox('Bluetooth Usb',
-                controller.comfortLuxuryFeatures, 'bluetoothUsb'),
-            _buildFeatureCheckbox('Red Carpet Service',
-                controller.comfortLuxuryFeatures, 'redCarpetService'),
-            _buildFeatureCheckbox('Onboard Restroom',
-                controller.comfortLuxuryFeatures, 'onboardRestroom'),
-          ],
-        ),
-
-        const SizedBox(height: 24),
-        const Text('Events & Extras',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-
-        // Wedding Decor
-        _buildFeatureCheckbox(
-            'Wedding Decor', controller.eventsExtrasFeatures, 'weddingDecor'),
-
-        // Party Lighting
-        const SizedBox(height: 10),
-        _buildFeatureCheckbox('Party Lighting System',
-            controller.eventsExtrasFeatures, 'partyLightingSystem'),
-
-        // Champagne Packages
-        const SizedBox(height: 10),
-        Obx(() => Column(
-              children: [
-                _buildFeatureCheckbox('Champagne Packages',
-                    controller.eventsExtrasFeatures, 'champagnePackages'),
-                if (controller.eventsExtrasFeatures['champagnePackages'] ==
-                    true) ...[
-                  const SizedBox(height: 16),
-                  const Text('Extra charge (£) - optional',
-                      style: TextStyle(fontSize: 12, color: AppColors.grey600)),
-                  const SizedBox(height: 5),
-                  ProfessionalInput(
-                    label: '',
-                    controller: controller.champagnePackagePriceController,
-                    hintText: 'Price (£)',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+ Widget _buildStep7(BuildContext context) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildStepHeader(context, 'Events & Extras', 'Add premium extras to enhance your service'),
+      // Party Lighting System
+      Obx(() => Column(
+            children: [
+              CheckboxListTile(
+                title: const Text('Party Lighting System', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                subtitle: const Text('Extra charge (£) - optional', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                value: controller.eventsExtrasFeatures['partyLightingSystem'],
+                onChanged: (value) => controller.eventsExtrasFeatures['partyLightingSystem'] = value ?? false,
+              ),
+              if (controller.eventsExtrasFeatures['partyLightingSystem'] == true)
+                ProfessionalInput(label: '', controller: controller.partyLightingPriceController, hintText: 'Enter price (£)'),
+            ],
+          )),
+      const SizedBox(height: 20),
+      // Champagne Packages
+      Obx(() => Column(
+            children: [
+              CheckboxListTile(
+                title: const Text('Champagne Packages', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                subtitle: const Text('Extra charge (£) - optional', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                value: controller.eventsExtrasFeatures['champagnePackages'],
+                onChanged: (value) => controller.eventsExtrasFeatures['champagnePackages'] = value ?? false,
+              ),
+              if (controller.eventsExtrasFeatures['champagnePackages'] == true) ...[
+                ProfessionalInput(label: '', controller: controller.champagnePackagePriceController, hintText: 'Price (£)'),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: Colors.purple.shade50, borderRadius: BorderRadius.circular(12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Champagne Package Details', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ProfessionalInput(label: 'Champagne Brand', controller: controller.champagneBrandController, hintText: 'e.g., Moët & Chandon'),
+                      ProfessionalInput(label: 'Number of Bottles', controller: controller.champagneBottlesController, hintText: '1'),
+                      TextField(
+                        controller: controller.champagnePackageDetailsController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(hintText: 'e.g., Chilled champagne, crystal flutes, ice bucket, napkins, toast service'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  const Text('Champagne Package Details',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 5),
-                  const Text('Champagne Brand *',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 5),
-                  ProfessionalInput(
-                    label: '',
-                    controller: controller.champagneBrandController,
-                    hintText: 'Enter champagne brand',
-                  ),
-                  const SizedBox(height: 10),
-                  const Text('Number of Bottles *',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 5),
-                  ProfessionalInput(
-                    label: '',
-                    controller: controller.champagneBottlesController,
-                    hintText: '1',
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text('Package Includes',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: controller.champagnePackageDetailsController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      hintText: "Describe what's included in the package",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
+                ),
               ],
-            )),
-
-        // Photography Packages
-        const SizedBox(height: 10),
-        Obx(() => Column(
-              children: [
-                _buildFeatureCheckbox('Photography Packages',
-                    controller.eventsExtrasFeatures, 'photographyPackages'),
-                if (controller.eventsExtrasFeatures['photographyPackages'] ==
-                    true) ...[
-                  const SizedBox(height: 16),
-                  const Text('Extra charge (£) - optional',
-                      style: TextStyle(fontSize: 12, color: AppColors.grey600)),
-                  const SizedBox(height: 5),
-                  ProfessionalInput(
-                    label: '',
-                    controller: controller.photographyPackagePriceController,
-                    hintText: 'Price (£)',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+            ],
+          )),
+      const SizedBox(height: 20),
+      // Photography Packages
+      Obx(() => Column(
+            children: [
+              CheckboxListTile(
+                title: const Text('Photography Packages', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                subtitle: const Text('Extra charge (£) - optional', style: TextStyle(fontSize: 12, color: AppColors.grey600)),
+                value: controller.eventsExtrasFeatures['photographyPackages'],
+                onChanged: (value) => controller.eventsExtrasFeatures['photographyPackages'] = value ?? false,
+              ),
+              if (controller.eventsExtrasFeatures['photographyPackages'] == true) ...[
+                ProfessionalInput(label: '', controller: controller.photographyPackagePriceController, hintText: 'Price (£)'),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(12)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Photography Package Details', style: TextStyle(fontWeight: FontWeight.w600)),
+                      Row(
+                        children: [
+                          Expanded(child: ProfessionalInput(label: 'Package Duration *', controller: controller.photographyDurationController, hintText: 'e.g., 2 hours')),
+                          const SizedBox(width: 10),
+                          Expanded(child: ProfessionalInput(label: 'Number of Photographers', controller: controller.photographyTeamSizeController, hintText: 'e.g., 2')),
+                        ],
+                      ),
+                      TextField(
+                        controller: controller.photographyPackageDetailsController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(hintText: 'e.g., Professional photographer, edited photos, online gallery, USB drive, 2-hour coverage'),
+                      ),
+                      ProfessionalInput(label: 'Delivery Timeline', controller: controller.photographyDeliveryTimeController, hintText: 'e.g., 7-10 days'),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  const Text('Photography Package Details',
-                      style:
-                          TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: controller.photographyPackageDetailsController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      hintText: "Describe photography services included",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
+                ),
               ],
-            )),
-
-        const SizedBox(height: 24),
-        const Text('Accessibility & Special Services',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-        const Text(
-            'Select services you provide and set optional pricing for each',
-            style: TextStyle(fontSize: 12, color: AppColors.grey600)),
-        const SizedBox(height: 10),
-
-        Column(
-          children: controller.accessibilityFeatures.keys.map((feature) {
-            return _buildAccessibilityFeature(
-                _getAccessibilityFeatureDisplayName(feature), feature, _getAccessibilityPriceController(feature));
-          }).toList(),
-        ),
-
-        const SizedBox(height: 24),
-        const Text('Security & Compliance',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        Column(
-          children: [
-            _buildFeatureCheckbox('Vehicle Tracking Gps',
-                controller.securityFeatures, 'vehicleTrackingGps'),
-            _buildFeatureCheckbox(
-                'CCTV Fitted', controller.securityFeatures, 'cctvFitted'),
-          ],
-        ),
-      ],
-    );
-  }
-
+            ],
+          )),
+    ],
+  );
+}
   // Step 8: Photos & Media
   Widget _buildStep8(BuildContext context) {
     return Column(
