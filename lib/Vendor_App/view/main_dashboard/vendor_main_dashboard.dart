@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hire_any_thing/Vendor_App/view/accounts_and_payment/accounts_and_payment.dart';
 import 'package:hire_any_thing/Vendor_App/view/add_service/passengerTransport/addServiceScreen1/add_service_screen_1.dart';
 import 'package:hire_any_thing/Vendor_App/view/booking_status/booking_status_view.dart';
+import 'package:hire_any_thing/Vendor_App/view/company_info/company_info_screen.dart';
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/components/vendor_drawer.dart';
 import 'package:hire_any_thing/Vendor_App/view/main_dashboard/controllers/vendor_dashboard_controller.dart';
 import 'package:hire_any_thing/Vendor_App/view/profile_page/profile_page.dart';
 import 'package:hire_any_thing/Vendor_App/view/serviceses/vendor_home_Page.dart';
-import 'package:hire_any_thing/Vendor_App/view/company_info/company_info_screen.dart';
-import 'package:hire_any_thing/Vendor_App/view/accounts_and_payment/accounts_and_payment.dart';
 import 'package:hire_any_thing/utilities/colors.dart';
 
 class VendorMainDashboard extends StatelessWidget {
@@ -74,7 +74,7 @@ class VendorMainDashboard extends StatelessWidget {
   String _getAppBarTitle() {
     switch (controller.selectedIndex.value) {
       case 0:
-        return 'Dashboard';
+        return 'My Services';
       case 1:
         return 'Vendor Profile';
       case 2:

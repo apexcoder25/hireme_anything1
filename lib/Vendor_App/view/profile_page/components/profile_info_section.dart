@@ -41,15 +41,12 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
 
+  // Valid dropdown options
   final List<String> _genders = ['Male', 'Female', 'Other'];
-  String? _selectedGender;
+  final List<String> _countries = ['United Kingdom', 'United States'];
 
-  // List of countries for dropdown
-  final List<String> _countries = [
-    'United Kingdom',
-    'United States',
-   
-  ];
+  String? _selectedGender;
+  String? _selectedCountry;
 
   // Email verification state
   bool isEmailEdited = false;
@@ -64,13 +61,19 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
   void initState() {
     super.initState();
     _filteredCities = Cities.ukCities;
-    _selectedGender = widget.genderController.text.isNotEmpty
-        ? widget.genderController.text
-        : null;
 
-    // Initialize country if empty
+    // Initialize Gender safely
+    final String storedGender = widget.genderController.text.trim();
+    _selectedGender = _genders.contains(storedGender) ? storedGender : null;
+
+    // Initialize Country safely
+    final String storedCountry = widget.countryNameController.text.trim();
+    _selectedCountry = _countries.contains(storedCountry) ? storedCountry : null;
+
+    // Default country if empty
     if (widget.countryNameController.text.isEmpty) {
       widget.countryNameController.text = 'United Kingdom';
+      _selectedCountry = 'United Kingdom';
     }
 
     // Save original email
@@ -96,41 +99,62 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
       });
     }
   }
+Future<void> _sendOtp() async {
+  final newEmail = widget.emailController.text.trim();
+  final oldEmail = _originalEmail;
 
-  Future<void> _sendOtp() async {
-    final email = widget.emailController.text.trim();
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
-      Get.snackbar("Invalid Email", "Please enter a valid email address");
-      return;
-    }
-
-    final sent = await _apiService.sendOtpEmail(email);
-    if (sent) {
-      setState(() {
-        showOtpField = true;
-      });
-    }
+  if (oldEmail.isEmpty) {
+    Get.snackbar("Error", "No existing email found to verify ownership");
+    return;
   }
 
-  Future<void> _verifyOtp() async {
-    final otp = _otpController.text.trim();
-    final email = widget.emailController.text.trim();
-
-    if (otp.length != 6) {
-      Get.snackbar("Invalid OTP", "Please enter 6-digit OTP");
-      return;
-    }
-
-    final verified = await _apiService.verifyOtpEmail(email, otp);
-    if (verified) {
-      setState(() {
-        isEmailVerified = true;
-        _originalEmail = email;
-      });
-      _otpController.clear();
-    }
+  if (newEmail == oldEmail) {
+    setState(() {
+      isEmailVerified = true; // No change, already verified
+    });
+    return;
   }
 
+  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(newEmail)) {
+    Get.snackbar("Invalid Email", "Please enter a valid new email address");
+    return;
+  }
+
+  // Send OTP to OLD email for ownership confirmation
+  final sent = await _apiService.sendOtpEmail(oldEmail);
+  if (sent) {
+    Get.snackbar(
+      "OTP Sent",
+      "Verification code sent to your current email: $oldEmail",
+      duration: const Duration(seconds: 5),
+    );
+    setState(() {
+      showOtpField = true;
+    });
+  } else {
+    Get.snackbar("Failed", "Could not send OTP to current email");
+  }
+}Future<void> _verifyOtp() async {
+  final otp = _otpController.text.trim();
+  final oldEmail = _originalEmail;
+
+  if (otp.length != 6) {
+    Get.snackbar("Invalid OTP", "Please enter 6-digit OTP");
+    return;
+  }
+
+  final verified = await _apiService.verifyOtpEmail(oldEmail, otp);
+  if (verified) {
+    setState(() {
+      isEmailVerified = true; // Now safe to change email
+      showOtpField = false;
+    });
+    _otpController.clear();
+    Get.snackbar("Verified", "Current email ownership confirmed! You can now save the new email.");
+  } else {
+    Get.snackbar("Invalid OTP", "The code entered is incorrect");
+  }
+}
   @override
   void dispose() {
     widget.emailController.removeListener(_onEmailChanged);
@@ -264,7 +288,7 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
         _buildInfoCard("Address Details", [
           _buildCityRow(),
           _buildInfoRow(Icons.location_on_outlined, "Street Address", widget.streetNameController, false),
-          _buildCountryDropdown(), // Now fully selectable
+          _buildCountryDropdown(),
           _buildInfoRow(Icons.pin_drop_outlined, "Post Code", widget.pincodeController, false),
         ]),
       ],
@@ -528,18 +552,29 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
           const SizedBox(height: 10),
           widget.isEditing
               ? DropdownButtonFormField<String>(
-                  value: _selectedGender,
+                  value: _genders.contains(_selectedGender) ? _selectedGender : null,
                   hint: const Text("Select Gender"),
-                  items: _genders.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedGender = value;
-                      widget.genderController.text = value ?? '';
-                    });
+                  items: _genders
+                      .map((g) => DropdownMenuItem<String>(
+                            value: g,
+                            child: Text(g),
+                          ))
+                      .toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedGender = newValue;
+                        widget.genderController.text = newValue;
+                      });
+                    }
                   },
                   decoration: _inputDecoration(),
                 )
-              : _readOnlyContainer(widget.genderController.text.isEmpty ? 'Not provided' : widget.genderController.text),
+              : _readOnlyContainer(
+                  _genders.contains(widget.genderController.text)
+                      ? widget.genderController.text
+                      : 'Not provided',
+                ),
         ],
       ),
     );
@@ -580,7 +615,6 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
     );
   }
 
-  // UPDATED: Now fully selectable country dropdown
   Widget _buildCountryDropdown() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -598,19 +632,20 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
           const SizedBox(height: 10),
           widget.isEditing
               ? DropdownButtonFormField<String>(
-                  value: widget.countryNameController.text.isEmpty
-                      ? null
-                      : widget.countryNameController.text,
+                  value: _countries.contains(_selectedCountry) ? _selectedCountry : null,
                   hint: const Text("Select Country"),
-                  items: _countries.map((country) {
-                    return DropdownMenuItem(
-                      value: country,
-                      child: Text(country),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      widget.countryNameController.text = value;
+                  items: _countries
+                      .map((country) => DropdownMenuItem<String>(
+                            value: country,
+                            child: Text(country),
+                          ))
+                      .toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedCountry = newValue;
+                        widget.countryNameController.text = newValue;
+                      });
                     }
                   },
                   decoration: _inputDecoration(),
@@ -618,7 +653,10 @@ class ProfileInfoSectionState extends State<ProfileInfoSection> {
                   icon: const Icon(Icons.arrow_drop_down),
                 )
               : _readOnlyContainer(
-                  widget.countryNameController.text.isEmpty ? 'Not provided' : widget.countryNameController.text),
+                  _countries.contains(widget.countryNameController.text)
+                      ? widget.countryNameController.text
+                      : 'Not provided',
+                ),
         ],
       ),
     );

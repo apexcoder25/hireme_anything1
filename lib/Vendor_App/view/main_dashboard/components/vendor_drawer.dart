@@ -189,7 +189,7 @@ class _VendorDrawerState extends State<VendorDrawer> {
                   _buildNavigationItem(
                     icon: Icons.dashboard_outlined,
                     activeIcon: Icons.dashboard,
-                    title: 'Dashboard',
+                    title: 'My Services',
                     index: 0,
                   ),
                   _buildNavigationItem(

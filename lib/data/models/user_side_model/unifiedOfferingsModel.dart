@@ -1,11 +1,11 @@
 // To parse this JSON data, do
 //
-//     final unifiedOffering = unifiedOfferingFromJson(jsonString);
+// final unifiedOffering = unifiedOfferingFromJson(jsonString);
 
 import 'dart:convert';
+import 'dart:core';
 
 UnifiedOffering unifiedOfferingFromJson(String str) => UnifiedOffering.fromJson(json.decode(str));
-
 String unifiedOfferingToJson(UnifiedOffering data) => json.encode(data.toJson());
 
 class UnifiedOffering {
@@ -61,20 +61,24 @@ class UnifiedOffering {
 }
 
 class AppliedFilters {
+    String? categoryId; // ← Added to support the second model
     dynamic maxDistance;
     String sortBy;
 
     AppliedFilters({
+        this.categoryId,
         required this.maxDistance,
         required this.sortBy,
     });
 
     factory AppliedFilters.fromJson(Map<String, dynamic> json) => AppliedFilters(
+        categoryId: json["categoryId"],
         maxDistance: json["maxDistance"],
         sortBy: json["sortBy"],
     );
 
     Map<String, dynamic> toJson() => {
+        "categoryId": categoryId,
         "maxDistance": maxDistance,
         "sortBy": sortBy,
     };
@@ -727,7 +731,7 @@ class Datum {
         "otherHireType": otherHireType,
         "packageDeals": packageDeals == null ? [] : List<dynamic>.from(packageDeals!.map((x) => x.toJson())),
         "commissionPolicyAccepted": commissionPolicyAccepted,
-        "commissionPolicyVersion": "${commissionPolicyVersion!.year.toString().padLeft(4, '0')}-${commissionPolicyVersion!.month.toString().padLeft(2, '0')}-${commissionPolicyVersion!.day.toString().padLeft(2, '0')}",
+        "commissionPolicyVersion": commissionPolicyVersion == null ? null : "${commissionPolicyVersion!.year.toString().padLeft(4, '0')}-${commissionPolicyVersion!.month.toString().padLeft(2, '0')}-${commissionPolicyVersion!.day.toString().padLeft(2, '0')}",
         "commissionRate": commissionRate,
         "comfort": comfort?.toJson(),
         "events": events?.toJson(),
@@ -1028,83 +1032,6 @@ class Addon {
     };
 }
 
-class ApprovalStatusClass {
-    DateTime approvedAt;
-
-    ApprovalStatusClass({
-        required this.approvedAt,
-    });
-
-    factory ApprovalStatusClass.fromJson(Map<String, dynamic> json) => ApprovalStatusClass(
-        approvedAt: DateTime.parse(json["approvedAt"]),
-    );
-
-    Map<String, dynamic> toJson() => {
-        "approvedAt": approvedAt.toIso8601String(),
-    };
-}
-
-
-/*
-enum AreaUnit {
-    SQFT,
-    SQM
-}
-
-final areaUnitValues = EnumValues({
-    "sqft": AreaUnit.SQFT,
-    "sqm": AreaUnit.SQM
-});
-*/
-
-class AvailabilityClass {
-    DateTime bookingDateFrom;
-    DateTime bookingDateTo;
-    Options options;
-
-    AvailabilityClass({
-        required this.bookingDateFrom,
-        required this.bookingDateTo,
-        required this.options,
-    });
-
-    factory AvailabilityClass.fromJson(Map<String, dynamic> json) => AvailabilityClass(
-        bookingDateFrom: DateTime.parse(json["bookingDateFrom"]),
-        bookingDateTo: DateTime.parse(json["bookingDateTo"]),
-        options: Options.fromJson(json["options"]),
-    );
-
-    Map<String, dynamic> toJson() => {
-        "bookingDateFrom": bookingDateFrom.toIso8601String(),
-        "bookingDateTo": bookingDateTo.toIso8601String(),
-        "options": options.toJson(),
-    };
-}
-
-class Options {
-    bool weekends;
-    bool twentyFourSeven;
-    bool weekdays;
-
-    Options({
-        required this.weekends,
-        required this.twentyFourSeven,
-        required this.weekdays,
-    });
-
-    factory Options.fromJson(Map<String, dynamic> json) => Options(
-        weekends: json["weekends"],
-        twentyFourSeven: json["twentyFourSeven"],
-        weekdays: json["weekdays"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "weekends": weekends,
-        "twentyFourSeven": twentyFourSeven,
-        "weekdays": weekdays,
-    };
-}
-
 class AvailabilityBooking {
     AvailabilityCalendar availabilityCalendar;
     AdvanceBookingMinimum minimumBookingDuration;
@@ -1160,7 +1087,6 @@ class AdvanceBookingMinimum {
         "unit": unit,
     };
 }
-
 
 class AvailabilityCalendar {
     List<dynamic> blockedDates;
@@ -1294,8 +1220,6 @@ class Contact {
     };
 }
 
-
-
 class BusinessInfoCoordinates {
     String type;
     List<int> coordinates;
@@ -1335,22 +1259,6 @@ class BusinessProfile {
         "promotionalDescription": promotionalDescription,
     };
 }
-
-/*
-enum CancellationPolicyType {
-    CANCELLATION_POLICY_TYPE_FLEXIBLE,
-    FLEXIBLE,
-    MODERATE,
-    STRICT
-}
-
-final cancellationPolicyTypeValues = EnumValues({
-    "flexible": CancellationPolicyType.CANCELLATION_POLICY_TYPE_FLEXIBLE,
-    "FLEXIBLE": CancellationPolicyType.FLEXIBLE,
-    "MODERATE": CancellationPolicyType.MODERATE,
-    "STRICT": CancellationPolicyType.STRICT
-});
-*/
 
 class CarriageDetails {
     String carriageType;
@@ -1504,16 +1412,6 @@ class PurpleComplimentaryDrinks {
     };
 }
 
-/*
-enum Country {
-    UNITED_KINGDOM, GB
-}
-
-final countryValues = EnumValues({
-    "United Kingdom": Country.UNITED_KINGDOM
-});
-*/
-
 class Coupon {
     String couponCode;
     String discountType;
@@ -1645,16 +1543,6 @@ class ServiceArea {
         "_id": id,
     };
 }
-
-/*
-enum Currency {
-    GBP
-}
-
-final currencyValues = EnumValues({
-    "GBP": Currency.GBP
-});
-*/
 
 class SpecialPriceDayElement {
     DateTime date;
@@ -2427,32 +2315,31 @@ class EquipmentSelectionCapacity {
         "recommended": recommended,
     };
 }
-
 class EventRules {
-    String promotedEvents;
-    String ageRestrictions;
-    String curfewTime;
-    String noiseRestrictions;
-    String noiseRestrictionsDetails;
-    String securityRequired;
-    String securityProvidedByVenue;
-    List<String> decorationsAllowed;
-    String otherDecorations;
-    String damageDepositRequired;
-    int damageDepositAmount;
+    String? promotedEvents;
+    String? ageRestrictions;
+    String? curfewTime;
+    String? noiseRestrictions;
+    String? noiseRestrictionsDetails;
+    String? securityRequired;
+    String? securityProvidedByVenue;
+    List<String>? decorationsAllowed;
+    String? otherDecorations;
+    String? damageDepositRequired;
+    int? damageDepositAmount;
 
     EventRules({
-        required this.promotedEvents,
-        required this.ageRestrictions,
-        required this.curfewTime,
-        required this.noiseRestrictions,
-        required this.noiseRestrictionsDetails,
-        required this.securityRequired,
-        required this.securityProvidedByVenue,
-        required this.decorationsAllowed,
-        required this.otherDecorations,
-        required this.damageDepositRequired,
-        required this.damageDepositAmount,
+        this.promotedEvents,
+        this.ageRestrictions,
+        this.curfewTime,
+        this.noiseRestrictions,
+        this.noiseRestrictionsDetails,
+        this.securityRequired,
+        this.securityProvidedByVenue,
+        this.decorationsAllowed,
+        this.otherDecorations,
+        this.damageDepositRequired,
+        this.damageDepositAmount,
     });
 
     factory EventRules.fromJson(Map<String, dynamic> json) => EventRules(
@@ -2463,7 +2350,9 @@ class EventRules {
         noiseRestrictionsDetails: json["noiseRestrictionsDetails"],
         securityRequired: json["securityRequired"],
         securityProvidedByVenue: json["securityProvidedByVenue"],
-        decorationsAllowed: List<String>.from(json["decorationsAllowed"].map((x) => x)),
+        decorationsAllowed: json["decorationsAllowed"] == null 
+            ? [] 
+            : List<String>.from(json["decorationsAllowed"]!.map((x) => x)),
         otherDecorations: json["otherDecorations"],
         damageDepositRequired: json["damageDepositRequired"],
         damageDepositAmount: json["damageDepositAmount"],
@@ -2477,13 +2366,12 @@ class EventRules {
         "noiseRestrictionsDetails": noiseRestrictionsDetails,
         "securityRequired": securityRequired,
         "securityProvidedByVenue": securityProvidedByVenue,
-        "decorationsAllowed": List<dynamic>.from(decorationsAllowed.map((x) => x)),
+        "decorationsAllowed": decorationsAllowed == null ? [] : List<dynamic>.from(decorationsAllowed!.map((x) => x)),
         "otherDecorations": otherDecorations,
         "damageDepositRequired": damageDepositRequired,
         "damageDepositAmount": damageDepositAmount,
     };
 }
-
 class DatumEvents {
     bool weddingDecor;
     int? weddingDecorPrice;

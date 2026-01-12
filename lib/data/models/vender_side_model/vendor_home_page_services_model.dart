@@ -127,14 +127,14 @@ class ServiceStats {
         "Passenger Transport": passengerTransport,
       };
 }
-
 // ---------- Service ----------
 class Service {
   String id;
   CategoryId? categoryId;
   SubcategoryId? subcategoryId;
   String? serviceName;
-  String listingTitle;
+  String? listingTitle;
+  String? venueName;
   String? basePostcode;
   int? locationRadius;
   PricingDetails? pricingDetails;
@@ -148,6 +148,7 @@ class Service {
   ServiceDetail? serviceDetail;
   UploadedDocuments? uploadedDocuments;
   List<String>? serviceImages;
+  List<String>? service_image;
   BusinessProfile? businessProfile;
   String? approvalStatus;
   String serviceStatus;
@@ -190,12 +191,16 @@ class Service {
   BoatRates? boatRates;
   MiniBusRates? miniBusRates;
 
+  // ADDED: For Bouncy Castle Hire
+  EquipmentSelection? equipmentSelection;
+
   Service({
     required this.id,
     this.categoryId,
     this.subcategoryId,
     this.serviceName,
-    required this.listingTitle,
+    this.listingTitle,
+    this.venueName,
     this.basePostcode,
     this.locationRadius,
     this.pricingDetails,
@@ -209,6 +214,7 @@ class Service {
     this.serviceDetail,
     this.uploadedDocuments,
     this.serviceImages,
+    this.service_image,
     this.businessProfile,
     this.approvalStatus,
     required this.serviceStatus,
@@ -250,6 +256,7 @@ class Service {
     this.mileageRadius,
     this.boatRates,
     this.miniBusRates,
+    this.equipmentSelection, // ADDED
   });
 
   factory Service.fromJson(Map<String, dynamic> json) => Service(
@@ -261,7 +268,8 @@ class Service {
             ? SubcategoryId.fromJson(json["subcategoryId"])
             : null,
         serviceName: json["service_name"],
-        listingTitle: json["listingTitle"]?.toString() ?? "",
+        listingTitle: json["listingTitle"]?.toString(),
+        venueName: json["venueName"]?.toString(),
         basePostcode: json["basePostcode"],
         locationRadius: _toInt(json["locationRadius"]),
         pricingDetails: json["pricingDetails"] is Map<String, dynamic>
@@ -309,6 +317,11 @@ class Service {
             ? []
             : List<String>.from(
                 (json["serviceImages"] as List).map((x) => x.toString()),
+              ),
+        service_image: json["service_image"] == null
+            ? []
+            : List<String>.from(
+                (json["service_image"] as List).map((x) => x.toString()),
               ),
         businessProfile: json["businessProfile"] is Map<String, dynamic>
             ? BusinessProfile.fromJson(json["businessProfile"])
@@ -410,6 +423,9 @@ class Service {
         miniBusRates: json["miniBusRates"] is Map<String, dynamic>
             ? MiniBusRates.fromJson(json["miniBusRates"])
             : null,
+        equipmentSelection: json["equipmentSelection"] is Map<String, dynamic>
+            ? EquipmentSelection.fromJson(json["equipmentSelection"])
+            : null, // ADDED
       );
 
   Map<String, dynamic> toJson() => {
@@ -418,6 +434,7 @@ class Service {
         "subcategoryId": subcategoryId?.toJson(),
         "service_name": serviceName,
         "listingTitle": listingTitle,
+        "venueName": venueName,
         "basePostcode": basePostcode,
         "locationRadius": locationRadius,
         "pricingDetails": pricingDetails?.toJson(),
@@ -436,6 +453,7 @@ class Service {
         "service_detail": serviceDetail?.toJson(),
         "uploaded_Documents": uploadedDocuments?.toJson(),
         "serviceImages": serviceImages ?? [],
+        "service_image": service_image ?? [],
         "businessProfile": businessProfile?.toJson(),
         "approvalStatus": approvalStatus,
         "service_status": serviceStatus,
@@ -480,10 +498,76 @@ class Service {
         "mileageRadius": mileageRadius,
         "boatRates": boatRates?.toJson(),
         "miniBusRates": miniBusRates?.toJson(),
+        "equipmentSelection": equipmentSelection?.toJson(), // ADDED
       };
 }
 
-// ---------- Nested Models ----------
+// ---------- ADDED: Bouncy Castle Models ----------
+class EquipmentSelection {
+  String? inflatableType;
+  String? name;
+  String? description;
+  String? ageGroup;
+  Capacity? capacity;
+  int? minAge;
+  int? maxAge;
+  String? theme;
+
+  EquipmentSelection({
+    this.inflatableType,
+    this.name,
+    this.description,
+    this.ageGroup,
+    this.capacity,
+    this.minAge,
+    this.maxAge,
+    this.theme,
+  });
+
+  factory EquipmentSelection.fromJson(Map<String, dynamic> json) => EquipmentSelection(
+        inflatableType: json["inflatableType"],
+        name: json["name"],
+        description: json["description"],
+        ageGroup: json["ageGroup"],
+        capacity: json["capacity"] is Map<String, dynamic>
+            ? Capacity.fromJson(json["capacity"])
+            : null,
+        minAge: _toNullableInt(json["minAge"]),
+        maxAge: _toNullableInt(json["maxAge"]),
+        theme: json["theme"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "inflatableType": inflatableType,
+        "name": name,
+        "description": description,
+        "ageGroup": ageGroup,
+        "capacity": capacity?.toJson(),
+        "minAge": minAge,
+        "maxAge": maxAge,
+        "theme": theme,
+      };
+}
+
+class Capacity {
+  int? maximum;
+  int? recommended;
+
+  Capacity({
+    this.maximum,
+    this.recommended,
+  });
+
+  factory Capacity.fromJson(Map<String, dynamic> json) => Capacity(
+        maximum: _toNullableInt(json["maximum"]),
+        recommended: _toNullableInt(json["recommended"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        if (maximum != null) "maximum": maximum,
+        if (recommended != null) "recommended": recommended,
+      };
+}
 
 class Accessibility {
   bool wheelchairAccessVehicle;

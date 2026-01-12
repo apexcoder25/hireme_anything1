@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hire_any_thing/data/models/vender_side_model/profile_model.dart';
 import 'package:hire_any_thing/data/services/api_service_vendor_side.dart';
@@ -126,12 +125,12 @@ Future<void> updateProfile(
       profile.value = ProfileModel.fromJson(response["vendor"]);
 
       // Check if email was changed
-      final oldEmail = currentProfile?.email?.toLowerCase() ?? "";
-      final newEmail = updatedProfile.email.toLowerCase();
+      // final oldEmail = currentProfile?.email?.toLowerCase() ?? "";
+      // final newEmail = updatedProfile.email.toLowerCase();
 
-      if (oldEmail != newEmail && newEmail.isNotEmpty) {
-        await _verifyEmailAfterEdit(newEmail);
-      }
+      // if (oldEmail != newEmail && newEmail.isNotEmpty) {
+      //   await _verifyEmailAfterEdit(newEmail);
+      // }
 
       Get.snackbar("Success", "Profile updated successfully");
       Get.back();
@@ -145,61 +144,61 @@ Future<void> updateProfile(
   }
 }
 
-Future<void> _verifyEmailAfterEdit(String newEmail) async {
-  try {
-    final sent = await apiService.sendOtpEmail(newEmail);
-    if (!sent) {
-      Get.snackbar("Error", "Failed to send OTP to new email");
-      return;
-    }
+// Future<void> _verifyEmailAfterEdit(String newEmail) async {
+//   try {
+//     final sent = await apiService.sendOtpEmail(newEmail);
+//     if (!sent) {
+//       Get.snackbar("Error", "Failed to send OTP to new email");
+//       return;
+//     }
 
-    String? otp;
-    await Get.dialog(
-      AlertDialog(
-        title: const Text("Verify New Email"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text("An OTP has been sent to $newEmail"),
-            const SizedBox(height: 16),
-            TextField(
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Enter 6-digit OTP",
-              ),
-              onChanged: (value) => otp = value,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
-          TextButton(
-            onPressed: () {
-              if (otp != null && otp!.length == 6) Get.back();
-            },
-            child: const Text("Verify"),
-          ),
-        ],
-      ),
-    );
+//     String? otp;
+//     await Get.dialog(
+//       AlertDialog(
+//         title: const Text("Verify New Email"),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             Text("An OTP has been sent to $newEmail"),
+//             const SizedBox(height: 16),
+//             TextField(
+//               keyboardType: TextInputType.number,
+//               maxLength: 6,
+//               decoration: const InputDecoration(
+//                 border: OutlineInputBorder(),
+//                 hintText: "Enter 6-digit OTP",
+//               ),
+//               onChanged: (value) => otp = value,
+//             ),
+//           ],
+//         ),
+//         actions: [
+//           TextButton(onPressed: () => Get.back(), child: const Text("Cancel")),
+//           TextButton(
+//             onPressed: () {
+//               if (otp != null && otp!.length == 6) Get.back();
+//             },
+//             child: const Text("Verify"),
+//           ),
+//         ],
+//       ),
+//     );
 
-    if (otp == null || otp!.length != 6) {
-      Get.snackbar("Cancelled", "Email verification cancelled");
-      return;
-    }
+//     if (otp == null || otp!.length != 6) {
+//       Get.snackbar("Cancelled", "Email verification cancelled");
+//       return;
+//     }
 
-    final verified = await apiService.verifyOtpEmail(newEmail, otp!);
-    if (verified) {
-      Get.snackbar("Success", "New email verified successfully!");
-    } else {
-      Get.snackbar("Failed", "Invalid OTP. Please try again.");
-    }
-  } catch (e) {
-    Get.snackbar("Error", "Email verification failed");
-  }
-}
+//     final verified = await apiService.verifyOtpEmail(newEmail, otp!);
+//     if (verified) {
+//       Get.snackbar("Success", "New email verified successfully!");
+//     } else {
+//       Get.snackbar("Failed", "Invalid OTP. Please try again.");
+//     }
+//   } catch (e) {
+//     Get.snackbar("Error", "Email verification failed");
+//   }
+// }
 
   Future<void> refreshProfile() async {
     await fetchProfile();

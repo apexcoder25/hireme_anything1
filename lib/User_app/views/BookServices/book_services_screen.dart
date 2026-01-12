@@ -95,11 +95,9 @@ class _ServicesScreenState extends State<ServicesScreen>
   Future<void> _applyFilters() async {
     await controller.applyFilter(
       categoryId: subCatController.selectedCategoryId.value,
-      subCategoryId: subCatController.selectedSubcategoryId.value,
+      subCategoryId: subCatController.selectedSubcategory.value,
       location: selectedLocation,
-      date: selectedDate != null
-          ? DateFormat('yyyy-MM-dd').format(selectedDate!)
-          : null,
+      date: selectedDate,
       budgetRange: selectedBudget,
     );
   }

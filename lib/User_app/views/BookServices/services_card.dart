@@ -1,10 +1,10 @@
+// lib/User_app/views/BookServices/service_card.dart
+
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/Get.dart';
 import 'package:hire_any_thing/data/models/user_side_model/unifiedOfferingsModel.dart';
-import 'package:hire_any_thing/User_app/views/Book_Service/book_service.dart';
-import 'package:hire_any_thing/User_app/views/services_details/services_details.dart';
+import 'package:hire_any_thing/res/routes/routes.dart';
 import 'package:intl/intl.dart';
-import 'package:hire_any_thing/utilities/colors.dart';
 
 class ServiceCard extends StatefulWidget {
   final Datum service;
@@ -16,23 +16,11 @@ class ServiceCard extends StatefulWidget {
 }
 
 class _ServiceCardState extends State<ServiceCard> {
-  
-  String _getFuneralVehicleTypes(FuneralVehicleTypes? types) {
-    if (types == null) return 'N/A';
-    List<String> available = [];
-    if (types.traditionalHearse == true) available.add('Traditional Hearse');
-    if (types.horseDrawnHearse == true) available.add('Horse Drawn Hearse');
-    if (types.limousine == true) available.add('Limousine');
-    if (types.alternativeVehicle == true) available.add('Alternative Vehicle');
-    if (available.isEmpty) return 'N/A';
-    return available.join(', ');
-  }
-
   String _getPriceString() {
     double? price;
     String unit = 'day';
 
-    if (widget.service.offeringPrice != null) {
+    if (widget.service.offeringPrice != null && widget.service.offeringPrice! > 0) {
       price = widget.service.offeringPrice!.toDouble();
     } else if (widget.service.pricingDetails?.hourlyRate != null) {
       price = widget.service.pricingDetails!.hourlyRate.toDouble();
@@ -45,144 +33,81 @@ class _ServiceCardState extends State<ServiceCard> {
       unit = 'day';
     }
 
-    if (price == null) return 'Price on Request';
-    return '/';
+    if (price == null || price <= 0) return 'Price on Request';
+    return '£${price.toStringAsFixed(0)}/$unit';
   }
 
   String _getLocationString() {
-    if (widget.service.city != null && widget.service.city!.isNotEmpty) {
-      return widget.service.city!;
-    }
-    if (widget.service.baseLocationPostcode != null && widget.service.baseLocationPostcode!.isNotEmpty) {
-      return widget.service.baseLocationPostcode!;
-    }
-    if (widget.service.basePostcode != null && widget.service.basePostcode!.isNotEmpty) {
-      return widget.service.basePostcode!;
-    }
-    return 'Location N/A';
+    if (widget.service.city?.isNotEmpty == true) return widget.service.city!;
+    if (widget.service.baseLocationPostcode?.isNotEmpty == true) return widget.service.baseLocationPostcode!;
+    if (widget.service.basePostcode?.isNotEmpty == true) return widget.service.basePostcode!;
+    return 'Location not specified';
   }
 
   String _getAvailabilityString() {
     final DateFormat dateFormat = DateFormat('d MMM yyyy');
-    DateTime? from;
-    DateTime? to;
-
-    if (widget.service.bookingAvailabilityDateFrom != null) {
-      from = widget.service.bookingAvailabilityDateFrom;
-      to = widget.service.bookingAvailabilityDateTo;
-    } else {
-      from = widget.service.bookingDateFrom;
-      to = widget.service.bookingDateTo;
-    }
+    DateTime? from = widget.service.bookingAvailabilityDateFrom ?? widget.service.bookingDateFrom;
+    DateTime? to = widget.service.bookingAvailabilityDateTo ?? widget.service.bookingDateTo;
 
     if (from == null) return 'Check Availability';
+
     String fromStr = dateFormat.format(from.toLocal());
-    String toStr = to != null ? dateFormat.format(to.toLocal()) : '';
-    
-    return '';
+    if (to != null) {
+      String toStr = dateFormat.format(to.toLocal());
+      return 'Available: $fromStr - $toStr';
+    }
+    return 'From $fromStr';
   }
 
   void _navigateToDetails() {
-    if (widget.service.categoryId != null && widget.service.subcategoryId != null) {
-      if (widget.service.sourceModel == 'funeral') {
-        Get.to(() => ServicesDetails(
-              categoryId: widget.service.categoryId!.id ?? '',
-              subcategoryId: widget.service.subcategoryId!.id,
-              categoryName: widget.service.categoryId!.categoryName ?? '',
-              subcategoryName: widget.service.subcategoryId!.subcategoryName,
-              serviceName: widget.service.listingTitle ?? 'Unknown Service',
-              cityNames: widget.service.areasCovered?.join(', ') ?? '',
-              kmPrice: (widget.service.pricingDetails?.hourlyRate ?? 0).toDouble().toStringAsFixed(2),
-              minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
-              maxDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
-              description: widget.service.businessProfile?.promotionalDescription ?? '',
-              airon_fitted: widget.service.features?.comfort?.airConditioning == true ? 'yes' : 'no',
-              wheelChair: widget.service.features?.accessibility?.wheelchairAccessVehicle == true ? 'yes' : 'no',
-              bookingDateFrom: widget.service.bookingAvailabilityDateFrom?.toIso8601String() ?? '',
-              bookingDateTo: widget.service.bookingAvailabilityDateTo?.toIso8601String() ?? '',
-              makeAndModel: widget.service.fleetDetails?.makeModel ?? '',
-              registration: '',
-              noOfSeats: widget.service.fleetDetails?.seats,
-              serviceImage: (widget.service.serviceImage?.isNotEmpty ?? false) ? widget.service.serviceImage![0] : '',
-              service: widget.service,
-              vehicleTypes: _getFuneralVehicleTypes(widget.service.funeralVehicleTypes),
-              packageOptions: 'Standard: , VIP: ',
-            ));
-      } else if (widget.service.sourceModel == 'horse') {
-        Get.to(() => ServicesDetails(
-              categoryId: widget.service.categoryId!.id ?? '',
-              subcategoryId: widget.service.subcategoryId!.id,
-              categoryName: widget.service.categoryId!.categoryName ?? '',
-              subcategoryName: widget.service.subcategoryId!.subcategoryName,
-              serviceName: widget.service.listingTitle ?? 'Unknown Service',
-              cityNames: widget.service.serviceCoverage?.join(', ') ?? '',
-              kmPrice: (widget.service.pricing?.hourlyRate ?? 0).toDouble().toStringAsFixed(2),
-              minDistance: 'N/A',
-              maxDistance: 'N/A',
-              description: widget.service.marketing?.description ?? '',
-              airon_fitted: 'no',
-              wheelChair: 'no',
-              bookingDateFrom: widget.service.bookingAvailabilityDateFrom?.toIso8601String() ?? '',
-              bookingDateTo: widget.service.bookingAvailabilityDateTo?.toIso8601String() ?? '',
-              makeAndModel: '',
-              registration: '',
-              noOfSeats: null,
-              serviceImage: (widget.service.serviceImages?.isNotEmpty ?? false) ? widget.service.serviceImages![0] : '',
-              service: widget.service,
-              carriageTypes: widget.service.carriageDetails?.carriageType ?? '',
-              horseTypes: widget.service.carriageDetails?.horseBreeds.join(', ') ?? '',
-            ));
-      } else if (widget.service.sourceModel == 'chauffeur') {
-        Get.to(() => ServicesDetails(
-              categoryId: widget.service.categoryId!.id ?? '',
-              subcategoryId: widget.service.subcategoryId!.id,
-              categoryName: widget.service.categoryId!.categoryName ?? '',
-              subcategoryName: widget.service.subcategoryId!.subcategoryName,
-              serviceName: widget.service.listingTitle ?? 'Unknown Service',
-              cityNames: widget.service.areasCovered?.join(', ') ?? '',
-              kmPrice: (widget.service.pricingDetails?.hourlyRate ?? 0).toDouble().toStringAsFixed(2),
-              minDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
-              maxDistance: widget.service.pricingDetails?.mileageLimit?.toString() ?? '0',
-              description: widget.service.businessProfile?.promotionalDescription ?? '',
-              airon_fitted: widget.service.features?.comfort?.airConditioning == true ? 'yes' : 'no',
-              wheelChair: widget.service.features?.accessibility?.wheelchairAccessVehicle == true ? 'yes' : 'no',
-              bookingDateFrom: widget.service.bookingDateFrom?.toIso8601String() ?? '',
-              bookingDateTo: widget.service.bookingDateTo?.toIso8601String() ?? '',
-              makeAndModel: widget.service.fleetInfo?.makeAndModel ?? '',
-              registration: '',
-              noOfSeats: widget.service.fleetInfo?.seats,
-              serviceImage: (widget.service.serviceImage?.isNotEmpty ?? false) ? widget.service.serviceImage![0] : '',
-              service: widget.service,
-              vehicleType: widget.service.fleetType ?? '',
-            ));
-      } else {
-         Get.to(() => ServicesDetails(
-              categoryId: widget.service.categoryId?.id ?? '',
-              subcategoryId: widget.service.subcategoryId?.id ?? '',
-              categoryName: widget.service.categoryId?.categoryName ?? '',
-              subcategoryName: widget.service.subcategoryId?.subcategoryName ?? '',
-              serviceName: widget.service.listingTitle ?? widget.service.serviceName ?? 'Service',
-              cityNames: widget.service.city ?? '',
-              kmPrice: '0.00',
-              description: widget.service.description ?? '',
-              bookingDateFrom: widget.service.bookingDateFrom?.toIso8601String() ?? '',
-              bookingDateTo: widget.service.bookingDateTo?.toIso8601String() ?? '',
-              serviceImage: (widget.service.serviceImage?.isNotEmpty ?? false) ? widget.service.serviceImage![0] : '',
-              service: widget.service,
-            ));
-      }
-    } else {
-      Get.snackbar('Error', 'Category or Subcategory is missing');
+    final String serviceId = widget.service.id ?? '';
+
+    if (serviceId.isEmpty) {
+      Get.snackbar('Error', 'Service ID is missing');
+      return;
     }
+
+    // Correctly detect service type from sourceModel or category/subcategory
+    final String sourceModel = (widget.service.sourceModel ?? '').toLowerCase();
+    final String category = (widget.service.categoryId?.categoryName ?? '').toLowerCase();
+    final String subcategory = (widget.service.subcategoryId?.subcategoryName ?? '').toLowerCase();
+
+    String serviceType = 'coach'; // default
+
+    if (sourceModel.contains('horse') || subcategory.contains('horse') || category.contains('horse')) {
+      serviceType = 'horse';
+    } else if (sourceModel.contains('boat') || subcategory.contains('boat') || category.contains('boat')) {
+      serviceType = 'boat';
+    } else if (sourceModel.contains('limousine') || 
+               sourceModel.contains('chauffeur') || 
+               subcategory.contains('limousine') || 
+               subcategory.contains('chauffeur')) {
+      serviceType = 'limousine';
+    } else if (sourceModel.contains('minibus') || subcategory.contains('minibus')) {
+      serviceType = 'minibus';
+    }
+    // coach is default
+
+    print("Navigating to details | ID: $serviceId | Type: $serviceType | Source: $sourceModel");
+
+    Get.toNamed(
+      UserRoutesName.serviceDetails,
+      arguments: {
+        'serviceId': serviceId,
+        'serviceType':sourceModel,
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    String imageUrl = (widget.service.serviceImage?.isNotEmpty ?? false)
+    String imageUrl = (widget.service.serviceImage?.isNotEmpty == true)
         ? widget.service.serviceImage![0]
-        : (widget.service.primaryImage?.isNotEmpty ?? false)
+        : (widget.service.primaryImage?.isNotEmpty == true)
             ? widget.service.primaryImage!
-            : 'https://hireanything.com/image/about.png';
+            : (widget.service.serviceImages?.isNotEmpty == true)
+                ? widget.service.serviceImages![0]
+                : 'https://hireanything.com/image/about.png';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20, left: 10, right: 10),
@@ -194,129 +119,122 @@ class _ServiceCardState extends State<ServiceCard> {
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: Image.network(
                     imageUrl,
                     height: 200,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        color: Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    },
                     errorBuilder: (context, error, stackTrace) => Container(
                       height: 200,
                       color: Colors.grey[200],
-                      child: Icon(Icons.image_not_supported, color: Colors.grey),
+                      child: const Icon(Icons.image_not_supported, color: Colors.grey, size: 50),
                     ),
                   ),
                 ),
-                // Verified Badge
                 Positioned(
                   top: 12,
                   left: 12,
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20),
+                      color: const Color(0x80000000),
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
                     ),
                     child: Row(
-                      children: [
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
                         Icon(Icons.verified_user_outlined, color: Colors.white, size: 16),
                         SizedBox(width: 4),
                         Text(
                           'Verified',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Favorite Icon
                 Positioned(
                   top: 12,
                   right: 12,
                   child: CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 18,
-                    child: Icon(Icons.favorite_border, color: Colors.grey, size: 20),
+                    child: Icon(Icons.favorite_border, color: Colors.grey[700], size: 20),
                   ),
                 ),
-                // Price Overlay
                 Positioned(
                   bottom: 12,
                   right: 12,
-                  child: Text(
-                    _getPriceString(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(0, 1),
-                          blurRadius: 3.0,
-                          color: Colors.black.withOpacity(0.5),
-                        ),
-                      ],
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _getPriceString(),
+                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
               ],
             ),
 
-            // Content Section
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tags
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      if (widget.service.categoryId?.categoryName != null)
-                        _buildTag(widget.service.categoryId!.categoryName!),
-                      if (widget.service.subcategoryId?.subcategoryName != null)
-                        _buildTag(widget.service.subcategoryId!.subcategoryName!),
+                      if (widget.service.categoryId?.categoryName?.trim().isNotEmpty == true)
+                        _buildTag(widget.service.categoryId!.categoryName!.trim()),
+                      if (widget.service.subcategoryId?.subcategoryName?.trim().isNotEmpty == true)
+                        _buildTag(widget.service.subcategoryId!.subcategoryName!.trim()),
                     ],
                   ),
-                  SizedBox(height: 12),
-                  
-                  // Title
+                  const SizedBox(height: 12),
+
                   Text(
-                    widget.service.serviceName ?? widget.service.listingTitle ?? 'Service Name',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    maxLines: 1,
+                    widget.service.serviceName?.trim().isNotEmpty == true
+                        ? widget.service.serviceName!
+                        : widget.service.listingTitle?.trim().isNotEmpty == true
+                            ? widget.service.listingTitle!
+                            : 'Service Name',
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                  // Location
                   Row(
                     children: [
                       Icon(Icons.location_on_outlined, color: Colors.grey[600], size: 20),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '  +682 more', // Hardcoded suffix as per image request
+                          _getLocationString(),
                           style: TextStyle(color: Colors.grey[600], fontSize: 14),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -324,75 +242,51 @@ class _ServiceCardState extends State<ServiceCard> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 12),
 
-                  // Availability
                   Row(
                     children: [
                       Icon(Icons.calendar_today_outlined, color: Colors.grey[600], size: 18),
-                      SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Available',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14
-                            ),
-                          ),
-                          Text(
-                            _getAvailabilityString(),
-                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 12),
-
-                  // Status
-                  Row(
-                    children: [
-                      Icon(Icons.check_circle_outline, color: Colors.green, size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Available Now',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _getAvailabilityString(),
+                          style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 14),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
-                  // Button
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle_outline, color: Colors.green, size: 20),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Available Now',
+                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _navigateToDetails,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF1976D2), // Blue color from image
+                        backgroundColor: const Color(0xFF1976D2),
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 2,
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'Booking and Details',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          Text('Booking and Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                           SizedBox(width: 8),
                           Icon(Icons.arrow_forward, size: 20),
                         ],
@@ -410,18 +304,14 @@ class _ServiceCardState extends State<ServiceCard> {
 
   Widget _buildTag(String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Color(0xFFE3F2FD), // Light blue
+        color: const Color(0xFFE3F2FD),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: Color(0xFF1976D2), // Blue text
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
+        style: const TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.w600, fontSize: 12),
       ),
     );
   }

@@ -21,6 +21,7 @@ class UserRoutesName {
   // Info Routes
   static const String WhyChooseUsScreen = '/WhyChooseUsScreen';
   
+  static const String serviceDetails = '/service-details';
   // Legacy Routes (Consider deprecating)
   static const String loginUserView = '/user_login_view';
   static const String registerUserView = '/user_signup_view';
