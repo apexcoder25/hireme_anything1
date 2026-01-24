@@ -1,4 +1,4 @@
-package com.hire_any_thing
+package com.prakhar.hireanything
 
 import io.flutter.embedding.android.FlutterActivity
 

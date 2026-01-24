@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hire_any_thing/User_app/views/subCategoryPage/electricianDetail.dart';
 import 'package:hire_any_thing/User_app/views/user_profle/controller/user_profile_controller.dart';
 import 'package:hire_any_thing/res/routes/routes_name.dart';
 import 'package:hire_any_thing/splash.dart';
 import 'package:hire_any_thing/utilities/AppFonts.dart';
-import 'package:hire_any_thing/User_app/views/subCategoryPage/electricianDetail.dart';
 
 ProductDetails? selectedProduct;
 
@@ -26,7 +26,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key});           
 
   // This widget is the root of your application.
   @override
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
         getPages:AppRoutes.appRoutes(),
         // home:EditProfileScreen()
 
-       home: Splash(),
+       home: Splash()
        
 
        // home: AddServiceScreenServiceSecond()

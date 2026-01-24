@@ -338,7 +338,10 @@ class Service {
             : List<Coupon>.from(
                 (json["coupons"] as List).map((x) => Coupon.fromJson(x)),
               ),
-        createdAt: DateTime.parse(json["createdAt"]),
+        createdAt: json["createdAt"] == null
+    ? DateTime.fromMillisecondsSinceEpoch(0)
+    : DateTime.parse(json["createdAt"]),
+
         updatedAt: json["updatedAt"] == null
             ? null
             : DateTime.parse(json["updatedAt"]),

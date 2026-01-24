@@ -1,9 +1,10 @@
 plugins {
     id "com.android.application"
-    id "kotlin-android"
+    id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
-    id 'com.google.gms.google-services'
+    id "com.google.gms.google-services"
 }
+
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
@@ -30,8 +31,8 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.hire_any_thing"
-    compileSdkVersion 34
+    namespace "com.prakhar.hireanything"
+    compileSdkVersion 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -40,7 +41,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
@@ -48,9 +49,9 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.hire_any_thing"
+        applicationId "com.prakhar.hireanything"
         minSdkVersion 23
-        targetSdkVersion 34
+        targetSdkVersion 35
         multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
